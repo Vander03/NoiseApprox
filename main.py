@@ -10,4 +10,5 @@ if __name__ == '__main__':
     network = basic_net.Triplet(num_qubits)
     network.train(triplets)
 
-    network.plot_loss()
+    # network.plot_loss()
+    network.plot_embeddings(triplets, labels)

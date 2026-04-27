@@ -18,15 +18,17 @@ from sklearn.metrics import accuracy_score
 import itertools
 import pandas as pd
 import os
+
 class Triplet:
     def __init__(self, num_qubits):
         self.weights_list = []
         self.num_wires = num_qubits
         self.num_layers = 4
         self.batch_size = 30
-        self.epochs = 100
+        self.epochs = 500
         self.embed_dims = 5
         self.losses = []
+        
         
     def train(self, triplets):
         opt = qml.GradientDescentOptimizer(stepsize=0.1)
@@ -72,22 +74,22 @@ class Triplet:
             flattened = []
             for i, j, k in zip(im[0], im[1], im[2]):
                 flattened.append(i)
-            A = self.embed(self, weights, np.array(flattened))
+            A = self.layers(self, weights, np.array(flattened))
             flattened = []
             for i, j, k in zip(im[0], im[1], im[2]):
                 flattened.append(j)
-            P = self.embed(self, weights, np.array(flattened))
+            P = self.layers(self, weights, np.array(flattened))
             flattened = []
             for i, j, k in zip(im[0], im[1], im[2]):
                 flattened.append(k)
-            N = self.embed(self, weights, np.array(flattened))
+            N = self.layers(self, weights, np.array(flattened))
             loss += (np.square(A[0]-P[0]) + np.square(A[1]-P[1])) - (np.square(A[0]-N[0]) + np.square(A[1]-N[1]))
         #print(str(loss))
         #print(f'Epoch: {self.cur_epoch} Accuracy: {100* correct / (len(features))}')
         return loss / len(features)
 
-    @qml.qnode(qml.device(name='default.qubit', wires=13))
-    def embed(self, weights, features=None):
+    @qml.qnode(qml.device(name='lightning.qubit', wires=13))
+    def layers(self, weights, features=None):
         AmplitudeEmbedding(features=features.astype('float64'), wires=range(self.num_wires), normalize=True, pad_with=0)
         #AmplitudeEmbedding(features=features.astype('float64'), wires=range(2), normalize=True, pad_with=0)
         for W in weights:
@@ -109,7 +111,7 @@ class Triplet:
                 flattened = []
                 for i, j, k in zip(im[0], im[1], im[2]):
                     flattened.append(i)
-                z_out1 = self.embed(self, weights, np.array(flattened))
+                z_out1 = self.layers(self, weights, np.array(flattened))
                 embeddings.append(z_out1)
             
             num_clusters = 3
@@ -149,4 +151,50 @@ class Triplet:
         return y_hats
 
 
-    
+    def get_embeddings(self, triplets, weights=None):
+        if weights is None:
+            # use model weights if no past weights are supplied
+            weights = self.weights
+        embeddings = []
+        for im in tqdm(triplets, desc="Generating embeddings"):
+            flattened = []
+            for i, j, k in zip(im[0], im[1], im[2]):
+                # grab the acnhor image and flatten it
+                flattened.append(i)
+            z_out = self.layers(self, weights, np.array(flattened))
+            embeddings.append(numpy.array([float(z) for z in z_out]))
+        return numpy.array(embeddings)
+
+    def plot_embeddings(self, triplets, labels, weights=None):
+        embeddings = self.get_embeddings(triplets, weights)
+        anchor_labels = [int(l[0]) for l in labels]  # just the anchor label per triplet
+
+        # GMM clustering
+        num_classes = len(set(anchor_labels))
+        gmm = GaussianMixture(n_components=num_classes, random_state=42, n_init=10)
+        gmm.fit(embeddings)
+
+        # plot
+        unique_labels = sorted(set(anchor_labels))
+        colors = plt.cm.tab10(numpy.linspace(0, 1, len(unique_labels)))
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        for label, color in zip(unique_labels, colors):
+            mask = [i for i, l in enumerate(anchor_labels) if l == label]
+            ax.scatter(
+                embeddings[mask, 0], embeddings[mask, 1],
+                label=f'Class {label}',
+                color=color,
+                alpha=0.7,
+                s=30,
+                edgecolors='none'
+            )
+
+        ax.set_xlabel('Z₀ expectation')
+        ax.set_ylabel('Z₁ expectation')
+        ax.set_title('SLIQ Baseline Embeddings — MNIST')
+        ax.legend()
+        plt.tight_layout()
+        plt.savefig('sliq_embeddings.png', dpi=150)
+        plt.show()
