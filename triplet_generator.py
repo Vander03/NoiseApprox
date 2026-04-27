@@ -19,11 +19,6 @@ def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=Fa
     the second the positive example, and the third the negative example. 'indices[j][1]' gives the index of the positive
     example of the jth triplet in the pre-triplet data, after filtering for the label space and performing PCA
     """
-
-    if dataset == 'Landscape':
-        return generate_landscape_triplets(num_triplets, testing)
-    elif dataset == 'Aids':
-        return generate_aids(num_triplets, testing)
     x, y = load_data(dataset, testing)
     x, y = filter_labels(x, y, label_space)
     x = scale_data(preprocessing.normalize(x))
@@ -129,8 +124,6 @@ def scale_data(data, scale=None, dtype=np.float32):
     data = ((max_scale - min_scale) * (data - min_data) / (max_data - min_data)) + min_scale
     return data.astype(dtype)
 
-
-
 def generate_pca_triplets_batch(dataset, num_qubits, label_space=10, batch_size=2):
     x, y = load_data(dataset)
     x, y = filter_labels(x, y, label_space)
@@ -165,131 +158,3 @@ def generate_pca_triplets_batch(dataset, num_qubits, label_space=10, batch_size=
 
         labels.append(([y[index] for i in range(batch_size)], [y[index] for i in range(batch_size)], [y[i] for i in negs_in]))
     return triplets, image_indices, labels
-def get_color_density(image):
-    num_bins = 8
-    bin_threshold = 256 // num_bins
-    red = image[..., 0]
-    green = image[..., 1]
-    blue = image[..., 2]
-    red_bin = np.reshape(red // bin_threshold, [-1,])
-    green_bin = np.reshape(green // bin_threshold, [-1])
-    blue_bin = np.reshape(blue // bin_threshold, [-1])
-    red_count = [0 for _ in range(num_bins)]
-    blue_count = [0 for _ in range(num_bins)]
-    green_count = [0 for _ in range(num_bins)]
-    for r, g, b, in zip(red_bin, blue_bin, green_bin):
-        red_count[r]+=1
-        blue_count[g]+=1
-        green_count[b]+=1
-    return red_count, blue_count, green_count
-
-def generate_landscape_triplets(num_triplets, testing=False):
-    path = 'datasets/Landscapes'
-    if testing:
-        files = [f for f in listdir(path) if isfile(join(path, f))]
-        files.sort()
-        files = files[int(.8*len(files)):]
-    else:
-        files = [f for f in listdir(path) if isfile(join(path, f))]
-        files.sort()
-        files = files[:int(.8*len(files))]
-    num_files = len(files)
-    new_width, new_height = 50, 50
-    image_triplets = []
-    image_indecies = []
-    for _ in range(num_triplets):
-        indecies = []
-        triplets = []
-        images = []
-        for i in range(3):
-            index = int(np.floor(random.random() * num_files))
-            im = Image.open('datasets/Landscapes/' + str(files[index]))
-            width, height = im.size
-            left = (width - new_width)//2
-            top = (height - new_height)//2
-            right = (width + new_width)//2
-            bottom = (height + new_height)//2
-            im = im.crop((left, top, right, bottom))
-            r_bin, g_bin, b_bin = get_color_density(np.array(im))
-            triplets.append(np.array(r_bin + g_bin + b_bin))
-            indecies.append(index)
-            images.append(np.reshape(np.array(im), [-1, ]))
-        dist1 = np.sum(np.power(triplets[0]- triplets[1],2)) ** .5
-        dist2 = np.sum(np.power(triplets[0]- triplets[2],2)) ** .5
-        if dist1 < dist2:
-            image_triplets.append((images[0], images[1], images[2]))
-            image_indecies.append((indecies[0], indecies[1], indecies[2]))
-        else:
-            image_triplets.append((images[0], images[1], images[2]))
-            image_indecies.append((indecies[0], indecies[2], indecies[1]))
-    return image_triplets, image_indecies, None
-
-def generate_aids(num_triplets=5000, testing=False):
-    path = 'datasets/Aids'
-    triplet_labels = []
-    with open(os.path.join(path, 'aids_conc_may04.txt')) as f:
-        lines = f.read()
-    lines = [tuple(i.replace(' ', '').split(',')) for i in lines.split('\n') if tuple(i.replace(' ', '').split(','))[0].isnumeric()][1:]
-    labels = [(int(i[0]), i[1]) for i in lines]
-        
-    data = {}
-    with open(os.path.join(path, 'aids_ec50_may04.txt')) as f:
-        lines = f.read()
-
-    for line in lines.split('\n')[1:]:
-        if len(line.split(',')) == 7:
-            NSC,Log10HiConc,ConcUnit,Flag,Log10EC50,NumExp,StdDev = line.split(',')
-            Flag = 0 if Flag == '>' else 1
-            data[int(NSC)] = [Log10HiConc, Flag, Log10EC50, NumExp]
-    indecies = []
-    triplets = []
-    images = []
-    label_set = ['CI', 'CM', 'CA']
-    for l in tqdm(range(1500)):
-        index = None
-        label = None
-        if l < num_triplets / 3:
-            needed_class = 'CI'
-        elif l < (2 * num_triplets) / 3:
-            needed_class = 'CM'
-        else:
-            needed_class = 'CA'
-        while index not in data or label != needed_class:
-            anchor = labels[int(np.floor(random.random() * len(labels)))]
-            index, label = anchor[0], anchor[1]
-        n_index = None
-        p_index = None
-        p_label = None
-        n_label = label
-        while p_label != label or not p_index in data:
-            p = labels[int(np.floor(random.random() * len(labels)))]
-            p_index, p_label = p[0], p[1]
-
-        bad_label = random.random() > .5
-        if label == 'CM' and bad_label:
-            bad_label = 'CA'
-        elif label == 'CM':
-            bad_label = 'CI'
-
-        if label == 'CA' and bad_label:
-            bad_label = 'CI'
-        elif label == 'CA':
-            bad_label = 'CM'
-        # Find a "negative" example, one in a DIFFERENT class as "index"
-        while n_label == label or not n_index in data or n_label == bad_label:
-            n = labels[int(np.floor(random.random() * len(labels)))]
-            n_index, n_label = n[0], n[1]
-
-        indecies.append((index, p_index, n_index))
-        triplet_labels.append((label, p_label, n_label))
-        triplets.append((data[index], data[p_index], data[n_index]))
-    test_range = [i for i in range(1500) if i < 200 or (i < 700 and i > 500) or (i > 1300)]
-    if testing:
-        triplets = [triplets[i][0] for i in test_range]
-        indecies = [indecies[i][0] for i in test_range]
-        triplet_labels = [triplet_labels[i][0] for i in test_range]
-    else:
-        triplets = [triplets[i][0] for i in range(1500) if i not in test_range]
-        indecies = [indecies[i][0] for i in range(1500) if i not in test_range]
-        triplet_labels = [triplet_labels[i][0] for i in range(1500) if i not in test_range]
-    return triplets, indecies, triplet_labels

@@ -4,11 +4,8 @@ from pennylane.templates import AmplitudeEmbedding
 import numpy
 from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
-import random
-from PIL import Image
 from os import listdir
 from os.path import isfile, join
-from triplet_generator import get_color_density
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
 from sklearn.svm import SVC
@@ -18,30 +15,54 @@ from tqdm import tqdm
 from sklearn.metrics import accuracy_score
 import itertools
 import pandas as pd
-import os
+from collections import defaultdict
+
+
 class Triplet:
     def __init__(self, num_qubits):
         self.weights_list = []
         self.num_wires = num_qubits
         self.num_layers = 4
         self.batch_size = 20
-        self.epochs = 501
+        self.epochs = 50
         self.embed_dims = 5
         self.losses = []
+        
     def train(self, triplets):
         opt = qml.GradientDescentOptimizer(stepsize=0.1)
         self.weights = 0.01 * np.random.randn(self.num_layers, self.num_wires, 3)
-        for i in range(self.epochs):
+        self.loss_history = []
+
+        pbar = tqdm(range(self.epochs), desc="Training")
+        for i in pbar:
             self.cur_epoch = i
             batch_index = np.random.randint(0, len(triplets), (self.batch_size,))
             x_train_batch = [triplets[im] for im in batch_index]
             self.weights = opt.step(lambda v: self.cost_embedding(v, x_train_batch), self.weights)
-            self.losses.append(self.cost_embedding(self.weights, x_train_batch))
-            if i %20 == 0:
-                print(np.mean(self.losses))
-                self.losses = []
-                self.weights_list.append(self.weights)
-                #numpy.save('aids_new', self.weights_list)
+
+            curr_loss = float(self.cost_embedding(self.weights, x_train_batch))
+            self.loss_history.append(curr_loss)
+            self.weights_list.append(self.weights)
+
+            if i%20 == 0:
+                pbar.set_postfix(loss=f"{curr_loss:.4f}")
+
+        self.plot_loss()
+
+
+    def plot_loss(self):
+        smoothed = pd.Series(self.loss_history).rolling(window=10, min_periods=1).mean()
+        plt.figure(figsize=(10, 5))
+        plt.plot(self.loss_history, alpha=0.3, color='steelblue', label='Raw loss')
+        plt.plot(smoothed, color='steelblue', linewidth=2, label='Smoothed (10-epoch)')
+        plt.axhline(0, color='gray', linestyle='--', linewidth=0.8)
+        plt.xlabel('Epoch')
+        plt.ylabel('Triplet Loss')
+        plt.title('SLIQ Training Loss (MNIST)')
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig('sliq_loss.png', dpi=150)
+        plt.show()
 
 
     def cost_embedding(self, weights, features):
@@ -50,13 +71,10 @@ class Triplet:
             # Correct Order
             sign = 1
             flattened = []
-
-
             # #good
             for i, j, k in zip(im[0], im[1], im[2]):
                 flattened.append(i)
                 flattened.append(j)
-
 
             #bad ends also cycle loss
             z_out1 = self.embed(self, weights, np.array(flattened))
@@ -75,7 +93,7 @@ class Triplet:
             loss += .1*consistancy_loss
         return loss / len(features)
 
-    @qml.qnode(qml.device(name='default.qubit', wires=11))
+    @qml.qnode(qml.device(name='lightning.qubit', wires=11))
     def embed(self, weights, features=None):
         AmplitudeEmbedding(features=features.astype('float64'), wires=range(self.num_wires), normalize=True, pad_with=0)
         #AmplitudeEmbedding(features=features.astype('float64'), wires=range(3), normalize=True, pad_with=0)
@@ -90,92 +108,9 @@ class Triplet:
             qml.Rot(W[i, 0], W[i, 1], W[i, 2], wires=i)
         for wire in range(self.num_wires-1):
             qml.CNOT(wires=[wire, self.num_wires-1])
+
     def triplet_loss(self, z_out):
         return np.abs(z_out[0] - z_out[2]) + np.abs(z_out[1] - z_out[3])
-    def find_closest(self, triplets, indecies):
-        weights = numpy.load('landscape_weights_4_layers.npy')
-        path = 'datasets/Landscapes'
-        files = [f for f in listdir(path) if isfile(join(path, f))]
-        files.sort()
-        all_losses = []
-        all_distances = []
-        for l in tqdm(range(len(triplets))):
-            distance_tuples = []
-            loss_tuples = []
-            min_loss = 10e5
-            anchor_image = triplets[l][0]
-            anchor_index = indecies[l][0]
-            dists = []
-            closest_dist = 10e5
-            for image, indexes in zip(triplets, indecies):
-                if indexes[0] != anchor_index:
-                    flattened = []
-                    for i, j, in zip(anchor_image, image[0]):
-                        flattened.append(i)
-                        flattened.append(j)
-                    loc1 = self.embed(self, weights, features=np.array(flattened))
-                    flattened = []
-                    for i, j, in zip(anchor_image, image[0]):
-                        flattened.append(j)
-                        flattened.append(i)
-                    loc2 = self.embed(self, weights, features=np.array(flattened))
-                    loss = sum([np.abs(i-j) for i,j in zip(loc1, loc2)])
-
-
-
-
-                    im = Image.open('datasets/Landscapes/' + str(files[anchor_index]))
-                    new_width, new_height = 80, 80
-                    width, height = im.size
-                    left = (width - new_width)//2
-                    top = (height - new_height)//2
-                    right = (width + new_width)//2
-                    bottom = (height + new_height)//2
-                    im1= im.crop((left, top, right, bottom))
-
-
-                    im = Image.open('datasets/Landscapes/' + str(files[indexes[0]]))
-                    new_width, new_height = 80, 80
-                    width, height = im.size
-                    left = (width - new_width)//2
-                    top = (height - new_height)//2
-                    right = (width + new_width)//2
-                    bottom = (height + new_height)//2
-                    im2= im.crop((left, top, right, bottom))
-
-                    anchor_r, anchor_g, anchor_b = get_color_density(np.array(im1))
-                    new_r, new_g, new_b = get_color_density(np.array(im2))
-                    dist = np.sum(np.power(np.array(anchor_r+anchor_g+anchor_b)- np.array(new_r+new_g+new_b),2)) ** .5
-                    dists.append(dist)
-                    distance_tuples.append((float(dist), files[indexes[0]]))
-                    loss_tuples.append((float(loss), files[indexes[0]]))
-                    if loss < min_loss:
-                        min_loss = loss
-                        closest_index = indexes[0]
-                        closest_dist = dist
-            distance_tuples.sort()
-            loss_tuples.sort()
-            
-            all_losses.append(loss_tuples)
-            all_distances.append(distance_tuples)
-            im = Image.open('datasets/Landscapes/' + str(files[anchor_index]))
-            new_width, new_height = 80, 80
-            width, height = im.size
-            left = (width - new_width)//2
-            top = (height - new_height)//2
-            right = (width + new_width)//2
-            bottom = (height + new_height)//2
-            im1= im.crop((left, top, right, bottom))
-
-            im2 = Image.open('datasets/Landscapes/' + str(files[closest_index]))
-            new_width, new_height = 80, 80
-            width, height = im2.size
-            left = (width - new_width)//2
-            top = (height - new_height)//2
-            right = (width + new_width)//2
-            bottom = (height + new_height)//2
-            im2 = im2.crop((left, top, right, bottom))
-            Image.fromarray(np.hstack((np.array(im1),np.array(im2)))).save(f'SliqImages/{l}.jpg')
 
 
     def eval_acc(self, triplets, labels, weights_file):
@@ -200,26 +135,6 @@ class Triplet:
                 z_out1 = self.embed(self, weights, np.array(flattened))
                 embeddings.append(np.reshape(z_out1, [-1]))
 
-            if 'mnist' not in weights_file and 'fashion' not in weights_file:
-                kmeans = GaussianMixture(3)
-                kmeans.fit(embeddings)
-                y_hat = kmeans.predict(embeddings)
-                y = [i[0] for i in labels]
-                color_map={'CI': 'r', 'CM': 'b', 'CA': 'g'}
-                for count, l in enumerate(embeddings):
-                    plt.scatter(l[0], l[1], color=color_map[y[count]])
-                plt.show()
-                max_cor = 0
-                for lab_set in [['CI', 'CA', 'CM'], ['CI', 'CM', 'CA'], ['CA', 'CM', 'CI'], ['CA', 'CI', 'CM'], ['CM', 'CA', 'CI'], ['CM', 'CI', 'CA']]:
-                    num_cor = 0
-                    lab_dict = {lab_set[0]: 0, lab_set[1]: 1, lab_set[2]: 2}
-                    for i, j in zip(y_hat, y):
-                        if i == lab_dict[j]:
-                            num_cor +=1
-                    max_cor = max(num_cor, max_cor)
-                print(100*max_cor / len(triplets))
-                
-                accuracies.append(100*max_cor / len(triplets))
             else:
                 num_clusters = 2
                 if '4_classes' in weights_file:
@@ -272,42 +187,6 @@ class Triplet:
             #print(i,j)
             #losses.append(float(np.abs(i[0] - j[2]) + float(np.abs(i[1] - j[3]))))
             losses.append(float(np.abs(i[0] - j[2]) + float(np.abs(i[1] - j[3])) + float(np.abs(i[2] - j[0])) + float(np.abs(i[3] - j[1]))))
-        print(np.mean(losses))
+        print(f"Losses: {np.mean(losses)}")
         return losses
         
-    def eval_real_machine(self, csv_file):
-        with open(os.path.join(csv_file)) as f:
-            lines = f.read()
-        lines = [tuple(i.replace(' ', '').split(',')) for i in lines.split('\n') if i!='']
-        r_ind = np.random.randint(0, len(lines), (395,))
-        labels = [i[1] for i in lines]
-        data = [i[5:] for i in lines]
-        labels = list(np.array(labels)[r_ind])
-        data = list(np.array(data)[r_ind])
-        float_data = []
-        for t in data:
-            float_data.append([float(o) for o in t])
-        data = float_data
-        kmeans = GaussianMixture(3)
-        kmeans = KMeans(3)
-        kmeans.fit(data)
-        y_hat = kmeans.predict(data)
-        y = [i for i in labels]
-
-        max_cor = 0
-        for lab_set in [['CI', 'CA', 'CM'], ['CI', 'CM', 'CA'], ['CA', 'CM', 'CI'], ['CA', 'CI', 'CM'], ['CM', 'CA', 'CI'], ['CM', 'CI', 'CA']]:
-            num_cor = 0
-            lab_dict = {0: lab_set[0], 1: lab_set[1], 2: lab_set[2]}
-            for i, j in zip(y_hat, labels):
-                if lab_dict[i] == j:
-                    num_cor +=1
-            max_cor = max(num_cor, max_cor)
-        print(100*max_cor / len(data))
-    # def f_loss(self, lis):
-    #     loss=0
-    #     if len(lis)%2!=0:
-    #         return None
-    #     for i in range(int(len(lis)/2)):
-    #         #print(i,i+len(lis)/2)
-    #         loss = loss + np.abs(lis[i]-lis[int(i+len(lis)/2)])
-    #     return loss
