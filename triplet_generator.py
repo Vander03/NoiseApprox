@@ -21,8 +21,9 @@ def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=Fa
     """
     x, y = load_data(dataset, testing)
     x, y = filter_labels(x, y, label_space)
-    x = scale_data(preprocessing.normalize(x))
-    return generate_triplets(x, y, num_triplets)
+    # x = scale_data(preprocessing.normalize(x))
+    x = perform_pca(x=x)
+    return generate_augmented_triplets(x, y, num_triplets)
 
 
 def load_data(dataset, testing):
@@ -106,6 +107,30 @@ def generate_triplets(x, y, size=5000):
         image_indices.append((index, p_index, n_index))
         labels.append((y[index], y[p_index], y[n_index]))
     return triplets, image_indices, labels
+
+def generate_augmented_triplets(x, y, num_triplets=5000):
+    triplets = []
+    labels = []
+    for _ in range(num_triplets):
+        idx = random.randint(0, len(x) - 1)
+        idy = y[idx] # save its label only for GMM evaluation
+        anchor = x[idx]
+        positive = augment(anchor)
+        neg_idx = idx
+        while neg_idx == idx:
+            neg_idx = random.randint(0, len(x) - 1)
+        negative = x[neg_idx]
+        
+        triplets.append((anchor, positive, negative))
+        labels.append(idy)
+    return triplets, labels
+
+def augment(image, pca_dims=32):
+    # image is already PCA-reduced, shape (32,)
+    # add small gaussian noise
+    noise = np.random.normal(0, 0.05, image.shape)
+    augmented = np.clip(image + noise, 0, 1)
+    return augmented.astype(np.float32)
 
 
 def scale_data(data, scale=None, dtype=np.float32):
