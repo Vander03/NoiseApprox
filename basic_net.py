@@ -18,6 +18,7 @@ from sklearn.metrics import accuracy_score
 import itertools
 import pandas as pd
 import os
+
 class Triplet:
     def __init__(self, num_qubits):
         self.weights_list = []
@@ -28,8 +29,10 @@ class Triplet:
         self.embed_dims = 5
         self.losses = []
         
+        
     def train(self, triplets):
-        opt = qml.GradientDescentOptimizer(stepsize=0.1)
+        # opt = qml.GradientDescentOptimizer(stepsize=0.1)
+        opt = qml.AdamOptimizer(stepsize=0.01)
         self.weights = 0.01 * np.random.randn(self.num_layers, self.num_wires, 3)
         self.loss_history = []
 
@@ -68,26 +71,17 @@ class Triplet:
     def loss(self, weights, features):
         loss = 0
         for im in features:
-            # Correct Order
-            flattened = []
-            for i, j, k in zip(im[0], im[1], im[2]):
-                flattened.append(i)
-            A = self.embed(self, weights, np.array(flattened))
-            flattened = []
-            for i, j, k in zip(im[0], im[1], im[2]):
-                flattened.append(j)
-            P = self.embed(self, weights, np.array(flattened))
-            flattened = []
-            for i, j, k in zip(im[0], im[1], im[2]):
-                flattened.append(k)
-            N = self.embed(self, weights, np.array(flattened))
-            loss += (np.square(A[0]-P[0]) + np.square(A[1]-P[1])) - (np.square(A[0]-N[0]) + np.square(A[1]-N[1]))
+            A = self.layers(self, weights, np.array(im[0]))
+            P = self.layers(self, weights, np.array(im[1]))
+            N = self.layers(self, weights, np.array(im[2]))
+            # loss += (np.square(A[0]-P[0]) + np.square(A[1]-P[1])) - (np.square(A[0]-N[0]) + np.square(A[1]-N[1]))
+            loss += (np.abs(A[0]-P[0]) + np.abs(A[1]-P[1])) - (np.abs(A[0]-N[0]) + np.abs(A[1]-N[1]))
         #print(str(loss))
         #print(f'Epoch: {self.cur_epoch} Accuracy: {100* correct / (len(features))}')
         return loss / len(features)
 
-    @qml.qnode(qml.device(name='default.qubit', wires=13))
-    def embed(self, weights, features=None):
+    @qml.qnode(qml.device(name='lightning.qubit', wires=6))
+    def layers(self, weights, features=None):
         AmplitudeEmbedding(features=features.astype('float64'), wires=range(self.num_wires), normalize=True, pad_with=0)
         #AmplitudeEmbedding(features=features.astype('float64'), wires=range(2), normalize=True, pad_with=0)
         for W in weights:
@@ -109,7 +103,7 @@ class Triplet:
                 flattened = []
                 for i, j, k in zip(im[0], im[1], im[2]):
                     flattened.append(i)
-                z_out1 = self.embed(self, weights, np.array(flattened))
+                z_out1 = self.layers(self, weights, np.array(flattened))
                 embeddings.append(z_out1)
             
             num_clusters = 3
@@ -149,4 +143,75 @@ class Triplet:
         return y_hats
 
 
-    
+    def get_embeddings(self, triplets, weights=None):
+        if weights is None:
+            # use model weights if no past weights are supplied
+            weights = self.weights
+        embeddings = []
+        for im in tqdm(triplets, desc="Generating embeddings"):
+            z_out = self.layers(self, weights, np.array(im[0]))
+            embeddings.append(numpy.array([float(z) for z in z_out]))
+        return numpy.array(embeddings)
+
+    def plot_embeddings(self, triplets, labels, test_triplets=None, test_labels=None, weights=None):
+        embeddings = self.get_embeddings(triplets, weights)
+        anchor_labels = [int(l) for l in labels]
+
+        has_test = test_triplets is not None
+        if has_test:
+            test_embeddings = self.get_embeddings(test_triplets, weights)
+            test_anchor_labels = [int(l) for l in test_labels]
+
+        eval_embeddings = test_embeddings if has_test else embeddings
+        eval_labels = test_anchor_labels if has_test else anchor_labels
+
+        # GMM - fit on train, evaluate on eval set
+        num_classes = len(set(anchor_labels))
+        gmm = GaussianMixture(n_components=num_classes, random_state=42, n_init=10)
+        gmm.fit(embeddings)
+        y_hat = gmm.predict(eval_embeddings)
+
+        # permutation search
+        y_hats = self.generate_y_hats(y_hat, num_classes)
+        max_cor, best_yhat = 0, y_hat
+        for yh in y_hats:
+            num_cor = sum(1 for i, j in zip(yh, eval_labels) if i == j)
+            if num_cor > max_cor:
+                max_cor = num_cor
+                best_yhat = yh
+
+        accuracy = 100 * max_cor / len(eval_labels)
+        print(f"GMM Clustering Accuracy ({'test' if has_test else 'train'}): {accuracy:.2f}%")
+
+        unique_labels = sorted(set(anchor_labels))
+        colors = plt.cm.tab10(numpy.linspace(0, 1, len(unique_labels)))
+
+        n_plots = 2 if has_test else 1
+        fig, axes = plt.subplots(1, n_plots, figsize=(8 * n_plots, 6))
+        if not has_test:
+            axes = [axes]
+
+        def scatter_plot(ax, embs, lbls, title):
+            unique = sorted(set(lbls))
+            for label, color in zip(unique, colors):
+                mask = [i for i, l in enumerate(lbls) if l == label]
+                ax.scatter(
+                    embs[mask, 0], embs[mask, 1],
+                    label=f'Class {label}',
+                    color=color, alpha=0.7, s=30, edgecolors='none'
+                )
+            ax.set_xlabel('Z₀ expectation')
+            ax.set_ylabel('Z₁ expectation')
+            ax.set_title(title)
+            ax.legend()
+
+        scatter_plot(axes[0], embeddings, anchor_labels, 'Train Embeddings')
+        if has_test:
+            scatter_plot(axes[1], test_embeddings, test_anchor_labels,
+                        f'Test Embeddings\nGMM Accuracy: {accuracy:.2f}%')
+        else:
+            axes[0].set_title(f'SLIQ Baseline Embeddings — MNIST\nGMM Accuracy: {accuracy:.2f}%')
+
+        plt.tight_layout()
+        plt.savefig('sliq_embeddings.png', dpi=150)
+        plt.show()
