@@ -1,0 +1,168 @@
+{
+    "config": {
+        "epochs": 30,
+        "dataset": "MNIST",
+        "label_space": 2,
+        "pca_dims": 32,
+        "num_pairs": 240,
+        "mask_ratio": 0.1,
+        "num_encoder_qubits": 6,
+        "num_predictor_qubits": 6,
+        "num_encoder_layers": 8,
+        "num_predictor_layers": 2,
+        "embed_dim": 6,
+        "ema_decay": 0.996,
+        "backend": "qiskit.aer",
+        "batch_size": 32,
+        "shots": 300,
+        "noise_train": true,
+        "noise_lambda": 5,
+        "noise_samp_per_batch": 1,
+        "fake": false,
+        "learning_rate": 0.1,
+        "perturbation_rate": 0.05,
+        "historic_load": 10,
+        "opt": "SPSA",
+        "message": "testing performance with only 1 noise profile selected per batch, instead of the 3 of the previous run",
+        "max_train_samples" : 500,
+        "noise_profiles": [
+            {
+                "filename": "hist_ibm_marrakesh_2025-08-04.json",
+                "csc": 0.8059098649226214
+            },
+            {
+                "filename": "hist_ibm_kingston_2025-11-19.json",
+                "csc": 0.8362604477253941
+            },
+            {
+                "filename": "hist_ibm_fez_2026-02-12.json",
+                "csc": 0.851727226764761
+            },
+            {
+                "filename": "hist_ibm_kingston_2025-06-19.json",
+                "csc": 0.7963018885067005
+            },
+            {
+                "filename": "hist_ibm_kingston_2026-02-07.json",
+                "csc": 0.8410930156181254
+            },
+            {
+                "filename": "hist_ibm_kingston_2025-03-29.json",
+                "csc": 0.9297710952853052
+            },
+            {
+                "filename": "hist_ibm_fez_2025-11-02.json",
+                "csc": 0.874132178113108
+            },
+            {
+                "filename": "hist_ibm_kingston_2026-03-06.json",
+                "csc": 0.7915001787786267
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2024-11-20.json",
+                "csc": 0.8689266290071285
+            },
+            {
+                "filename": "ibm_kingston_2026-04-11.json",
+                "csc": 0.8355800156734694
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2025-08-08.json",
+                "csc": 0.8072422327725667
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2025-10-14.json",
+                "csc": 0.8549550898802007
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2025-02-21.json",
+                "csc": 0.0
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-09.json",
+                "csc": 0.8415220264509582
+            },
+            {
+                "filename": "hist_ibm_kingston_2025-07-04.json",
+                "csc": 0.8216169255174594
+            },
+            {
+                "filename": "ibm_marrakesh_2026-04-11.json",
+                "csc": 0.8138249801280012
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2025-04-29.json",
+                "csc": 0.6952913156489874
+            },
+            {
+                "filename": "hist_ibm_fez_2026-03-12.json",
+                "csc": 0.8480018639873071
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2025-01-13.json",
+                "csc": 0.0
+            },
+            {
+                "filename": "hist_ibm_fez_2025-12-28.json",
+                "csc": 0.8504130006263821
+            },
+            {
+                "filename": "hist_ibm_fez_2026-03-17.json",
+                "csc": 0.8520724480178062
+            },
+            {
+                "filename": "hist_ibm_kingston_2026-01-16.json",
+                "csc": 0.7727664979561749
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-01-22.json",
+                "csc": 0.8529941957581345
+            },
+            {
+                "filename": "hist_ibm_fez_2025-12-13.json",
+                "csc": 0.8536576872518845
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2025-01-07.json",
+                "csc": 0.0
+            },
+            {
+                "filename": "hist_ibm_kingston_2025-11-11.json",
+                "csc": 0.8306690887711492
+            },
+            {
+                "filename": "hist_ibm_fez_2025-11-30.json",
+                "csc": 0.8569686853059381
+            },
+            {
+                "filename": "hist_ibm_kingston_2026-04-08.json",
+                "csc": 0.8325606780460808
+            },
+            {
+                "filename": "hist_ibm_kingston_2025-06-20.json",
+                "csc": 0.7957981456236946
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2025-02-22.json",
+                "csc": 0.32230905834425366
+            },
+            {
+                "filename": "hist_ibm_fez_2025-10-16.json",
+                "csc": 0.8856155824622385
+            },
+            {
+                "filename": "hist_ibm_fez_2024-09-14.json",
+                "csc": 0.911909083795822
+            },
+            {
+                "filename": "ibm_fez_2026-04-11.json",
+                "csc": 0.8371338480134096
+            }
+        ]
+    },
+    "results": {
+        "final_loss": 0.1243318412409364,
+        "cluster_accuracy": 53.62,
+        "num_test_samples": 2115
+    }
+}

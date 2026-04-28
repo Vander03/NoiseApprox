@@ -1,0 +1,97 @@
+{
+    "per_profile": [
+        {
+            "backend": "hist_ibm_marrakesh_2026-04-14.json",
+            "cluster_acc": 87.8,
+            "probe_acc": 90.2,
+            "csc": 0.8003158135154974
+        },
+        {
+            "backend": "hist_ibm_kingston_2026-04-12.json",
+            "cluster_acc": 84.6,
+            "probe_acc": 88.8,
+            "csc": 0.8375375602436884
+        },
+        {
+            "backend": "hist_ibm_fez_2026-04-04.json",
+            "cluster_acc": 85.2,
+            "probe_acc": 88.0,
+            "csc": 0.8446237034104903
+        },
+        {
+            "backend": "hist_ibm_kingston_2026-04-15.json",
+            "cluster_acc": 82.39999999999999,
+            "probe_acc": 90.0,
+            "csc": 0.8387260712859516
+        },
+        {
+            "backend": "hist_ibm_marrakesh_2026-04-12.json",
+            "cluster_acc": 87.6,
+            "probe_acc": 90.8,
+            "csc": 0.8248783281015906
+        },
+        {
+            "backend": "hist_ibm_marrakesh_2026-04-08.json",
+            "cluster_acc": 87.0,
+            "probe_acc": 91.0,
+            "csc": 0.8128048665950425
+        },
+        {
+            "backend": "hist_ibm_fez_2026-04-10.json",
+            "cluster_acc": 86.0,
+            "probe_acc": 88.2,
+            "csc": 0.8354613918037558
+        },
+        {
+            "backend": "hist_ibm_marrakesh_2026-04-10.json",
+            "cluster_acc": 86.4,
+            "probe_acc": 90.4,
+            "csc": 0.8240408478562629
+        },
+        {
+            "backend": "hist_ibm_kingston_2026-04-11.json",
+            "cluster_acc": 84.6,
+            "probe_acc": 89.60000000000001,
+            "csc": 0.8355800156734694
+        },
+        {
+            "backend": "hist_ibm_fez_2026-04-16.json",
+            "cluster_acc": 85.2,
+            "probe_acc": 89.0,
+            "csc": 0.8403266883734302
+        }
+    ],
+    "summary": {
+        "n_profiles": 10,
+        "cluster": {
+            "mean": 85.68,
+            "median": 85.6,
+            "std": 1.55,
+            "min": 82.4,
+            "max": 87.8
+        },
+        "probe": {
+            "mean": 89.6,
+            "median": 89.8,
+            "std": 1.0,
+            "min": 88.0,
+            "max": 91.0
+        },
+        "csc_range": [
+            0.8,
+            0.845
+        ]
+    },
+    "holdout_profile_list": [
+        "hist_ibm_kingston_2026-04-15.json",
+        "hist_ibm_kingston_2026-04-11.json",
+        "hist_ibm_kingston_2026-04-12.json",
+        "hist_ibm_fez_2026-04-16.json",
+        "hist_ibm_fez_2026-04-04.json",
+        "hist_ibm_fez_2026-04-10.json",
+        "hist_ibm_marrakesh_2026-04-12.json",
+        "hist_ibm_marrakesh_2026-04-08.json",
+        "hist_ibm_marrakesh_2026-04-10.json",
+        "hist_ibm_marrakesh_2026-04-14.json"
+    ]
+}

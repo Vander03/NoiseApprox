@@ -1,13 +1,13 @@
 import triplet_generator
 import sliq
-import basic_net
+import model
 import numpy as np
 if __name__ == '__main__':
     dataset='MNIST'
     num_qubits = 6
     # Preprocessing
-    triplets, labels = triplet_generator.generate_pca_triplets(dataset, label_space=4, num_triplets=1000, testing=False)
-    network = basic_net.Triplet(num_qubits)
+    triplets, labels = triplet_generator.generate_pca_triplets(dataset, label_space=2, num_triplets=1000, testing=False)
+    network = model.Triplet(num_qubits, "aer", shots=300)
     network.train(triplets)
 
     # network.plot_loss()
