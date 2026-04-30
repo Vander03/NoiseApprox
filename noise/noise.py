@@ -4,6 +4,9 @@ import random
 from tqdm import tqdm
 from qiskit_ibm_runtime.models import BackendProperties
 from qiskit_aer.noise import NoiseModel
+from qiskit_aer import AerSimulator
+import pennylane as qml
+from pennylane import AmplitudeEmbedding
 
 DEBUGGING = False
 
@@ -48,7 +51,7 @@ class noise:
             filtered_files.append(filename)
 
         # if hist, pre-select which files to load before loading them
-        if self.hist_count and self.holdout_profiles:
+        if self.hist_count:
             hist_files = [f for f in filtered_files if f.startswith("hist_")]
             non_hist_files = [f for f in filtered_files if not f.startswith("hist_")]
             
@@ -57,19 +60,11 @@ class noise:
             for f in hist_files:
                 backend = "_".join(f.replace("hist_", "").split("_")[:-1])  # extract backend name
                 by_backend[backend].append(f)
-            
-            selected_hist = list(self.holdout_profiles)  # always include holdouts
-            already = set(self.holdout_profiles)
-            for backend, fnames in by_backend.items():
-                remaining = [f for f in fnames if f not in already]
-                selected_hist.extend(random.sample(remaining, min(self.hist_count, len(remaining))))
-            
-            filtered_files = non_hist_files + selected_hist
 
-        # if load_prof is not None, load the singlar profile provided
+        # if load_prof is not None, load the profiles provided
         if load_prof:
             filtered_files = []
-            filtered_files.append(load_prof)
+            filtered_files.extend(load_prof)
 
         # now load only the selected files
         profiles = []
@@ -79,17 +74,18 @@ class noise:
                 continue
             with open(filepath) as f:
                 data = json.load(f)
-            prof = self.build_backend(data, filename)
+            prof = noise.build_backend(data, filename)
             if prof is not None:
                 profiles.append(prof)
 
         return profiles
 
+    @staticmethod
     def build_backend(data, filename):
         props = BackendProperties.from_dict(data["properties"])
         try:
             noise_model = NoiseModel.from_backend_properties(props, thermal_relaxation=False)
-            if DEBUGGING: print(f"{data['backend']} - (thermal relaxation skipped — no frequency data)")
+            if DEBUGGING: print(f"{data['backend']} - (thermal relaxation skipped - no frequency data)")
         except Exception as e:
             print(f"  Skipping {filename}: {e}")
             return
@@ -143,3 +139,4 @@ class noise:
     #     Computes MSE between two embedding arrays for all embeddings in a batch
     #     """
     #     return sum([(prediction - target) ** 2 for prediction, target in zip(ideal_emb, perturbed_emb)])
+

@@ -1,17 +1,12 @@
 from model import Triplet
+import triplet_generator
 import numpy as np
 import json, os, argparse
 
-noise_path = "Results/2026-04-27/04:30:13__NT1_e30_shots300_lr0.1_c0.05_histTrue"
-noiseless_path = "Results/2026-04-25/18:16:25__NT0_e30_shots300_lr0.1_c0.05_histTrue"
+noise_path = "Results/2026-04-29/17-03-15__NT1_e150_shots1024_lr0.8_c0.3_histTrue__MNIST_l2"
+noiseless_path = "Results/2026-04-29/17-26-03__NT0_e150_shots1024_lr0.5_c0.3_histTrue__MNIST_l2"
 
 samples = 500
-
-# def parse_args():
-#     parser = argparse.ArgumentParser(description="Evaluate noise robustness of a trained QJEPA model")
-#     parser.add_argument('--results_dir', type=str, default=noiseless_path, help='Path to the results directory of a previous run')
-#     parser.add_argument('--num_profiles', type=int, default=5, help='Number of noise profiles to evaluate against')
-#     return parser.parse_args()
 
 def summarise_holdout_results(results):
     if len(results) == 0: return
@@ -44,61 +39,43 @@ def analyse_model(path, num_profiles):
     with open(os.path.join(path, "run_info.json")) as f:
         run_info = json.load(f)
     config = run_info["config"]
+    
 
     # Reconstruct the model with the same config
-    model = QJEPA(
-        epochs=config["epochs"],
-        num_encoder_qubits=config["num_encoder_qubits"],
-        num_predictor_qubits=config["num_predictor_qubits"],
-        num_encoder_layers=config["num_encoder_layers"],
-        num_predictor_layers=config["num_predictor_layers"],
-        embed_dim=config["embed_dim"],
-        ema_decay=config["ema_decay"],
-        # backend=config["backend"],
-        backend='default.mixed',
-        batch_size=config["batch_size"],
-        shots=1000,
-        noise_train=False,  # force load noise profiles
-        noise_lambda=config["noise_lambda"],
-        noise_samples_pb=config.get('noise_samp_per_batch', 3), # doesnt exist for some older profiles, 3 default
-        fake=config.get('fake', False),
-        learning_rate=config.get('learning_rate', 0.1),
-        perturbation_rate=config.get('perturbation_rate', 0.01),
-        historic_load = 0 if not config['noise_train'] else config.get('historic_load', 10), # doesnt exist for some older profiles, 10 default
-        optimiser=config.get('opt', "grad_desc") # if its not specified its likely an older Grad Desc profile. Doesnt matter for inference anyway
+    model = Triplet(config)
+
+    model.load_weights(os.path.join(path, "weights.npz"))
+
+    triplets, labels = triplet_generator.generate_pca_triplets(
+        dataset=config['dataset'],
+        label_space=config['label_space'],
+        num_triplets=config['num_triplets'],
+        testing=False
     )
-
-    model.load_weights(os.path.join(path, "best_weights.npz"))
-
-    # Load test data
-    x_train, y_train, x_test, y_test = load_eval_data_pair(
-        config["dataset"],
-        label_space=config["label_space"],
-        pca_dims=config["pca_dims"]
+    t_triplets, t_labels = triplet_generator.generate_pca_triplets(
+        dataset=config['dataset'],
+        label_space=config['label_space'],
+        num_triplets=config['num_triplets'],
+        testing=True
     )
 
     # Run noise robustness evaluation
-    # print("\nEvaluating noise robustness...")
-    # results = model.predict_noisy_clustering(
-    #     x_train=x_train[:samples],
-    #     y_train=y_train[:samples],
-    #     x_test=x_test[:samples],
-    #     y_test=y_test[:samples],
-    #     weights=model.context_weights,
-    #     num_classes=config["label_space"],
-    #     num_profiles=num_profiles
-    # )
+    print("\nEvaluating noise robustness...")
+    results = model.predict_noisy_clustering(
+        x_train=triplets[:samples],
+        y_train=labels[:samples],
+        x_test=t_triplets[:samples],
+        y_test=t_labels[:samples],
+        noise_profile=None
+    )
 
     # Run noise robustness evaluation
     print("\nEvaluating Clean Variance...")
     results = model.predict_noisy_clustering(
-        x_train=x_train[:samples],
-        y_train=y_train[:samples],
-        x_test=x_test[:samples],
-        y_test=y_test[:samples],
-        weights=None,
-        num_classes=config["label_space"],
-        num_profiles=None
+        x_train=triplets[:samples],
+        y_train=labels[:samples],
+        x_test=t_triplets[:samples],
+        y_test=t_labels[:samples],
     )
 
     for r in results:
@@ -157,6 +134,8 @@ else:
 print("\nDone. Summary:")
 for run, status in all_results.items():
     print(f"  {run}: {status}")
+
+
 # NT=true
 # Backend: fake_manila | Cluster: 81.7% | Probe: 84.5%
 # Backend: fake_montreal | Cluster: 80.9% | Probe: 84.7%
