@@ -6,8 +6,10 @@ import numpy as np
 import json, os, argparse
 
 noise_path = "Results/2026-04-29/17-03-15__NT1_e150_shots1024_lr0.8_c0.3_histTrue__MNIST_l2"
-noiseless_path = "Results/2026-04-29/17-26-03__NT0_e150_shots1024_lr0.5_c0.3_histTrue__MNIST_l2"
+noiseless_path = "Results/2026-05-01/15-32-09__NT0_e150_shots300_lr0.3_c0.1_histTrue__MNIST_l3"
 pennylane = "Results/2026-04-30/20-09-43__NT0_e200_shotsNone_lr0.3_c0.05_histTrue__MNIST_l2"
+
+eval_path = "Results/2026-05-01/15-25-14__NT0_e150_shotsNone_lr0.3_c0.1_histTrue__MNIST_l3"
 
 samples = 1000
 
@@ -126,7 +128,7 @@ if mult:
             print(f"  Skipped {run_dir}: {e}")
             all_results[run_dir] = f"error: {e}"
 else:
-    dir = noise_path
+    dir = eval_path
     # for dir in toRun:
     print(f"\n=== Analysing: {dir} ===")
     analyse_model(dir, num_profiles=10)

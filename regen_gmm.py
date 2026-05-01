@@ -29,12 +29,4 @@ if __name__ == '__main__':
     model.weights = weights[-1]
 
     embeddings = model.get_embeddings(triplets, model.circuit)
-    anchor_labels = [int(l) for l in labels]
-
-    gmm = GaussianMixture(n_components=len(set(anchor_labels)), random_state=42, n_init=10)
-    gmm.fit(embeddings)
-
-    gmm_path = os.path.join(args.results_dir, 'gmm.pkl')
-    with open(gmm_path, 'wb') as f:
-        pickle.dump(gmm, f)
-    print(f"GMM saved to {gmm_path}")
+    model.evaluate_embeddings(embeddings=embeddings, labels=labels)

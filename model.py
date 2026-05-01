@@ -17,6 +17,8 @@ import pandas as pd
 import os, json
 import datetime
 import pickle # pickle time
+from umap import UMAP
+
 
 #files
 from noise.noise import noise
@@ -61,6 +63,7 @@ class Triplet:
         self.num_triplets = params['num_triplets']
         self.dataset = params['dataset']
         self.testing = testing
+        self.sim = params.get('sim', 'statevector')
 
         # file management
         # only create a new file when training, save stuff to the provided filename when testing
@@ -244,7 +247,7 @@ class Triplet:
         """Clean or noisy device initialisation"""
         sim = AerSimulator(
             noise_model=noise_model,
-            method='density_matrix', # maybe change back to density_matrix
+            method=self.sim, # maybe change back to density_matrix
             max_parallel_threads=5, # I have 5 super cores so no use heating up the whole laptop for no increase in speed
             max_parallel_experiments=5
         )
@@ -254,7 +257,7 @@ class Triplet:
     def build_noisy_circuit(self, noise_model):
         noise_sim = AerSimulator(
             noise_model=noise_model,
-            method='density_matrix',
+            method=self.sim,
             basis_gates=['cx', 'u1', 'u2', 'u3', 'rx', 'ry', 'rz', 'id', 'x', 'y', 'z', 'h', 's', 'sdg', 't', 'tdg', 'swap', 'cx', 'ccx']
         )
         noisy_dev = qml.device(
@@ -365,11 +368,9 @@ class Triplet:
         train_emb = self.get_embeddings(triplets, self.circuit)
         gmm_train = self.evaluate_embeddings(train_emb, anchor_labels)
 
+        # training grid
         grid = GridPlotter(anchor_labels, self.results_dir)
-        
         # grid.add('Train', train_emb, anchor_labels, gmm_train, 1.0)
-        from umap import UMAP
-
         umap = UMAP(n_components=2, random_state=42)
         train_umap = umap.fit_transform(train_emb)
         
@@ -378,11 +379,25 @@ class Triplet:
         
         gmm_test = None
         if has_test:
+            # redefine for test so we can use the same vstack UMAP for both plots
+            grid = GridPlotter(anchor_labels, self.results_dir)
             test_anchor_labels = [int(l) for l in test_labels]
             test_emb = self.get_embeddings(test_triplets, self.circuit)
             gmm_test = self.evaluate_embeddings_test(test_emb, test_anchor_labels)
-            test_umap = umap.transform(test_emb)
-            grid.add(f'Test', test_umap, test_anchor_labels, gmm_test, 1.0)
+
+            # Test umap for both training and test sets
+            combined_emb = numpy.vstack([train_emb, test_emb])
+            combined_labels = anchor_labels + test_anchor_labels
+
+            umap_model = UMAP(n_components=2, random_state=42)
+            combined_umap = umap_model.fit_transform(combined_emb)
+
+            # split back
+            train_umap = combined_umap[:len(train_emb)]
+            test_umap = combined_umap[len(train_emb):]
+
+            grid.add('Train', train_umap, anchor_labels, gmm_train, 1.0)
+            grid.add('Test', test_umap, test_anchor_labels, gmm_test, 1.0)
 
         filename = os.path.basename(save_path) if save_path else 'embeddings.png'
         grid.render(filename)
@@ -395,9 +410,7 @@ class Triplet:
     def predict_noisy_clustering(self, x_test, y_test, noise_profile=None, variance=None):
         # select the holdout profile noise cirucits from circuit storage
         # OR select the provided noise profiles
-        test_profiles = self.noise_helper.load_calibration_data(
-            noise_profile if noise_profile else self.holdout_profiles
-        )
+        test_profiles = self.noise_helper.load_calibration_data(noise_profile if noise_profile else self.holdout_profiles)
 
         # init the grid plotter
         train_labels = [int(l) for l in y_test]
@@ -405,23 +418,38 @@ class Triplet:
 
         # add clean baseline panel first
         clean_emb = self.get_embeddings(x_test, self.circuit)
-        clean_acc = self.evaluate_embeddings(clean_emb, [int(l) for l in y_test])
-        grid.add('Clean (no noise)', clean_emb, [int(l) for l in y_test], clean_acc, 1.0)
+        gmm_clean = self.evaluate_embeddings_test(clean_emb, [int(l) for l in y_test])
+        # grid.add('Clean (no noise)', clean_emb, [int(l) for l in y_test], gmm_clean, 1.0)
         
         # for each noise profile, build noisy circuit and get embeddings
         test_results = []
-        for prof in tqdm(test_profiles, desc="Building Encoders"):
+        for prof in test_profiles:
                 circuit = self.build_noisy_circuit(prof["noise_model"])
                 test_emb = self.get_embeddings(triplets=x_test, circuit=circuit)
-                acc = self.evaluate_embeddings(test_emb, y_test)
+                gmm_noisy = self.evaluate_embeddings_test(test_emb, y_test)
+
+                # Test umap for both clean and noisy test sets
+                combined_emb = numpy.vstack([clean_emb, test_emb])
+
+                umap_model = UMAP(n_components=2, random_state=42)
+                combined_umap = umap_model.fit_transform(combined_emb)
+
+                # split back
+                train_umap = combined_umap[:len(clean_emb)]
+                test_umap = combined_umap[len(clean_emb):]
+
                 short_name = prof['filename'].replace('hist_', '').replace('.json', '')
-                grid.add(short_name, test_emb, y_test, acc, prof['csc'])
+                grid.add('Clean', train_umap, y_test, gmm_clean, 1.0)
+                grid.add(f'Noisy: {short_name}', test_umap, y_test, gmm_noisy, prof['csc'])
+        
+
+                # grid.add(short_name, test_emb, y_test, gmm_noisy, prof['csc'])
 
                 test_results.append({
                     'filename': prof['filename'],
                     'backend': prof.get('backend', ''),
                     'csc': prof['csc'],
-                    'accuracy': acc
+                    'accuracy': gmm_noisy
                 })
 
         # render the full grid
