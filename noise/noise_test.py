@@ -1,3 +1,5 @@
+import sys
+sys.path.append('..')
 from model import Triplet
 import triplet_generator
 import numpy as np
@@ -5,8 +7,9 @@ import json, os, argparse
 
 noise_path = "Results/2026-04-29/17-03-15__NT1_e150_shots1024_lr0.8_c0.3_histTrue__MNIST_l2"
 noiseless_path = "Results/2026-04-29/17-26-03__NT0_e150_shots1024_lr0.5_c0.3_histTrue__MNIST_l2"
+pennylane = "Results/2026-04-30/20-09-43__NT0_e200_shotsNone_lr0.3_c0.05_histTrue__MNIST_l2"
 
-samples = 500
+samples = 1000
 
 def summarise_holdout_results(results):
     if len(results) == 0: return
@@ -39,19 +42,18 @@ def analyse_model(path, num_profiles):
     with open(os.path.join(path, "run_info.json")) as f:
         run_info = json.load(f)
     config = run_info["config"]
+    config['shots'] = 1000
+    # config['label_space'] = 2
     
+    if 'qubit' in config['backend']:
+        config['backend'] = "qiskit.aer"
 
     # Reconstruct the model with the same config
-    model = Triplet(config)
+    model = Triplet(config, testing=True, results_dir=path)
 
-    model.load_weights(os.path.join(path, "weights.npz"))
+    weights = np.load(os.path.join(path, 'weights.npy'), allow_pickle=True)
+    model.weights = weights[-1]  # use the last saved checkpoint
 
-    triplets, labels = triplet_generator.generate_pca_triplets(
-        dataset=config['dataset'],
-        label_space=config['label_space'],
-        num_triplets=config['num_triplets'],
-        testing=False
-    )
     t_triplets, t_labels = triplet_generator.generate_pca_triplets(
         dataset=config['dataset'],
         label_space=config['label_space'],
@@ -62,37 +64,35 @@ def analyse_model(path, num_profiles):
     # Run noise robustness evaluation
     print("\nEvaluating noise robustness...")
     results = model.predict_noisy_clustering(
-        x_train=triplets[:samples],
-        y_train=labels[:samples],
         x_test=t_triplets[:samples],
         y_test=t_labels[:samples],
-        noise_profile=None
+        noise_profile="hist_ibm_fez_2025-04-30.json"
     )
 
     # Run noise robustness evaluation
-    print("\nEvaluating Clean Variance...")
-    results = model.predict_noisy_clustering(
-        x_train=triplets[:samples],
-        y_train=labels[:samples],
-        x_test=t_triplets[:samples],
-        y_test=t_labels[:samples],
-    )
+    # print("\nEvaluating Clean Variance...")
+    # results = model.predict_noisy_clustering(
+    #     x_train=triplets[:samples],
+    #     y_train=labels[:samples],
+    #     x_test=t_triplets[:samples],
+    #     y_test=t_labels[:samples],
+    # )
 
-    for r in results:
-        print(f"Backend: {r['backend']} | Cluster: {r['cluster_acc']:.1f}% | CSC: {r['csc']}")
+    # for r in results:
+    #     print(f"Backend: {r['backend']} | Cluster: {r['cluster_acc']:.1f}% | CSC: {r['csc']}")
 
     # Save results
     # with open(os.path.join(args.results_dir, f"Fake_{config['fake']}_noise_robustness.json"), "w") as f:
     #     json.dump(results, f, indent=4)
 
-    summary = summarise_holdout_results(results)
-    with open(os.path.join(path, "holdout_summary.json"), "w") as f:
-        json.dump({
-            "per_profile": results,
-            "summary": summary,
-            "samples_train_test": samples,
-            "holdout_profile_list": model.holdout_profiles,
-        }, f, indent=4)
+    # summary = summarise_holdout_results(results)
+    # with open(os.path.join(path, "holdout_summary.json"), "w") as f:
+    #     json.dump({
+    #         "per_profile": results,
+    #         "summary": summary,
+    #         "samples_train_test": samples,
+    #         "holdout_profile_list": model.holdout_profiles,
+    #     }, f, indent=4)
 
 
 
@@ -126,7 +126,7 @@ if mult:
             print(f"  Skipped {run_dir}: {e}")
             all_results[run_dir] = f"error: {e}"
 else:
-    dir = noiseless_path
+    dir = noise_path
     # for dir in toRun:
     print(f"\n=== Analysing: {dir} ===")
     analyse_model(dir, num_profiles=10)

@@ -61,10 +61,18 @@ class noise:
                 backend = "_".join(f.replace("hist_", "").split("_")[:-1])  # extract backend name
                 by_backend[backend].append(f)
 
+            selected_hist = []
+            for backend, files in by_backend.items():
+                files_sorted = sorted(files, reverse=True)  # most recent first
+                selected_hist.extend(files_sorted[:self.hist_count])
+            
+            filtered_files = non_hist_files + selected_hist
+
         # if load_prof is not None, load the profiles provided
         if load_prof:
-            filtered_files = []
-            filtered_files.extend(load_prof)
+            if isinstance(load_prof, str):
+                load_prof = [load_prof]  # wrap single filename in a list
+            filtered_files = list(load_prof)
 
         # now load only the selected files
         profiles = []

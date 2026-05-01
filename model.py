@@ -16,9 +16,11 @@ import itertools
 import pandas as pd
 import os, json
 import datetime
+import pickle # pickle time
 
 #files
 from noise.noise import noise
+from gridplotter import GridPlotter
 
 # QML imports
 import pennylane as qml
@@ -29,7 +31,7 @@ from qiskit_aer import AerSimulator
 DEBUGGING = False
 
 class Triplet:
-    def __init__(self, params, testing=False):
+    def __init__(self, params, testing=False, results_dir=None):
         self.noise_helper = noise(fake=params['fake'], hist_count=params['historic_load'])
         self.params = params
         self.weights_list = []
@@ -60,11 +62,34 @@ class Triplet:
         self.dataset = params['dataset']
         self.testing = testing
 
+        # file management
+        # only create a new file when training, save stuff to the provided filename when testing
+        if testing and results_dir:
+            self.results_dir = results_dir
+        elif testing and results_dir == None:
+            print("ERROR: Test directory not supplied")
+        else:
+            _now = datetime.datetime.now()
+            run_name = (
+                f"{_now.strftime('%Y-%m-%d')}/{_now.strftime('%H-%M-%S')}"
+                f"__NT{int(self.params['noise_train'])}"
+                f"_e{self.params['epochs']}"
+                f"_shots{self.params['shots']}"
+                f"_lr{self.params['learning_rate']}"
+                f"_c{self.params['perturbation_rate']}"
+                f"_hist{not self.params['fake']}"
+                f"__{self.params['dataset']}"
+                f"_l{self.params['label_space']}"
+            )
+
+            self.results_dir = os.path.join('Results', run_name)
+
+
 
         # Load noise data
-        print("\nLoading Calibration Data:")
         # only load the noise profiles during training, the testing function loads its own profiles for testing
         if self.noise_train and (testing == False):
+            print("\nLoading Calibration Data:")
             self.noise_profiles = self.noise_helper.load_calibration_data()
             for prof in tqdm(self.noise_profiles, desc="Building Encoders"):
                 prof["circuit"] = self.build_noisy_circuit(prof["noise_model"])
@@ -77,7 +102,7 @@ class Triplet:
 
         if 'aer' in self.backend:        
             circuit = self.init_qiskit()
-        elif 'mixed' in self.backend:
+        elif 'lightning' in self.backend:
             circuit = qml.device('lightning.qubit', wires=self.num_wires)
 
 
@@ -110,24 +135,15 @@ class Triplet:
             x_train_batch = [triplets[im] for im in batch_index]
 
             # replace lambda and save the previous loss to avoid re-evaluation
-            # also allows me to save the individual contributions
-            last_loss = None
-            def loss_with_capture(weights):
-                nonlocal last_loss
-                total, clean, noisy = self.loss(weights, x_train_batch)
-                last_loss = (total, clean, noisy)
-                return total
+            # also allows me to save the individual contributions for plotting
+            self.weights = opt.step(lambda w: self.loss(w, x_train_batch)[0], self.weights)
 
-            self.weights = opt.step(loss_with_capture, self.weights)
-
-            if last_loss is not None:
-                total, clean, noisy = last_loss
-                current_loss = float(total)
-                self.loss_history.append(current_loss)
-                self.clean_loss_history.append(float(clean))
-                self.noisy_loss_history.append(float(noisy))
-            else:
-                current_loss = 0.0
+            # separate clean eval for logging
+            total, clean, noisy = self.loss(self.weights, x_train_batch)
+            current_loss = float(total)
+            self.loss_history.append(current_loss)
+            self.clean_loss_history.append(float(clean))
+            self.noisy_loss_history.append(float(noisy))
 
             pbar.set_postfix(loss=f"{current_loss:.4f}")
 
@@ -146,7 +162,8 @@ class Triplet:
             P = self.circuit(self, weights, np.array(im[1]))
             N = self.circuit(self, weights, np.array(im[2]))
 
-            clean_loss += (np.abs(A[0]-P[0]) + np.abs(A[1]-P[1])) - (np.abs(A[0]-N[0]) + np.abs(A[1]-N[1]))
+            # clean_loss += (np.abs(A[0]-P[0]) + np.abs(A[1]-P[1])) - (np.abs(A[0]-N[0]) + np.abs(A[1]-N[1]))
+            clean_loss += (np.square(A[0]-P[0]) + np.square(A[1]-P[1])) - (np.square(A[0]-N[0]) + np.square(A[1]-N[1]))
 
             # noisy embeddings
             if self.noise_train and self.np_train:
@@ -156,8 +173,9 @@ class Triplet:
                 Cn = random.sample(trainable, min(self.noise_samp_per_batch, len(trainable))) # select 10 random samples from the collected noise profiles
                 self.used_profiles = Cn
                 for prof in Cn:
-                    n_A = prof["circuit"](weights, np.array(im[0]))
-                    l = (np.abs(A[0]-n_A[0]) + np.abs(A[1]-n_A[1])) # embed the noisy anchor close to clean anchor
+                    n_A = prof["circuit"](self, weights, np.array(im[0]))
+                    # l = (np.abs(A[0]-n_A[0]) + np.abs(A[1]-n_A[1])) # embed the noisy anchor close to clean anchor
+                    l = (np.square(A[0]-n_A[0]) + np.square(A[1]-n_A[1]))
                     n_loss.append(prof["csc"] * l)
                 # accumulate noise into loss function
                 noisy_loss += (1/(self.noise_samp_per_batch) * sum(n_loss))
@@ -197,14 +215,36 @@ class Triplet:
             embeddings.append(numpy.array([float(z) for z in z_out]))
         return numpy.array(embeddings)
 
-    # def evaluate_embeddings(embeddings, labels):
 
+    def evaluate_embeddings(self, embeddings, labels):
+        """fit GMM on train embeddings, save it, return accuracy"""
+        num_classes = len(set(labels))
+        gmm = GaussianMixture(n_components=num_classes, random_state=42, n_init=10)
+        gmm.fit(embeddings)
+        with open(os.path.join(self.results_dir, 'gmm.pkl'), 'wb') as f:
+            pickle.dump(gmm, f)
+        y_hat = gmm.predict(embeddings)
+        return self._permutation_accuracy(y_hat, labels, num_classes)
+
+    def evaluate_embeddings_test(self, embeddings, labels):
+        """load saved GMM, predict on test embeddings, return accuracy"""
+        with open(os.path.join(self.results_dir, 'gmm.pkl'), 'rb') as f:
+            gmm = pickle.load(f)
+        num_classes = len(set(labels))
+        y_hat = gmm.predict(embeddings)
+        return self._permutation_accuracy(y_hat, labels, num_classes)
+
+    def _permutation_accuracy(self, y_hat, labels, num_classes):
+        y_hats = self.generate_y_hats(y_hat, num_classes)
+        max_cor = max(sum(1 for i, j in zip(yh, labels) if i == j) for yh in y_hats)
+        return 100 * max_cor / len(labels)
+        
 
     def init_qiskit(self, noise_model=None):
         """Clean or noisy device initialisation"""
         sim = AerSimulator(
             noise_model=noise_model,
-            method='statevector',
+            method='density_matrix', # maybe change back to density_matrix
             max_parallel_threads=5, # I have 5 super cores so no use heating up the whole laptop for no increase in speed
             max_parallel_experiments=5
         )
@@ -214,7 +254,7 @@ class Triplet:
     def build_noisy_circuit(self, noise_model):
         noise_sim = AerSimulator(
             noise_model=noise_model,
-            method='statevector',
+            method='density_matrix',
             basis_gates=['cx', 'u1', 'u2', 'u3', 'rx', 'ry', 'rz', 'id', 'x', 'y', 'z', 'h', 's', 'sdg', 't', 'tdg', 'swap', 'cx', 'ccx']
         )
         noisy_dev = qml.device(
@@ -224,7 +264,7 @@ class Triplet:
         )
 
         @qml.qnode(noisy_dev, shots=self.shots)
-        def noisy_circuit(weights, features):
+        def noisy_circuit(self, weights, features):
             AmplitudeEmbedding(
                 features=features.astype('float64'),
                 wires=range(self.num_wires),
@@ -240,41 +280,25 @@ class Triplet:
     """
     PLOTTING
     """
-    def save_experiment(self, triplets, labels, test_triplets=None, test_labels=None, log_dir='Results'):
-        _now = datetime.datetime.now()
-
-        run_name = (
-            f"{_now.strftime('%Y-%m-%d')}/{_now.strftime('%H-%M-%S')}"
-            f"__NT{int(self.params['noise_train'])}"
-            f"_e{self.params['epochs']}"
-            f"_shots{self.params['shots']}"
-            f"_lr{self.params['learning_rate']}"
-            f"_c{self.params['perturbation_rate']}"
-            f"_hist{not self.params['fake']}"
-            f"__{self.params['dataset']}"
-            f"_l{self.params['label_space']}"
-        )
-
-        results_dir = os.path.join(log_dir, run_name)
-        os.makedirs(results_dir, exist_ok=True)
-
+    def save_experiment(self, triplets, labels, test_triplets=None, test_labels=None):
+        self._ensure_results_dir()
         # save loss history and weights
-        np.save(os.path.join(results_dir, 'loss_history.npy'), self.loss_history)
-        numpy.save(os.path.join(results_dir, 'weights.npy'), self.weights_list)
+        np.save(os.path.join(self.results_dir, 'loss_history.npy'), self.loss_history)
+        numpy.save(os.path.join(self.results_dir, 'weights.npy'), self.weights_list)
 
         # save loss plot
-        self.plot_loss(save_path=os.path.join(results_dir, 'loss.png'))
+        self.plot_loss(save_path=os.path.join(self.results_dir, 'loss.png'))
 
         # run embedding eval and save plots
-        kmeans_train, gmm_train = self.plot_embeddings(
+        gmm_train = self.predict_clustering(
             triplets, labels,
-            save_path=os.path.join(results_dir, 'embeddings_train.png')
+            save_path=os.path.join(self.results_dir, 'embeddings_train.png')
         )
-        kmeans_test, gmm_test = None, None
+        gmm_test = None, None
         if test_triplets is not None:
-            kmeans_test, gmm_test = self.plot_embeddings(
+            gmm_test = self.predict_clustering(
                 triplets, labels, test_triplets, test_labels,
-                save_path=os.path.join(results_dir, 'embeddings_test.png')
+                save_path=os.path.join(self.results_dir, 'embeddings_test.png')
             )
 
         # build results
@@ -297,122 +321,133 @@ class Triplet:
             "results": self.params['results']
         }
 
-        with open(os.path.join(results_dir, 'run_info.json'), 'w') as f:
+        with open(os.path.join(self.results_dir, 'run_info.json'), 'w') as f:
             json.dump(run_info, f, indent=4)
 
-        print(f"RESULTS_DIR: {results_dir}")
-        return results_dir
+        print(f"RESULTS_DIR: {self.results_dir}")
     
     # TODO: add noisy and clean loss components to graph, integral style
     def plot_loss(self, save_path=None):
-        smoothed = pd.Series(self.loss_history).rolling(window=10, min_periods=1).mean()
-        plt.figure(figsize=(10, 5))
-        plt.plot(self.loss_history, alpha=0.3, color='steelblue', label='Raw loss')
-        plt.plot(smoothed, color='steelblue', linewidth=2, label='Smoothed (10-epoch)')
-        plt.axhline(0, color='gray', linestyle='--', linewidth=0.8)
-        plt.xlabel('Epoch')
-        plt.ylabel('Triplet Loss')
-        plt.title('SLIQ Baseline Training Loss (MNIST)')
-        plt.legend()
+        epochs = range(len(self.loss_history))
+        smoothed_total = pd.Series(self.loss_history).rolling(window=10, min_periods=1).mean()
+        has_components = len(self.clean_loss_history) == len(self.loss_history) and len(self.loss_history) > 0
+
+        fig, ax = plt.subplots(figsize=(10, 5))
+
+        if has_components:
+            smoothed_clean = pd.Series(self.clean_loss_history).rolling(window=10, min_periods=1).mean()
+            smoothed_noisy = pd.Series(self.noisy_loss_history).rolling(window=10, min_periods=1).mean()
+
+            # stacked fills — noisy sits on top of clean
+            ax.fill_between(epochs, smoothed_clean, alpha=0.25, color='steelblue', label='Clean component')
+            ax.fill_between(epochs, smoothed_noisy, alpha=0.25, color='coral', label='Noisy component')
+
+        # total loss on top
+        ax.plot(self.loss_history, alpha=0.2, color='steelblue')
+        ax.plot(smoothed_total, color='steelblue', linewidth=2, label='Total loss (smoothed)')
+        ax.axhline(0, color='gray', linestyle='--', linewidth=0.8)
+
+        ax.set_xlabel('Epoch')
+        ax.set_ylabel('Triplet Loss')
+        ax.set_title(f'SLIQ Training Loss ({self.dataset})')
+        ax.legend()
         plt.tight_layout()
         plt.savefig(save_path if save_path else 'loss.png', dpi=150)
-        # plt.show()
+        plt.close()
 
     # TODO: change to only plot pre-embedded embeddings
     # TODO: create a plotting function that will plot the test embeddings for each noise profile in a giant grid
-    def plot_embeddings(self, triplets, labels, test_triplets=None, test_labels=None, weights=None, save_path=None):
-        embeddings = self.get_embeddings(triplets, weights)
+    def predict_clustering(self, triplets, labels, test_triplets=None, test_labels=None, save_path=None):
         anchor_labels = [int(l) for l in labels]
-        num_classes = len(set(anchor_labels))
-
         has_test = test_triplets is not None
-        if has_test:
-            test_embeddings = self.get_embeddings(test_triplets, weights)
-            test_anchor_labels = [int(l) for l in test_labels]
 
-        eval_embeddings = test_embeddings if has_test else embeddings
-        eval_labels = test_anchor_labels if has_test else anchor_labels
+        # get embeddings
+        train_emb = self.get_embeddings(triplets, self.circuit)
+        gmm_train = self.evaluate_embeddings(train_emb, anchor_labels)
 
-        # GMM - fit on train, evaluate on eval set
-        gmm = GaussianMixture(n_components=num_classes, random_state=42, n_init=10)
-        gmm.fit(embeddings)
-        y_hat = gmm.predict(eval_embeddings)
-
-        # permutation search
-        y_hats = self.generate_y_hats(y_hat, num_classes)
-        max_cor, best_yhat = 0, y_hat
-        for yh in y_hats:
-            num_cor = sum(1 for i, j in zip(yh, eval_labels) if i == j)
-            if num_cor > max_cor:
-                max_cor = num_cor
-                best_yhat = yh
-
-        from sklearn.cluster import KMeans
-        kmeans = KMeans(n_clusters=num_classes, init='k-means++', random_state=42)
-        kmeans.fit(embeddings, anchor_labels)
-        y_hat = kmeans.predict(test_embeddings if has_test else embeddings)
-        kmeans_accuracy = 100 * sum(i == j for i, j in zip(y_hat, eval_labels)) / len(eval_labels)
-        print(f"Kmeans Clustering Accuracy ({'test' if has_test else 'train'}): {kmeans_accuracy:.2f}%")
-
-
-        gmm_accuracy = 100 * max_cor / len(eval_labels)
-        print(f"GMM Clustering Accuracy ({'test' if has_test else 'train'}): {gmm_accuracy:.2f}%")
-
-        unique_labels = sorted(set(anchor_labels))
-        colors = plt.cm.tab10(numpy.linspace(0, 1, len(unique_labels)))
-
-        n_plots = 2 if has_test else 1
-        fig, axes = plt.subplots(1, n_plots, figsize=(8 * n_plots, 6))
-        if not has_test:
-            axes = [axes]
-
-        def scatter_plot(ax, embs, lbls, title):
-            unique = sorted(set(lbls))
-            for label, color in zip(unique, colors):
-                mask = [i for i, l in enumerate(lbls) if l == label]
-                ax.scatter(
-                    embs[mask, 0], embs[mask, 1],
-                    label=f'Class {label}',
-                    color=color, alpha=0.7, s=30, edgecolors='none'
-                )
-            ax.set_xlabel('Z₀ expectation')
-            ax.set_ylabel('Z₁ expectation')
-            ax.set_title(title)
-            ax.legend()
+        grid = GridPlotter(anchor_labels, self.results_dir)
         
-        scatter_plot(axes[0], embeddings, anchor_labels, 'Train Embeddings')
+        # grid.add('Train', train_emb, anchor_labels, gmm_train, 1.0)
+        from umap import UMAP
+
+        umap = UMAP(n_components=2, random_state=42)
+        train_umap = umap.fit_transform(train_emb)
+        
+        # use vis_embs for plotting, train_emb for GMM
+        grid.add('Train', train_umap, anchor_labels, gmm_train, 1.0)
+        
+        gmm_test = None
         if has_test:
-            scatter_plot(axes[1], test_embeddings, test_anchor_labels, f'Test Embeddings\nGMM Accuracy: {gmm_accuracy:.2f}%')
-        else:
-            axes[0].set_title(f'SLIQ Baseline Embeddings - MNIST\nGMM Accuracy: {gmm_accuracy:.2f}%')
+            test_anchor_labels = [int(l) for l in test_labels]
+            test_emb = self.get_embeddings(test_triplets, self.circuit)
+            gmm_test = self.evaluate_embeddings_test(test_emb, test_anchor_labels)
+            test_umap = umap.transform(test_emb)
+            grid.add(f'Test', test_umap, test_anchor_labels, gmm_test, 1.0)
 
-        plt.tight_layout()
-        plt.savefig(save_path if save_path else 'embeddings.png', dpi=150)
-        # plt.show()
+        filename = os.path.basename(save_path) if save_path else 'embeddings.png'
+        grid.render(filename)
 
-        return kmeans_accuracy, gmm_accuracy
+        return gmm_train, gmm_test
 
     def load_weights(self, weights):
         self.weights = weights
 
-    def predict_noisy_clustering(self, x_train, y_train, x_test, y_test, noise_profile=None, variance=None):
+    def predict_noisy_clustering(self, x_test, y_test, noise_profile=None, variance=None):
         # select the holdout profile noise cirucits from circuit storage
         # OR select the provided noise profiles
         test_profiles = self.noise_helper.load_calibration_data(
             noise_profile if noise_profile else self.holdout_profiles
         )
+
+        # init the grid plotter
+        train_labels = [int(l) for l in y_test]
+        grid = GridPlotter(train_labels, self.results_dir)
+
+        # add clean baseline panel first
+        clean_emb = self.get_embeddings(x_test, self.circuit)
+        clean_acc = self.evaluate_embeddings(clean_emb, [int(l) for l in y_test])
+        grid.add('Clean (no noise)', clean_emb, [int(l) for l in y_test], clean_acc, 1.0)
         
         # for each noise profile, build noisy circuit and get embeddings
         test_results = []
         for prof in tqdm(test_profiles, desc="Building Encoders"):
                 circuit = self.build_noisy_circuit(prof["noise_model"])
                 test_emb = self.get_embeddings(triplets=x_test, circuit=circuit)
-                results = self.evaluate_embeddings(test_emb, y_test)
+                acc = self.evaluate_embeddings(test_emb, y_test)
+                short_name = prof['filename'].replace('hist_', '').replace('.json', '')
+                grid.add(short_name, test_emb, y_test, acc, prof['csc'])
+
                 test_results.append({
-                    'backend': prof['filename'],
+                    'filename': prof['filename'],
+                    'backend': prof.get('backend', ''),
                     'csc': prof['csc'],
-                    'results': results
+                    'accuracy': acc
                 })
 
+        # render the full grid
+        grid.render('noise_profile_grid.png')
+
+        # find changes in how the model is run during training vs inference
+        conf_changes = {}
+        with open(os.path.join(self.results_dir, "run_info.json")) as f:
+            run_info = json.load(f)
+        conf = run_info["config"]
+        for key in conf:
+            if self.params[key] != conf[key]:
+                conf_changes[key] = self.params[key] # append the changed field to the object that is returned at the end of inference
+
+        conf_changes['results'] = test_results
+        # save results json
+        with open(os.path.join(self.results_dir, 'noisy_eval_results.json'), 'w') as f:
+            json.dump(conf_changes, f, indent=4)
+
+        mean_acc = numpy.mean([r['accuracy'] for r in test_results])
+        print(f"Mean holdout accuracy: {mean_acc:.2f}%")
+        return test_results
 
 
+    def _ensure_results_dir(self):
+        """create the results directory only when we actually need it"""
+        if not os.path.exists(self.results_dir):
+            os.makedirs(self.results_dir, exist_ok=True)
+            print(f"Created results dir: {self.results_dir}")

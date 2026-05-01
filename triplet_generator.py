@@ -7,7 +7,7 @@ from PIL import Image
 from os import listdir
 from os.path import isfile, join
 from tqdm import tqdm
-def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=False):
+def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=False, pca_dims=32):
     """
     Generates PCA triplet training examples from the specified dataset with specified qubit and label space sizes.
     :param dataset: String name of folder in datasets/[dataset] containing training and testing .npy files.
@@ -22,7 +22,7 @@ def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=Fa
     x, y = load_data(dataset, testing)
     x, y = filter_labels(x, y, label_space)
     # x = scale_data(preprocessing.normalize(x))
-    x = perform_pca(x=x)
+    x = perform_pca(x=x, pca_dims=pca_dims)
     return generate_augmented_triplets(x, y, num_triplets)
 
 

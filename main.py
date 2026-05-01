@@ -15,22 +15,22 @@ if __name__ == '__main__':
     
     params = ({
         "dataset": "MNIST", # Dataset the run was trained on
-        "epochs": 150, # number of epochs the model was trained on
+        "epochs": 200, # number of epochs the model was trained on
         "num_qubits": 6, # number of qubits in the circuit, width of the circuit
         "PCA_dims": 32, # number of dimensions the data was reduced to
-        "backend": qiskit, # backend the circuits were simulated on
-        "shots": 1024, # number of shots used during circuit eval (N/A for pennylane)
+        "backend": pennylane, # backend the circuits were simulated on
+        "shots": None, # number of shots used during circuit eval (N/A for pennylane)
         "num_triplets": 1000, # number of triplets to generate
-        "label_space": 2, # number of labels selected from the class
+        "label_space": 4, # number of labels selected from the class
         "layers": 4, # depth of the circuit
-        "batch_size": 30, # number of samples collected per batch
+        "batch_size": 32, # number of samples collected per batch
         "max_train_samples": 1000, # maximum training samples
         "embed_dims": 5, # number of qubits to measure at the end of the circuit
-        "learning_rate": 0.5, # learning rate param applicable to SPSA, Grad Descent and Adam
-        "perturbation_rate": 0.3, # noisy variance to perturb the parameters by, Applicable to SPSA
+        "learning_rate": 0.2, # learning rate param applicable to SPSA, Grad Descent and Adam
+        "perturbation_rate": 0.05, # noisy variance to perturb the parameters by, Applicable to SPSA
         "optimiser": "SPSA", # selected optimiser
         "noise_train": False, # if the model made use of Noise Training
-        "noise_samp_per_batch": 1, # number of noise samples the model was exposed to per batch
+        "noise_samp_per_batch": 2, # number of noise samples the model was exposed to per batch
         "historic_load": 10, # number of historical noise profiles to select from each backend
         "fake": False, # if the model made use of fake noise profiles
         "message": args.message, # required param, details the purpose for running the model
@@ -44,13 +44,15 @@ if __name__ == '__main__':
         params['dataset'],
         label_space=params['label_space'],
         num_triplets=params['num_triplets'],
-        testing=False
+        testing=False,
+        pca_dims=params['PCA_dims']
     )
     t_triplets, t_labels = triplet_generator.generate_pca_triplets(
         dataset=params['dataset'],
         label_space=params['label_space'],
         num_triplets=params['num_triplets'],
-        testing=True
+        testing=True,
+        pca_dims=params['PCA_dims']
     )
 
     network = model.Triplet(params)
