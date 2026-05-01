@@ -1,0 +1,32 @@
+[
+    {
+        "backend": "fake_torino_2025-02-26.json",
+        "cluster_acc": 85.2,
+        "probe_acc": 92.80000000000001,
+        "csc": 0.0
+    },
+    {
+        "backend": "fake_kyoto_2024-02-28.json",
+        "cluster_acc": 86.6,
+        "probe_acc": 91.0,
+        "csc": 0.0
+    },
+    {
+        "backend": "fake_marrakesh_2025-02-26.json",
+        "cluster_acc": 89.60000000000001,
+        "probe_acc": 94.0,
+        "csc": 0.32110826727001174
+    },
+    {
+        "backend": "fake_cusco_2025-02-26.json",
+        "cluster_acc": 89.4,
+        "probe_acc": 92.0,
+        "csc": 0.6007118225640561
+    },
+    {
+        "backend": "fake_cambridge_2020-07-16.json",
+        "cluster_acc": 77.0,
+        "probe_acc": 81.8,
+        "csc": 0.5274051744936826
+    }
+]

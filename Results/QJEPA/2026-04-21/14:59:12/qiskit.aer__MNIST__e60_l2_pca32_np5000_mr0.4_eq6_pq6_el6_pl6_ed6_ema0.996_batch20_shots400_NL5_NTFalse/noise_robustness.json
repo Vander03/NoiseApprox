@@ -1,0 +1,20 @@
+[
+    {
+        "backend": "hist_ibm_kingston_2026-04-12.json",
+        "cluster_acc": 88.74704491725768,
+        "probe_acc": 92.15130023640661,
+        "csc": 0.8375375602436884
+    },
+    {
+        "backend": "hist_ibm_kingston_2026-04-11.json",
+        "cluster_acc": 88.46335697399526,
+        "probe_acc": 92.34042553191489,
+        "csc": 0.8355800156734694
+    },
+    {
+        "backend": "hist_ibm_fez_2026-04-16.json",
+        "cluster_acc": 86.28841607565012,
+        "probe_acc": 90.87470449172577,
+        "csc": 0.8403266883734302
+    }
+]

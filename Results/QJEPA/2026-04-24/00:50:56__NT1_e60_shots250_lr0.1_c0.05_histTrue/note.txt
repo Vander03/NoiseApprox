@@ -1,0 +1,2 @@
+2 noise profiles per batch showed decent performance, 5 decreased it. Too many profiles per batch causes performance
+degradation. Tried 3 with this run

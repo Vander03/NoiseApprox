@@ -1,0 +1,62 @@
+[
+    {
+        "backend": "hist_ibm_kingston_2026-04-15.json",
+        "cluster_acc": 71.25295508274232,
+        "probe_acc": 80.09456264775415,
+        "csc": 0.8387260712859516
+    },
+    {
+        "backend": "hist_ibm_kingston_2026-04-11.json",
+        "cluster_acc": 69.55082742316785,
+        "probe_acc": 79.57446808510639,
+        "csc": 0.8355800156734694
+    },
+    {
+        "backend": "hist_ibm_kingston_2026-04-12.json",
+        "cluster_acc": 71.34751773049646,
+        "probe_acc": 78.3451536643026,
+        "csc": 0.8375375602436884
+    },
+    {
+        "backend": "hist_ibm_fez_2026-04-16.json",
+        "cluster_acc": 72.86052009456266,
+        "probe_acc": 78.95981087470449,
+        "csc": 0.8403266883734302
+    },
+    {
+        "backend": "hist_ibm_fez_2026-04-04.json",
+        "cluster_acc": 72.52955082742318,
+        "probe_acc": 79.76359338061467,
+        "csc": 0.8446237034104903
+    },
+    {
+        "backend": "hist_ibm_fez_2026-04-10.json",
+        "cluster_acc": 70.0709219858156,
+        "probe_acc": 80.0,
+        "csc": 0.8354613918037558
+    },
+    {
+        "backend": "hist_ibm_marrakesh_2026-04-12.json",
+        "cluster_acc": 73.94799054373522,
+        "probe_acc": 81.9385342789598,
+        "csc": 0.8248783281015906
+    },
+    {
+        "backend": "hist_ibm_marrakesh_2026-04-08.json",
+        "cluster_acc": 74.18439716312056,
+        "probe_acc": 81.27659574468085,
+        "csc": 0.8128048665950425
+    },
+    {
+        "backend": "hist_ibm_marrakesh_2026-04-10.json",
+        "cluster_acc": 74.46808510638297,
+        "probe_acc": 81.56028368794325,
+        "csc": 0.8240408478562629
+    },
+    {
+        "backend": "hist_ibm_marrakesh_2026-04-14.json",
+        "cluster_acc": 73.5224586288416,
+        "probe_acc": 81.60756501182033,
+        "csc": 0.8003158135154974
+    }
+]

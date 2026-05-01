@@ -1,0 +1,26 @@
+[
+    {
+        "backend": "hist_ibm_kingston_2026-04-15.json",
+        "cluster_acc": 79.14893617021276,
+        "probe_acc": 83.02600472813239,
+        "csc": 0.8387260712859516
+    },
+    {
+        "backend": "hist_ibm_kingston_2026-04-12.json",
+        "cluster_acc": 77.58865248226951,
+        "probe_acc": 82.31678486997636,
+        "csc": 0.8375375602436884
+    },
+    {
+        "backend": "hist_ibm_kingston_2026-04-11.json",
+        "cluster_acc": 76.07565011820331,
+        "probe_acc": 81.5130023640662,
+        "csc": 0.8355800156734694
+    },
+    {
+        "backend": "hist_ibm_fez_2026-04-16.json",
+        "cluster_acc": 80.04728132387707,
+        "probe_acc": 84.58628841607565,
+        "csc": 0.8403266883734302
+    }
+]

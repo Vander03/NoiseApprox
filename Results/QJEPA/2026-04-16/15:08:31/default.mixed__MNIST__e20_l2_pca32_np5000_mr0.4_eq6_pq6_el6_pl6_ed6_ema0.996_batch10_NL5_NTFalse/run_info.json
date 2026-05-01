@@ -1,0 +1,27 @@
+{
+    "config": {
+        "epochs": 20,
+        "dataset": "MNIST",
+        "label_space": 2,
+        "pca_dims": 32,
+        "num_pairs": 5000,
+        "mask_ratio": 0.4,
+        "num_encoder_qubits": 6,
+        "num_predictor_qubits": 6,
+        "num_encoder_layers": 6,
+        "num_predictor_layers": 6,
+        "embed_dim": 6,
+        "ema_decay": 0.996,
+        "backend": "default.mixed",
+        "batch_size": 10,
+        "shots": null,
+        "noise_train": false,
+        "noise_lambda": 5
+    },
+    "results": {
+        "final_loss": 0.06373698838544468,
+        "cluster_accuracy": 93.05,
+        "probe_accuracy": 99.15,
+        "num_test_samples": 2115
+    }
+}

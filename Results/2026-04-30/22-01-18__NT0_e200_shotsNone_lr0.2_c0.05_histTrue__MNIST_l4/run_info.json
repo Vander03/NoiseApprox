@@ -1,0 +1,49 @@
+{
+    "config": {
+        "dataset": "MNIST",
+        "epochs": 200,
+        "num_qubits": 6,
+        "PCA_dims": 8,
+        "backend": "lightning.qubit",
+        "shots": null,
+        "num_triplets": 1000,
+        "label_space": 4,
+        "layers": 4,
+        "batch_size": 32,
+        "max_train_samples": 1000,
+        "embed_dims": 5,
+        "learning_rate": 0.2,
+        "perturbation_rate": 0.05,
+        "optimiser": "ADAM",
+        "noise_train": false,
+        "noise_samp_per_batch": 2,
+        "historic_load": 10,
+        "fake": false,
+        "message": "SPSA qiskit with new params. Hopefully seeing better seperation for 2 class",
+        "noise_profiles": [],
+        "holdout_profiles": [
+            "hist_ibm_kingston_2026-04-15.json",
+            "hist_ibm_kingston_2026-04-11.json",
+            "hist_ibm_kingston_2026-04-12.json",
+            "hist_ibm_fez_2026-04-16.json",
+            "hist_ibm_fez_2026-04-04.json",
+            "hist_ibm_fez_2026-04-10.json",
+            "hist_ibm_marrakesh_2026-04-12.json",
+            "hist_ibm_marrakesh_2026-04-08.json",
+            "hist_ibm_marrakesh_2026-04-10.json",
+            "hist_ibm_marrakesh_2026-04-14.json"
+        ]
+    },
+    "results": {
+        "gmm_accuracy_train": [
+            63.8,
+            null
+        ],
+        "gmm_accuracy_test": [
+            63.8,
+            57.8
+        ],
+        "final_loss": -0.3583065746956787,
+        "min_loss": -0.4715918782420444
+    }
+}

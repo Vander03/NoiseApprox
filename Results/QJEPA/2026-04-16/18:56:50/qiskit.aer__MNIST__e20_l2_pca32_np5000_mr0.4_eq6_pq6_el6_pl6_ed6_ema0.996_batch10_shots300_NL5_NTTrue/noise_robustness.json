@@ -1,0 +1,38 @@
+[
+    {
+        "backend": "fake_torino",
+        "cluster_acc": 80.56737588652483,
+        "probe_acc": 84.44444444444444,
+        "csc": 0.0
+    },
+    {
+        "backend": "fake_kyoto",
+        "cluster_acc": 75.9338061465721,
+        "probe_acc": 82.26950354609929,
+        "csc": 0.0
+    },
+    {
+        "backend": "fake_marrakesh",
+        "cluster_acc": 81.37115839243498,
+        "probe_acc": 86.28841607565012,
+        "csc": 0.32110826727001174
+    },
+    {
+        "backend": "fake_cusco",
+        "cluster_acc": 81.5130023640662,
+        "probe_acc": 84.72813238770685,
+        "csc": 0.6007118225640561
+    },
+    {
+        "backend": "fake_cambridge",
+        "cluster_acc": 72.71867612293144,
+        "probe_acc": 77.35224586288416,
+        "csc": 0.5274051744936826
+    },
+    {
+        "backend": "fake_fez",
+        "cluster_acc": 81.98581560283688,
+        "probe_acc": 87.42316784869976,
+        "csc": 0.44866360115664083
+    }
+]

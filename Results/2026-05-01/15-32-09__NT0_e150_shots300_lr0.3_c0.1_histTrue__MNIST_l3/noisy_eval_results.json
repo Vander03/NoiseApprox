@@ -1,0 +1,11 @@
+{
+    "shots": 1000,
+    "results": [
+        {
+            "filename": "hist_ibm_fez_2025-04-30.json",
+            "backend": "ibm_fez",
+            "csc": 0.43743857626310795,
+            "accuracy": 68.1
+        }
+    ]
+}
