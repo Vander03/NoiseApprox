@@ -15,21 +15,20 @@ pennylane = "lightning.qubit"
 GRID = {
     "learning_rate":     [0.05, 0.1, 0.2, 0.5],
     "perturbation_rate": [0.01, 0.05, 0.1, 0.2],
-    "PCA_dims":          [8, 16, 32],
 }
 
 BASE_PARAMS = {
     "dataset":            "MNIST",
     "epochs":             100,          # shorter for grid search
-    "num_qubits":         6,
+    "num_qubits":         5,
     "backend":            pennylane,
     "shots":              None,
     "num_triplets":       1000,          # smaller for speed
-    "label_space":        4,            # 2-class for speed
+    "label_space":        3,            # 2-class for speed
     "layers":             4,
     "batch_size":         32,
     "max_train_samples":  500,
-    "embed_dims":         5,
+    "embed_dims":         4,
     "optimiser":          "SPSA",
     "noise_train":        False,
     "noise_samp_per_batch": 2,
@@ -38,14 +37,14 @@ BASE_PARAMS = {
     "message":            "gridsearch",
     "noise_profiles":     [],
     "holdout_profiles":   [],
-    "results":            {}
+    "results":            {},
+    "PCA_dims":           16
 }
 
 def run_combination(lr, cr, pca):
     params = {**BASE_PARAMS, 
               "learning_rate": lr, 
               "perturbation_rate": cr, 
-              "PCA_dims": pca,
               "results": {}}
 
     triplets, labels = triplet_generator.generate_pca_triplets(

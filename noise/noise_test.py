@@ -9,9 +9,9 @@ noise_path = "Results/2026-04-29/17-03-15__NT1_e150_shots1024_lr0.8_c0.3_histTru
 noiseless_path = "Results/2026-05-01/15-32-09__NT0_e150_shots300_lr0.3_c0.1_histTrue__MNIST_l3"
 pennylane = "Results/2026-04-30/20-09-43__NT0_e200_shotsNone_lr0.3_c0.05_histTrue__MNIST_l2"
 
-eval_path = "Results/2026-05-01/15-25-14__NT0_e150_shotsNone_lr0.3_c0.1_histTrue__MNIST_l3"
+eval_path = "Results/2026-05-01/21-40-45__NT0_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3"
 
-samples = 1000
+samples = 500
 
 def summarise_holdout_results(results):
     if len(results) == 0: return
@@ -45,6 +45,7 @@ def analyse_model(path, num_profiles):
         run_info = json.load(f)
     config = run_info["config"]
     config['shots'] = 1000
+    # config['label_space'] = 3
     # config['label_space'] = 2
     
     if 'qubit' in config['backend']:
@@ -60,25 +61,25 @@ def analyse_model(path, num_profiles):
         dataset=config['dataset'],
         label_space=config['label_space'],
         num_triplets=config['num_triplets'],
+        pca_dims=config['PCA_dims'],
         testing=True
     )
+
 
     # Run noise robustness evaluation
     print("\nEvaluating noise robustness...")
     results = model.predict_noisy_clustering(
         x_test=t_triplets[:samples],
         y_test=t_labels[:samples],
-        noise_profile="hist_ibm_fez_2025-04-30.json"
+        noise_profile=None # "hist_ibm_fez_2025-04-30.json"
     )
 
-    # Run noise robustness evaluation
-    # print("\nEvaluating Clean Variance...")
-    # results = model.predict_noisy_clustering(
-    #     x_train=triplets[:samples],
-    #     y_train=labels[:samples],
-    #     x_test=t_triplets[:samples],
-    #     y_test=t_labels[:samples],
-    # )
+    print("\nEvaluating Clean Variance...")
+    results = model.predict_clustering_variance(
+        x_test=t_triplets[:samples],
+        y_test=t_labels[:samples],
+        variance=4
+    )
 
     # for r in results:
     #     print(f"Backend: {r['backend']} | Cluster: {r['cluster_acc']:.1f}% | CSC: {r['csc']}")

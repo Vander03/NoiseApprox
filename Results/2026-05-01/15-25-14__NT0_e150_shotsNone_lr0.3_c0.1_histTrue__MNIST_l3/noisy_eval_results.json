@@ -6,7 +6,14 @@
             "filename": "hist_ibm_fez_2025-04-30.json",
             "backend": "ibm_fez",
             "csc": 0.43743857626310795,
-            "accuracy": 64.3
+            "accuracy": 67.7
         }
-    ]
+    ],
+    "summary": {
+        "mean": 67.7,
+        "std": 0.0,
+        "min": 67.7,
+        "max": 67.7,
+        "n_profiles": 1
+    }
 }

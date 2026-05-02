@@ -63,7 +63,8 @@ class Triplet:
         self.num_triplets = params['num_triplets']
         self.dataset = params['dataset']
         self.testing = testing
-        self.sim = params.get('sim', 'statevector')
+        self.sim = 'density_matrix' if testing else params.get('sim', 'statevector')
+        print(f"Sim: {self.sim}, Shots: {self.shots}")
 
         # file management
         # only create a new file when training, save stuff to the provided filename when testing
@@ -174,12 +175,13 @@ class Triplet:
                 # hold out some noise profiles for generialisation testing
                 trainable = [p for p in self.np_train if p['filename'] not in self.holdout_profiles]
                 Cn = random.sample(trainable, min(self.noise_samp_per_batch, len(trainable))) # select 10 random samples from the collected noise profiles
-                self.used_profiles = Cn
                 for prof in Cn:
                     n_A = prof["circuit"](self, weights, np.array(im[0]))
                     # l = (np.abs(A[0]-n_A[0]) + np.abs(A[1]-n_A[1])) # embed the noisy anchor close to clean anchor
-                    l = (np.square(A[0]-n_A[0]) + np.square(A[1]-n_A[1]))
-                    n_loss.append(prof["csc"] * l)
+                    # l = (np.square(A[0]-n_A[0]) + np.square(A[1]-n_A[1])) # square loss noisy anchor should be close to clean anchor
+                    l = (np.square(n_A[0]-P[0]) + np.square(n_A[1]-P[1])) - (np.square(n_A[0]-N[0]) + np.square(n_A[1]-N[1])) # noisy anchor needs to be closer to the positive than the negative
+                    n_loss.append(l)
+                    #n_loss.append(prof["csc"] * l) 
                 # accumulate noise into loss function
                 noisy_loss += (1/(self.noise_samp_per_batch) * sum(n_loss))
 
@@ -285,6 +287,7 @@ class Triplet:
     """
     def save_experiment(self, triplets, labels, test_triplets=None, test_labels=None):
         self._ensure_results_dir()
+        # self.shots = 1000 # increase shots for fitting the GMM
         # save loss history and weights
         np.save(os.path.join(self.results_dir, 'loss_history.npy'), self.loss_history)
         numpy.save(os.path.join(self.results_dir, 'weights.npy'), self.weights_list)
@@ -415,42 +418,38 @@ class Triplet:
         # init the grid plotter
         train_labels = [int(l) for l in y_test]
         grid = GridPlotter(train_labels, self.results_dir)
+        umap = UMAP(n_components=2, random_state=42)
 
-        # add clean baseline panel first
         clean_emb = self.get_embeddings(x_test, self.circuit)
         gmm_clean = self.evaluate_embeddings_test(clean_emb, [int(l) for l in y_test])
-        # grid.add('Clean (no noise)', clean_emb, [int(l) for l in y_test], gmm_clean, 1.0)
-        
-        # for each noise profile, build noisy circuit and get embeddings
+        print(f"Clean: {gmm_clean}")
         test_results = []
         for prof in test_profiles:
-                circuit = self.build_noisy_circuit(prof["noise_model"])
-                test_emb = self.get_embeddings(triplets=x_test, circuit=circuit)
-                gmm_noisy = self.evaluate_embeddings_test(test_emb, y_test)
+            circuit = self.build_noisy_circuit(prof["noise_model"])
+            test_emb = self.get_embeddings(triplets=x_test, circuit=circuit)
+            gmm_noisy = self.evaluate_embeddings_test(test_emb, y_test)
+            short_name = prof['filename'].replace('hist_', '').replace('.json', '')
+            print(f"Noisy: {gmm_noisy}")
 
-                # Test umap for both clean and noisy test sets
+            if noise_profile:
+                # joint UMAP so clean and noisy are in the same space
                 combined_emb = numpy.vstack([clean_emb, test_emb])
-
-                umap_model = UMAP(n_components=2, random_state=42)
-                combined_umap = umap_model.fit_transform(combined_emb)
-
-                # split back
+                combined_umap = umap.fit_transform(combined_emb)
                 train_umap = combined_umap[:len(clean_emb)]
                 test_umap = combined_umap[len(clean_emb):]
-
-                short_name = prof['filename'].replace('hist_', '').replace('.json', '')
                 grid.add('Clean', train_umap, y_test, gmm_clean, 1.0)
                 grid.add(f'Noisy: {short_name}', test_umap, y_test, gmm_noisy, prof['csc'])
-        
+            else:
+                # holdout profiles — independent UMAP per profile
+                umap_noisy = umap.fit_transform(test_emb)
+                grid.add(f'Noisy: {short_name}', umap_noisy, y_test, gmm_noisy, prof['csc'])
 
-                # grid.add(short_name, test_emb, y_test, gmm_noisy, prof['csc'])
-
-                test_results.append({
-                    'filename': prof['filename'],
-                    'backend': prof.get('backend', ''),
-                    'csc': prof['csc'],
-                    'accuracy': gmm_noisy
-                })
+            test_results.append({
+                'filename': prof['filename'],
+                'backend': prof.get('backend', ''),
+                'csc': prof['csc'],
+                'accuracy': gmm_noisy
+            })
 
         # render the full grid
         grid.render('noise_profile_grid.png')
@@ -472,6 +471,25 @@ class Triplet:
         mean_acc = numpy.mean([r['accuracy'] for r in test_results])
         print(f"Mean holdout accuracy: {mean_acc:.2f}%")
         return test_results
+    
+    def predict_clustering_variance(self, x_test, y_test, variance=None):
+
+        # init the grid plotter
+        train_labels = [int(l) for l in y_test]
+        grid = GridPlotter(train_labels, self.results_dir)
+
+        for i in range(variance):
+            test_emb = self.get_embeddings(triplets=x_test, circuit=self.circuit)
+            gmm_acc = self.evaluate_embeddings_test(test_emb, y_test)
+
+            umap_model = UMAP(n_components=2, random_state=42)
+            test_umap = umap_model.fit_transform(test_emb)
+
+
+            grid.add(f'Run: {i}', test_umap, y_test, gmm_acc, 1.00)
+
+        # render the full grid
+        grid.render('variance_plots.png')
 
 
     def _ensure_results_dir(self):
