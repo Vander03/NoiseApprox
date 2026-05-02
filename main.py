@@ -15,11 +15,11 @@ if __name__ == '__main__':
     
     params = ({
         "dataset": "MNIST", # Dataset the run was trained on
-        "epochs": 100, # number of epochs the model was trained on
+        "epochs": 150, # number of epochs the model was trained on
         "num_qubits": 5, # number of qubits in the circuit, width of the circuit
-        "PCA_dims": 16, # number of dimensions the data was reduced to
+        "PCA_dims": 32, # number of dimensions the data was reduced to
         "backend": pennylane, # backend the circuits were simulated on
-        "sim": "density_matrix", # statevector / density_matrix
+        "sim": "statevector", # statevector / density_matrix
         "shots": None, # number of shots used during circuit eval (N/A for pennylane)
         "num_triplets": 5000, # number of triplets to generate
         "label_space": 3, # number of labels selected from the class
@@ -27,11 +27,11 @@ if __name__ == '__main__':
         "batch_size": 32, # number of samples collected per batch
         "max_train_samples": 1000, # maximum training samples
         "embed_dims": 4, # number of qubits to measure at the end of the circuit
-        "learning_rate": 0.3, # learning rate param applicable to SPSA, Grad Descent and Adam
+        "learning_rate": 0.1, # learning rate param applicable to SPSA, Grad Descent and Adam
         "perturbation_rate": 0.1, # noisy variance to perturb the parameters by, Applicable to SPSA
-        "optimiser": "SPSA", # selected optimiser
+        "optimiser": "ADAM", # selected optimiser
         "noise_train": False, # if the model made use of Noise Training
-        "noise_samp_per_batch": 5, # number of noise samples the model was exposed to per batch
+        "noise_samp_per_batch": 2, # number of noise samples the model was exposed to per batch
         "historic_load": 20, # number of historical noise profiles to select from each backend
         "fake": False, # if the model made use of fake noise profiles
         "message": args.message, # required param, details the purpose for running the model

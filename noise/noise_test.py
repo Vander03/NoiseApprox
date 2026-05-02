@@ -9,7 +9,7 @@ noise_path = "Results/2026-04-29/17-03-15__NT1_e150_shots1024_lr0.8_c0.3_histTru
 noiseless_path = "Results/2026-05-01/15-32-09__NT0_e150_shots300_lr0.3_c0.1_histTrue__MNIST_l3"
 pennylane = "Results/2026-04-30/20-09-43__NT0_e200_shotsNone_lr0.3_c0.05_histTrue__MNIST_l2"
 
-eval_path = "Results/2026-05-01/21-40-45__NT0_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3"
+eval_path = "Results/2026-05-02/15-32-21__NT0_e150_shots1024_lr0.4_c0.1_histTrue__MNIST_l3"
 
 samples = 500
 
@@ -38,6 +38,52 @@ def summarise_holdout_results(results):
         'csc_range': [round(cscs.min(), 3), round(cscs.max(), 3)],
     }
 
+def pca_gmm_baseline(dataset, label_space, pca_dims, num_triplets, num_classes):
+    """fit GMM directly on PCA embeddings"""
+    from sklearn.decomposition import PCA
+    from sklearn.mixture import GaussianMixture
+    import itertools
+
+    triplets, labels = triplet_generator.generate_pca_triplets(
+        dataset=dataset,
+        label_space=label_space,
+        num_triplets=num_triplets,
+        pca_dims=pca_dims,
+        testing=False
+    )
+    t_triplets, t_labels = triplet_generator.generate_pca_triplets(
+        dataset=dataset,
+        label_space=label_space,
+        num_triplets=num_triplets,
+        pca_dims=pca_dims,
+        testing=True
+    )
+
+    # extract anchor embeddings
+    train_emb = np.array([t[0] for t in triplets])
+    test_emb = np.array([t[0] for t in t_triplets])
+    train_labels = [int(l) for l in labels]
+    test_labels = [int(l) for l in t_labels]
+
+    def permutation_accuracy(y_hat, labels, num_classes):
+        perms = list(itertools.permutations(range(num_classes)))
+        max_cor = max(
+            sum(1 for i, j in zip([p[y] for y in y_hat], labels) if i == j)
+            for p in perms
+        )
+        return 100 * max_cor / len(labels)
+
+    gmm = GaussianMixture(n_components=num_classes, random_state=42, n_init=10)
+    gmm.fit(train_emb)
+
+    train_acc = permutation_accuracy(gmm.predict(train_emb), train_labels, num_classes)
+    test_acc = permutation_accuracy(gmm.predict(test_emb), test_labels, num_classes)
+
+    print(f"PCA-only GMM baseline (pca_dims={pca_dims}, {num_classes}-class):")
+    print(f"  Train: {train_acc:.1f}%")
+    print(f"  Test:  {test_acc:.1f}%")
+
+    return train_acc, test_acc
 
 def analyse_model(path, num_profiles):
     # Load the run config from the previous run
@@ -65,6 +111,13 @@ def analyse_model(path, num_profiles):
         testing=True
     )
 
+    train_acc, test_acc = pca_gmm_baseline(
+        dataset=config['dataset'],
+        label_space=config['label_space'],
+        pca_dims=config['PCA_dims'],
+        num_triplets=config['num_triplets'],
+        num_classes=config['label_space']
+    )
 
     # Run noise robustness evaluation
     print("\nEvaluating noise robustness...")
@@ -137,6 +190,11 @@ else:
 print("\nDone. Summary:")
 for run, status in all_results.items():
     print(f"  {run}: {status}")
+
+
+
+
+
 
 
 # NT=true

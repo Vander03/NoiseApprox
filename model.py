@@ -133,6 +133,10 @@ class Triplet:
         self.weights = 0.01 * np.random.randn(self.num_layers, self.num_wires, 3)
         self.loss_history = []
 
+        # get the mean variance of all the noise profiles
+        # self.variance, _, _ = self.find_variance(triplets=triplets, n_samples=1000)
+
+
         pbar = tqdm(range(self.epochs), desc="Training")
         for i in pbar:
             batch_index = np.random.randint(0, len(triplets), (self.batch_size,)) # select batch_size random triplets to include in epoch
@@ -140,7 +144,7 @@ class Triplet:
 
             # replace lambda and save the previous loss to avoid re-evaluation
             # also allows me to save the individual contributions for plotting
-            self.weights = opt.step(lambda w: self.loss(w, x_train_batch)[0], self.weights)
+            self.weights = opt.step(lambda w: self.loss(w, x_train_batch, self.variance)[0], self.weights)
 
             # separate clean eval for logging
             total, clean, noisy = self.loss(self.weights, x_train_batch)
@@ -497,3 +501,89 @@ class Triplet:
         if not os.path.exists(self.results_dir):
             os.makedirs(self.results_dir, exist_ok=True)
             print(f"Created results dir: {self.results_dir}")
+
+
+    def find_variance(self, triplets, n_samples=500):
+
+        """
+        it takes an insane amount of time to perform inference on a bunch of noisy circuits. Furthermore, QuST assumes all gates are relevant,
+        this tunes results to the gates that matters for our circuit
+        alternatively, we measure the circuits variance before training and use the variance to perturb the noisy anchor
+        """
+        # get the clean embedding with the models randomised weights
+        samples = triplets[:n_samples]
+
+        # clean embeddings
+        clean_embs = np.array([[float(z) for z in self.circuit(self, self.weights, np.array(im[0]))] for im in tqdm(samples, desc="Clean embeddings")])
+
+        # per-profile shift distributions
+        all_shifts = []
+        profile_stats = []
+
+        for prof in tqdm(self.np_test, desc="Noisy profiles"):
+            noisy_embs = np.array([[float(z) for z in prof["circuit"](self, self.weights, np.array(im[0]))] for im in samples])
+            shifts = np.linalg.norm(clean_embs - noisy_embs, axis=1)
+            all_shifts.extend(shifts.tolist())
+            profile_stats.append({
+                'filename': prof['filename'],
+                'backend': prof.get('backend', ''),
+                'csc': prof['csc'],
+                'mean_shift': float(shifts.mean()),
+                'std_shift': float(shifts.std()),
+                'max_shift': float(shifts.max()),
+            })
+
+        all_shifts = np.array(all_shifts)
+        sigma = float(all_shifts.mean())
+        sigma_std = float(all_shifts.std())
+
+        print(f"\nCalibrated sigma: {sigma:.4f} ± {sigma_std:.4f}")
+        print(f"Range: [{all_shifts.min():.4f}, {all_shifts.max():.4f}]")
+        print(f"\nPer-profile breakdown:")
+        for p in sorted(profile_stats, key=lambda x: x['mean_shift']):
+            print(f"  {p['filename']}: mean={p['mean_shift']:.4f} std={p['std_shift']:.4f} csc={p['csc']:.3f}")
+
+        # plot
+        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+        # left — shift distribution across all profiles
+        axes[0].hist(all_shifts, bins=30, color='steelblue', alpha=0.7, edgecolor='white')
+        axes[0].axvline(sigma, color='red', linestyle='--', linewidth=2, label=f'mean σ={sigma:.4f}')
+        axes[0].axvline(sigma + sigma_std, color='coral', linestyle=':', linewidth=1.5, label=f'±1 std')
+        axes[0].axvline(sigma - sigma_std, color='coral', linestyle=':', linewidth=1.5)
+        axes[0].set_xlabel('Embedding shift magnitude (L2)')
+        axes[0].set_ylabel('Count')
+        axes[0].set_title('Distribution of embedding shifts under noise')
+        axes[0].legend()
+
+        # right — per-profile mean shift vs CSC
+        cscs = [p['csc'] for p in profile_stats]
+        means = [p['mean_shift'] for p in profile_stats]
+        stds = [p['std_shift'] for p in profile_stats]
+        backends = [p['backend'] for p in profile_stats]
+
+        colors_map = {b: c for b, c in zip(set(backends), ['steelblue', 'coral', 'teal'])}
+        for p in profile_stats:
+            axes[1].errorbar(
+                p['csc'], p['mean_shift'],
+                yerr=p['std_shift'],
+                fmt='o', color=colors_map[p['backend']],
+                capsize=4, alpha=0.8
+            )
+        for backend, color in colors_map.items():
+            axes[1].plot([], [], 'o', color=color, label=backend)
+
+        axes[1].set_xlabel('CSC')
+        axes[1].set_ylabel('Mean embedding shift')
+        axes[1].set_title('Noise-induced embedding shift vs CSC')
+        axes[1].legend()
+
+        plt.suptitle('Noise calibration: embedding shift analysis', fontweight='bold')
+        plt.tight_layout()
+
+        save_path = save_path or os.path.join(self.results_dir, 'noise_calibration.png')
+        plt.savefig(save_path, dpi=150)
+        plt.close()
+        print(f"Saved: {save_path}")
+
+        return sigma, sigma_std, profile_stats

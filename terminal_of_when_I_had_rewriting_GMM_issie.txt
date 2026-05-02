@@ -1,0 +1,1046 @@
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:27<00:00, 36.57it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:27<00:00, 36.01it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:27<00:00, 36.47it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:27<00:00, 35.72it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:27<00:00, 36.33it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:27<00:00, 35.85it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:28<00:00, 35.71it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:27<00:00, 36.35it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: variance_plots.png (12 profiles)
+
+Done. Summary:
+/opt/homebrew/anaconda3/envs/SliQ/bin/python: Error while finding module specification for 'noise.noise_test.py' (ModuleNotFoundError: __path__ attribute not found on 'noise.noise_test' while trying to find 'noise.noise_test.py'). Try using 'noise.noise_test' instead of 'noise.noise_test.py' as the module name.
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/00-19-17__NT0_e200_shotsNone_lr0.3_c0.05_histTrue__MNIST_l2 ===
+Sim: density_matrix
+
+Evaluating noise robustness...
+
+Evaluating Clean Variance...
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1188.92it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1215.43it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1216.28it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1206.57it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1210.87it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1212.18it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1208.59it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1139.75it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1200.30it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1203.40it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1209.54it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1202.12it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: variance_plots.png (12 profiles)
+
+Done. Summary:
+/opt/homebrew/anaconda3/envs/SliQ/bin/python: Error while finding module specification for 'noise.noise_test.py' (ModuleNotFoundError: __path__ attribute not found on 'noise.noise_test' while trying to find 'noise.noise_test.py'). Try using 'noise.noise_test' instead of 'noise.noise_test.py' as the module name.
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/00-19-17__NT0_e200_shotsNone_lr0.3_c0.05_histTrue__MNIST_l2 ===
+Sim: density_matrix
+
+Evaluating noise robustness...
+
+Evaluating Clean Variance...
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1245.50it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1061.95it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1104.64it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1069.31it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1156.69it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1194.90it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1167.35it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1231.22it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1222.10it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1183.81it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1138.78it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1223.28it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: variance_plots.png (12 profiles)
+
+Done. Summary:
+/opt/homebrew/anaconda3/envs/SliQ/bin/python: Error while finding module specification for 'noise.noise_test.py' (ModuleNotFoundError: __path__ attribute not found on 'noise.noise_test' while trying to find 'noise.noise_test.py'). Try using 'noise.noise_test' instead of 'noise.noise_test.py' as the module name.
+(SliQ) ➜  SliQ git:(simple) ✗ Results/2026-05-01/21-00-28__NT0_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3
+(SliQ) ➜  SliQ git:(simple) ✗ 
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py                                                                                              
+
+=== Analysing: Results/2026-05-01/21-00-28__NT0_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  2.58it/s]
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:28<00:00, 35.11it/s]
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [02:16<00:00,  7.32it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: noise_profile_grid.png (2 profiles)
+Mean holdout accuracy: 50.00%
+
+Evaluating Clean Variance...
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:29<00:00, 33.93it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:28<00:00, 35.02it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:27<00:00, 35.85it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:28<00:00, 35.07it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:28<00:00, 35.05it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:28<00:00, 35.14it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:28<00:00, 34.50it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:28<00:00, 34.72it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings:  46%|██████████████████████████████████████████████████▌                                                            | 456/1000 [00:12<00:14, 36.55it/s]Generating embeddings:  46%|██████████████████████████████████████████████████▋                                                            | 457/1000 [00:12<00:15, 35.67it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 133, in <module>
+    analyse_model(dir, num_profiles=10)
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 76, in analyse_model
+    results = model.predict_clustering_variance(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 485, in predict_clustering_variance
+    test_emb = self.get_embeddings(triplets=x_test, circuit=self.circuit)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 218, in get_embeddings
+    z_out = circuit(self, self.weights, np.array(im[0]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 863, in __call__
+    return self._impl_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 836, in _impl_call
+    res = execute(
+          ^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/execution.py", line 238, in execute
+    results = run(tapes, device, config, inner_transform)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 345, in run
+    results = ml_execute(tapes, execute_fn, jpc, device=device)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/interfaces/autograd.py", line 144, in autograd_execute
+    return _execute(parameters, tuple(tapes), execute_fn, jpc)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/autograd/tracer.py", line 54, in f_wrapped
+    return f_raw(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/interfaces/autograd.py", line 179, in _execute
+    return _to_autograd(execute_fn(tapes))
+                        ^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 263, in inner_execute
+    results = device.execute(transformed_tapes, execution_config=execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/modifiers/single_tape_support.py", line 32, in execute
+    results = batch_execute(self, circuits, execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/legacy_facade.py", line 463, in execute
+    return _set_shots(dev, first_shot)(dev.batch_execute)(circuits, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 452, in batch_execute
+    compiled_circuits = self.compile_circuits(circuits)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 440, in compile_circuits
+    self.create_circuit_object(circuit.operations, rotations=circuit.diagonalizing_gates)
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 244, in create_circuit_object
+    applied_operations = self.apply_operations(operations)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 309, in apply_operations
+    dag = circuit_to_dag(QuantumCircuit(self._reg, self._creg, name=""))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit/converters/circuit_to_dag.py", line 78, in circuit_to_dag
+    dagcircuit = core_circuit_to_dag(circuit, copy_operations, qubit_order, clbit_order)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/21-00-28__NT0_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+[np.uint8(0), np.uint8(2), np.uint8(2)]
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  2.61it/s]
+Generating embeddings:   3%|███                                                                                                             | 27/1000 [00:00<00:28, 34.53it/s]Generating embeddings:   3%|███▎                                                                                                            | 30/1000 [00:01<00:32, 29.74it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 135, in <module>
+    analyse_model(dir, num_profiles=10)
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 71, in analyse_model
+    results = model.predict_noisy_clustering(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 422, in predict_noisy_clustering
+    clean_emb = self.get_embeddings(x_test, self.circuit)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 218, in get_embeddings
+    z_out = circuit(self, self.weights, np.array(im[0]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 863, in __call__
+    return self._impl_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 836, in _impl_call
+    res = execute(
+          ^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/execution.py", line 238, in execute
+    results = run(tapes, device, config, inner_transform)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 345, in run
+    results = ml_execute(tapes, execute_fn, jpc, device=device)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/interfaces/autograd.py", line 144, in autograd_execute
+    return _execute(parameters, tuple(tapes), execute_fn, jpc)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/autograd/tracer.py", line 54, in f_wrapped
+    return f_raw(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/interfaces/autograd.py", line 179, in _execute
+    return _to_autograd(execute_fn(tapes))
+                        ^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 263, in inner_execute
+    results = device.execute(transformed_tapes, execution_config=execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/modifiers/single_tape_support.py", line 32, in execute
+    results = batch_execute(self, circuits, execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/legacy_facade.py", line 463, in execute
+    return _set_shots(dev, first_shot)(dev.batch_execute)(circuits, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 452, in batch_execute
+    compiled_circuits = self.compile_circuits(circuits)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 442, in compile_circuits
+    compiled_circ = self.compile()
+                    ^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 341, in compile
+    return transpile(
+           ^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit/compiler/transpiler.py", line 269, in transpile
+    pm = generate_preset_pass_manager(
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit/transpiler/preset_passmanagers/generate_preset_pass_manager.py", line 218, in generate_preset_pass_manager
+    instruction_durations = _parse_instruction_durations(backend, dt)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit/transpiler/preset_passmanagers/generate_preset_pass_manager.py", line 403, in _parse_instruction_durations
+    backend_durations = backend.instruction_durations
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit/providers/backend.py", line 172, in instruction_durations
+    return self.target.durations()
+           ^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit_aer/backends/aerbackend.py", line 260, in target
+    qiskit_inst_mapping = get_standard_gate_name_mapping()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit/circuit/library/standard_gates/__init__.py", line 97, in get_standard_gate_name_mapping
+    CRYGate(theta),
+    ^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit/circuit/library/standard_gates/ry.py", line 224, in __init__
+    super().__init__(
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit/circuit/controlledgate.py", line 103, in __init__
+    self.num_ctrl_qubits = num_ctrl_qubits
+    ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit/circuit/controlledgate.py", line 190, in num_ctrl_qubits
+    upper_limit = self.num_qubits - getattr(self.base_gate, "num_qubits", 0)
+                  ^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit/circuit/instruction.py", line 535, in num_qubits
+    @property
+
+KeyboardInterrupt
+
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 64
+    pca_dims=config['pca_dims']
+             ^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 64
+    pca_dims=config['pca_dims']
+             ^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/21-00-28__NT0_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 135, in <module>
+    analyse_model(dir, num_profiles=10)
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 64, in analyse_model
+    pca_dims=config['pca_dims'],
+             ~~~~~~^^^^^^^^^^^^
+KeyError: 'pca_dims'
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/21-00-28__NT0_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  2.63it/s]
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:24<00:00, 40.42it/s]
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [02:08<00:00,  7.80it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: noise_profile_grid.png (2 profiles)
+Mean holdout accuracy: 73.00%
+
+Evaluating Clean Variance...
+
+Done. Summary:
+/opt/homebrew/anaconda3/envs/SliQ/bin/python: Error while finding module specification for 'noise.noise_test.py' (ModuleNotFoundError: __path__ attribute not found on 'noise.noise_test' while trying to find 'noise.noise_test.py'). Try using 'noise.noise_test' instead of 'noise.noise_test.py' as the module name.
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/20-10-41__NT0_e200_shots300_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  2.16it/s]
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:25<00:00, 39.98it/s]
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [02:09<00:00,  7.69it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: noise_profile_grid.png (2 profiles)
+Mean holdout accuracy: 60.10%
+
+Evaluating Clean Variance...
+
+Done. Summary:
+/opt/homebrew/anaconda3/envs/SliQ/bin/python: Error while finding module specification for 'noise.noise_test.py' (ModuleNotFoundError: __path__ attribute not found on 'noise.noise_test' while trying to find 'noise.noise_test.py'). Try using 'noise.noise_test' instead of 'noise.noise_test.py' as the module name.
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/20-10-41__NT0_e200_shots300_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:04<00:00,  2.34it/s]
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:24<00:00, 41.42it/s]
+Generating embeddings:  44%|█████████████████████████████████████████████████▍                                                             | 445/1000 [01:02<01:12,  7.63it/s]Generating embeddings:  44%|█████████████████████████████████████████████████▍                                                             | 445/1000 [01:02<01:18,  7.10it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 135, in <module>
+    analyse_model(dir, num_profiles=10)
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 71, in analyse_model
+    results = model.predict_noisy_clustering(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 430, in predict_noisy_clustering
+    test_emb = self.get_embeddings(triplets=x_test, circuit=circuit)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 218, in get_embeddings
+    z_out = circuit(self, self.weights, np.array(im[0]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 863, in __call__
+    return self._impl_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 836, in _impl_call
+    res = execute(
+          ^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/execution.py", line 238, in execute
+    results = run(tapes, device, config, inner_transform)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 298, in run
+    results = inner_execute(tapes)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 263, in inner_execute
+    results = device.execute(transformed_tapes, execution_config=execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/modifiers/single_tape_support.py", line 32, in execute
+    results = batch_execute(self, circuits, execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/legacy_facade.py", line 463, in execute
+    return _set_shots(dev, first_shot)(dev.batch_execute)(circuits, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 466, in batch_execute
+    result = self._current_job.result(timeout=timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit_aer/jobs/utils.py", line 38, in _wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit_aer/jobs/aerjob.py", line 96, in result
+    return self._future.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/concurrent/futures/_base.py", line 451, in result
+    self._condition.wait(timeout)
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/threading.py", line 355, in wait
+    waiter.acquire()
+KeyboardInterrupt
+^C
+(SliQ) ➜  SliQ git:(simple) ✗ 
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/20-10-41__NT0_e200_shots300_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:03<00:00,  2.71it/s]
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:23<00:00, 42.52it/s]
+Generating embeddings:  82%|███████████████████████████████████████████████████████████████████████████████████████████                    | 820/1000 [01:59<00:36,  4.95it/s]Generating embeddings:  82%|███████████████████████████████████████████████████████████████████████████████████████████                    | 820/1000 [01:59<00:26,  6.85it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 135, in <module>
+    analyse_model(dir, num_profiles=10)
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 71, in analyse_model
+    results = model.predict_noisy_clustering(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 428, in predict_noisy_clustering
+    test_emb = self.get_embeddings(triplets=x_test, circuit=circuit)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 218, in get_embeddings
+    z_out = circuit(self, self.weights, np.array(im[0]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 863, in __call__
+    return self._impl_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 836, in _impl_call
+    res = execute(
+          ^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/execution.py", line 238, in execute
+    results = run(tapes, device, config, inner_transform)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 298, in run
+    results = inner_execute(tapes)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 263, in inner_execute
+    results = device.execute(transformed_tapes, execution_config=execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/modifiers/single_tape_support.py", line 32, in execute
+    results = batch_execute(self, circuits, execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/legacy_facade.py", line 463, in execute
+    return _set_shots(dev, first_shot)(dev.batch_execute)(circuits, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 466, in batch_execute
+    result = self._current_job.result(timeout=timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit_aer/jobs/utils.py", line 38, in _wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit_aer/jobs/aerjob.py", line 96, in result
+    return self._future.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/concurrent/futures/_base.py", line 451, in result
+    self._condition.wait(timeout)
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/threading.py", line 355, in wait
+    waiter.acquire()
+KeyboardInterrupt
+^C
+(SliQ) ➜  SliQ git:(simple) ✗ 
+(SliQ) ➜  SliQ git:(simple) ✗ 
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/20-10-41__NT0_e200_shots300_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:03<00:00,  2.62it/s]
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 41.99it/s]
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:13<00:00,  6.83it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:16<00:00,  6.50it/s]
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:14<00:00,  6.71it/s]
+Generating embeddings:  19%|█████████████████████▍                                                                                           | 95/500 [00:13<01:12,  5.61it/s]Generating embeddings:  19%|█████████████████████▍                                                                                           | 95/500 [00:14<01:00,  6.74it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 135, in <module>
+    analyse_model(dir, num_profiles=10)
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 71, in analyse_model
+    results = model.predict_noisy_clustering(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 428, in predict_noisy_clustering
+    test_emb = self.get_embeddings(triplets=x_test, circuit=circuit)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 218, in get_embeddings
+    z_out = circuit(self, self.weights, np.array(im[0]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 863, in __call__
+    return self._impl_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 836, in _impl_call
+    res = execute(
+          ^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/execution.py", line 238, in execute
+    results = run(tapes, device, config, inner_transform)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 298, in run
+    results = inner_execute(tapes)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 263, in inner_execute
+    results = device.execute(transformed_tapes, execution_config=execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/modifiers/single_tape_support.py", line 32, in execute
+    results = batch_execute(self, circuits, execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/legacy_facade.py", line 463, in execute
+    return _set_shots(dev, first_shot)(dev.batch_execute)(circuits, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 466, in batch_execute
+    result = self._current_job.result(timeout=timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit_aer/jobs/utils.py", line 38, in _wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit_aer/jobs/aerjob.py", line 96, in result
+    return self._future.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/concurrent/futures/_base.py", line 451, in result
+    self._condition.wait(timeout)
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/threading.py", line 355, in wait
+    waiter.acquire()
+KeyboardInterrupt
+^C
+(SliQ) ➜  SliQ git:(simple) ✗ 
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/20-10-41__NT0_e200_shots300_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:04<00:00,  2.49it/s]
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 42.76it/s]
+Clean: 60.4
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:11<00:00,  6.99it/s]
+Noisy: 38.4
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:15<00:00,  6.60it/s]
+Noisy: 37.6
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:14<00:00,  6.69it/s]
+Noisy: 35.8
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:11<00:00,  7.02it/s]
+Noisy: 36.8
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:11<00:00,  6.99it/s]
+Noisy: 58.6
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:10<00:00,  7.11it/s]
+Noisy: 54.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:15<00:00,  6.62it/s]
+Noisy: 58.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:12<00:00,  6.92it/s]
+Noisy: 59.4
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:11<00:00,  6.97it/s]
+Noisy: 61.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:13<00:00,  6.77it/s]
+Noisy: 60.8
+Grid saved: noise_profile_grid.png (10 profiles)
+Mean holdout accuracy: 50.08%
+
+Evaluating Clean Variance...
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 41.68it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:12<00:00, 41.22it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 42.17it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 42.88it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:12<00:00, 41.25it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 43.44it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: variance_plots.png (6 profiles)
+
+Done. Summary:
+/opt/homebrew/anaconda3/envs/SliQ/bin/python: Error while finding module specification for 'noise.noise_test.py' (ModuleNotFoundError: __path__ attribute not found on 'noise.noise_test' while trying to find 'noise.noise_test.py'). Try using 'noise.noise_test' instead of 'noise.noise_test.py' as the module name.
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-04-29/17-03-15__NT1_e150_shots1024_lr0.8_c0.3_histTrue__MNIST_l2 ===
+Sim: density_matrix, Shots: 1000
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:03<00:00,  2.63it/s]
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:14<00:00, 33.55it/s]
+Clean: 99.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:15<00:00,  6.64it/s]
+Noisy: 97.0
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:15<00:00,  6.65it/s]
+Noisy: 96.6
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:13<00:00,  6.76it/s]
+Noisy: 95.8
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:12<00:00,  6.89it/s]
+Noisy: 75.8
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:11<00:00,  6.95it/s]
+Noisy: 99.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:12<00:00,  6.85it/s]
+Noisy: 99.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:15<00:00,  6.62it/s]
+Noisy: 99.8
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:12<00:00,  6.91it/s]
+Noisy: 99.4
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:15<00:00,  6.64it/s]
+Noisy: 99.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:14<00:00,  6.68it/s]
+Noisy: 99.0
+Grid saved: noise_profile_grid.png (10 profiles)
+Mean holdout accuracy: 96.10%
+
+Evaluating Clean Variance...
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:15<00:00, 31.62it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:15<00:00, 31.76it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:14<00:00, 33.34it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:15<00:00, 33.29it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:14<00:00, 33.96it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:14<00:00, 33.39it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: variance_plots.png (6 profiles)
+
+Done. Summary:
+/opt/homebrew/anaconda3/envs/SliQ/bin/python: Error while finding module specification for 'noise.noise_test.py' (ModuleNotFoundError: __path__ attribute not found on 'noise.noise_test' while trying to find 'noise.noise_test.py'). Try using 'noise.noise_test' instead of 'noise.noise_test.py' as the module name.
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/22-52-01__NT1_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:03<00:00,  2.69it/s]
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 44.78it/s]
+Clean: 67.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:09<00:00,  7.21it/s]
+Noisy: 39.6
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:13<00:00,  6.83it/s]
+Noisy: 39.4
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:12<00:00,  6.89it/s]
+Noisy: 39.8
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:08<00:00,  7.31it/s]
+Noisy: 36.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:08<00:00,  7.25it/s]
+Noisy: 58.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:11<00:00,  7.03it/s]
+Noisy: 49.4
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:09<00:00,  7.22it/s]
+Noisy: 58.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:09<00:00,  7.22it/s]
+Noisy: 66.4
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:10<00:00,  7.05it/s]
+Noisy: 67.8
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:10<00:00,  7.08it/s]
+Noisy: 67.0
+Grid saved: noise_profile_grid.png (10 profiles)
+Mean holdout accuracy: 52.18%
+
+Evaluating Clean Variance...
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:12<00:00, 40.08it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 42.67it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 42.67it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 41.75it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: variance_plots.png (4 profiles)
+
+Done. Summary:
+/opt/homebrew/anaconda3/envs/SliQ/bin/python: Error while finding module specification for 'noise.noise_test.py' (ModuleNotFoundError: __path__ attribute not found on 'noise.noise_test' while trying to find 'noise.noise_test.py'). Try using 'noise.noise_test' instead of 'noise.noise_test.py' as the module name.
+(SliQ) ➜  SliQ git:(simple) ✗ python main.py --message "No csc run, 5 profiles" 
+Sim: density_matrix, Shots: 1000
+
+Loading Calibration Data:
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 63/63 [00:29<00:00,  2.13it/s]
+Building Encoders: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 63/63 [00:00<00:00, 361.84it/s]
+Train profiles: 54 | Test profiles: 9
+Train backends: ['ibm_kingston', 'ibm_fez', 'ibm_marrakesh']
+Training: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 200/200 [2:19:54<00:00, 41.97s/it, loss=-0.1506]
+Created results dir: Results/2026-05-02/00-29-09__NT1_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [02:01<00:00, 41.28it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: embeddings_train.png (1 profiles)
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [01:56<00:00, 43.08it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [01:53<00:00, 43.97it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: embeddings_test.png (2 profiles)
+RESULTS_DIR: Results/2026-05-02/00-29-09__NT1_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py                    
+
+=== Analysing: Results/2026-05-02/00-21-18__NT1_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:04<00:00,  2.50it/s]
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 42.98it/s]
+Clean: 73.4
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:22<00:00,  6.08it/s]
+Noisy: 35.2
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:24<00:00,  5.89it/s]
+Noisy: 34.6
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:23<00:00,  6.00it/s]
+Noisy: 34.8
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:19<00:00,  6.29it/s]
+Noisy: 34.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:17<00:00,  6.49it/s]
+Noisy: 55.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:17<00:00,  6.47it/s]
+Noisy: 46.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:14<00:00,  6.69it/s]
+Noisy: 58.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:14<00:00,  6.69it/s]
+Noisy: 73.6
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:14<00:00,  6.74it/s]
+Noisy: 74.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:15<00:00,  6.65it/s]
+Noisy: 73.0
+Grid saved: noise_profile_grid.png (10 profiles)
+Mean holdout accuracy: 51.88%
+
+Evaluating Clean Variance...
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:12<00:00, 39.09it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 41.95it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:12<00:00, 41.21it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:12<00:00, 40.08it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: variance_plots.png (4 profiles)
+
+Done. Summary:
+/opt/homebrew/anaconda3/envs/SliQ/bin/python: Error while finding module specification for 'noise.noise_test.py' (ModuleNotFoundError: __path__ attribute not found on 'noise.noise_test' while trying to find 'noise.noise_test.py'). Try using 'noise.noise_test' instead of 'noise.noise_test.py' as the module name.
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-01/21-40-45__NT0_e200_shots1000_lr0.3_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:03<00:00,  2.59it/s]
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:12<00:00, 41.01it/s]
+Clean: 74.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:10<00:00,  7.13it/s]
+Noisy: 44.4
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:16<00:00,  6.55it/s]
+Noisy: 43.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:14<00:00,  6.75it/s]
+Noisy: 41.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:09<00:00,  7.18it/s]
+Noisy: 39.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:11<00:00,  7.04it/s]
+Noisy: 70.6
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:12<00:00,  6.94it/s]
+Noisy: 71.8
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:11<00:00,  6.98it/s]
+Noisy: 72.4
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:09<00:00,  7.17it/s]
+Noisy: 75.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:09<00:00,  7.18it/s]
+Noisy: 74.8
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:09<00:00,  7.17it/s]
+Noisy: 75.2
+Grid saved: noise_profile_grid.png (10 profiles)
+Mean holdout accuracy: 60.72%
+
+Evaluating Clean Variance...
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 42.27it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 42.08it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 42.59it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 42.91it/s]
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Grid saved: variance_plots.png (4 profiles)
+
+Done. Summary:
+/opt/homebrew/anaconda3/envs/SliQ/bin/python: Error while finding module specification for 'noise.noise_test.py' (ModuleNotFoundError: __path__ attribute not found on 'noise.noise_test' while trying to find 'noise.noise_test.py'). Try using 'noise.noise_test' instead of 'noise.noise_test.py' as the module name.
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-02/15-02-30__NT0_e150_shotsNone_lr0.4_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+PCA-only GMM baseline (pca_dims=8, 3-class):
+  Train: 95.5%
+  Test:  95.2%
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:03<00:00,  2.63it/s]
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:11<00:00, 45.19it/s]
+Clean: 51.2
+Generating embeddings:  29%|████████████████████████████████▋                                                                               | 146/500 [00:19<00:55,  6.37it/s]Generating embeddings:  29%|████████████████████████████████▋                                                                               | 146/500 [00:19<00:47,  7.38it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 188, in <module>
+    analyse_model(dir, num_profiles=10)
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 124, in analyse_model
+    results = model.predict_noisy_clustering(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 429, in predict_noisy_clustering
+    test_emb = self.get_embeddings(triplets=x_test, circuit=circuit)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 219, in get_embeddings
+    z_out = circuit(self, self.weights, np.array(im[0]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 863, in __call__
+    return self._impl_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/qnode.py", line 836, in _impl_call
+    res = execute(
+          ^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/execution.py", line 238, in execute
+    results = run(tapes, device, config, inner_transform)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 298, in run
+    results = inner_execute(tapes)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/workflow/run.py", line 263, in inner_execute
+    results = device.execute(transformed_tapes, execution_config=execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/modifiers/single_tape_support.py", line 32, in execute
+    results = batch_execute(self, circuits, execution_config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane/devices/legacy_facade.py", line 463, in execute
+    return _set_shots(dev, first_shot)(dev.batch_execute)(circuits, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/pennylane_qiskit/qiskit_device_legacy.py", line 466, in batch_execute
+    result = self._current_job.result(timeout=timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit_aer/jobs/utils.py", line 38, in _wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/qiskit_aer/jobs/aerjob.py", line 96, in result
+    return self._future.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/concurrent/futures/_base.py", line 451, in result
+    self._condition.wait(timeout)
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/threading.py", line 355, in wait
+    waiter.acquire()
+KeyboardInterrupt
+^C
+(SliQ) ➜  SliQ git:(simple) ✗ 
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+^CTraceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/noise/noise_test.py", line 3, in <module>
+    from model import Triplet
+  File "/Users/schalk/Desktop/QUT/EGH400/SliQ/model.py", line 20, in <module>
+    from umap import UMAP
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/__init__.py", line 2, in <module>
+    from .umap_ import UMAP
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py", line 33, in <module>
+    import umap.sparse as sparse
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/sparse.py", line 12, in <module>
+    from umap.utils import norm
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/utils.py", line 40, in <module>
+    @numba.njit("i4(i8[:])")
+     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/decorators.py", line 234, in wrapper
+    disp.compile(sig)
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/dispatcher.py", line 908, in compile
+    cres = self._compiler.compile(args, return_type)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/dispatcher.py", line 80, in compile
+    status, retval = self._compile_cached(args, return_type)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/dispatcher.py", line 94, in _compile_cached
+    retval = self._compile_core(args, return_type)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/dispatcher.py", line 107, in _compile_core
+    cres = compiler.compile_extra(self.targetdescr.typing_context,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/compiler.py", line 737, in compile_extra
+    pipeline = pipeline_class(typingctx, targetctx, library,
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/compiler.py", line 396, in __init__
+    targetctx.refresh()
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/base.py", line 277, in refresh
+    self.typing_context.refresh()
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/context.py", line 239, in refresh
+    self._load_builtins()
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/context.py", line 488, in _load_builtins
+    self.install_registry(templates.builtin_registry)
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/context.py", line 552, in install_registry
+    self.insert_attributes(ftcls(self))
+                           ^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/templates.py", line 1057, in __init__
+    self._init_once()
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/templates.py", line 1106, in _init_once
+    registry = self._get_target_registry('method')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/templates.py", line 947, in _get_target_registry
+    tgtctx.refresh()
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/base.py", line 277, in refresh
+    self.typing_context.refresh()
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/context.py", line 239, in refresh
+    self._load_builtins()
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/context.py", line 488, in _load_builtins
+    self.install_registry(templates.builtin_registry)
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/context.py", line 556, in install_registry
+    self.insert_global(gv, gty)
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/context.py", line 606, in insert_global
+    self._insert_global(gv, gty)
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/typing/context.py", line 593, in _insert_global
+    self._globals[gv] = gty
+    ~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/numba/core/utils.py", line 445, in __setitem__
+    def __setitem__(self, key, value):
+
+KeyboardInterrupt
+^C
+(SliQ) ➜  SliQ git:(simple) ✗ python -m noise.noise_test.py
+
+=== Analysing: Results/2026-05-02/15-06-13__NT0_e150_shotsNone_lr0.4_c0.1_histTrue__MNIST_l3 ===
+Sim: density_matrix, Shots: 1000
+PCA-only GMM baseline (pca_dims=32, 3-class):
+  Train: 93.6%
+  Test:  43.3%
+
+Evaluating noise robustness...
+Loading calibration profiles: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:03<00:00,  2.51it/s]
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:14<00:00, 34.65it/s]
+Clean: 68.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:18<00:00,  6.36it/s]
+Noisy: 63.2
+/opt/homebrew/anaconda3/envs/SliQ/lib/python3.12/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:59<00:00,  4.18it/s]
+Noisy: 63.6
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:31<00:00,  5.44it/s]
+Noisy: 62.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:22<00:00,  6.09it/s]
+Noisy: 48.6
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:23<00:00,  6.01it/s]
+Noisy: 69.4
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:27<00:00,  5.70it/s]
+Noisy: 56.6
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:26<00:00,  5.78it/s]
+Noisy: 73.2
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:21<00:00,  6.10it/s]
+Noisy: 71.0
+Generating embeddings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:17<00:00,  6.47it/s]
+Noisy: 71.8
+Generating embeddings:  88%|██████████████████████████████████████████████████████████████████████████████████████████████████▊             | 441/500 [01:08<00:09,  6.51it/s]

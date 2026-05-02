@@ -13,8 +13,8 @@ import datetime
 pennylane = "lightning.qubit"
 
 GRID = {
-    "learning_rate":     [0.05, 0.1, 0.2, 0.5],
-    "perturbation_rate": [0.01, 0.05, 0.1, 0.2],
+    "learning_rate":     [0.05, 0.1, 0.2, 0.3, 0.4, 0.5],
+    "PCA_dim": [8, 16, 32]
 }
 
 BASE_PARAMS = {
@@ -29,7 +29,7 @@ BASE_PARAMS = {
     "batch_size":         32,
     "max_train_samples":  500,
     "embed_dims":         4,
-    "optimiser":          "SPSA",
+    "optimiser":          "ADAM",
     "noise_train":        False,
     "noise_samp_per_batch": 2,
     "historic_load":      10,
@@ -41,10 +41,11 @@ BASE_PARAMS = {
     "PCA_dims":           16
 }
 
-def run_combination(lr, cr, pca):
+def run_combination(lr, pca):
     params = {**BASE_PARAMS, 
-              "learning_rate": lr, 
-              "perturbation_rate": cr, 
+              "learning_rate": lr,
+              "perturbation_rate": None,
+              "PCA_dims": pca,
               "results": {}}
 
     triplets, labels = triplet_generator.generate_pca_triplets(
@@ -76,7 +77,6 @@ def run_combination(lr, cr, pca):
 
     return {
         "learning_rate":     lr,
-        "perturbation_rate": cr,
         "PCA_dims":          pca,
         "gmm_train":         gmm_train,
         "gmm_test":          gmm_test,
@@ -94,15 +94,15 @@ if __name__ == '__main__':
     results = []
 
     for combo in tqdm(combos, desc="Grid search"):
-        lr, cr, pca = combo
-        print(f"\n→ lr={lr} cr={cr} pca={pca}")
+        lr, pca = combo
+        print(f"\n→ lr={lr} pca={pca}")
         try:
-            result = run_combination(lr, cr, pca)
+            result = run_combination(lr, pca)
             results.append(result)
             print(f"  train={result['gmm_train']:.1f}% test={result['gmm_test']:.1f}% loss={result['min_loss']:.4f}")
         except Exception as e:
             print(f"  FAILED: {e}")
-            results.append({"learning_rate": lr, "perturbation_rate": cr, "PCA_dims": pca, "error": str(e)})
+            results.append({"learning_rate": lr, "PCA_dims": pca, "error": str(e)})
 
     # save all results
     _now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -117,6 +117,6 @@ if __name__ == '__main__':
     print(f"\n{'='*60}")
     print(f"TOP 5 RESULTS (by test GMM accuracy):")
     for r in valid[:5]:
-        print(f"  lr={r['learning_rate']} cr={r['perturbation_rate']} pca={r['PCA_dims']} "
+        print(f"  lr={r['learning_rate']} pca={r['PCA_dims']} "
               f"→ train={r['gmm_train']:.1f}% test={r['gmm_test']:.1f}% loss={r['min_loss']:.4f}")
     print(f"\nFull results saved to {out_path}")
