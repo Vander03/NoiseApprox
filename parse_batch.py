@@ -32,7 +32,8 @@ for date_dir in os.listdir(results_root):
         nt = config["noise_train"]
         mean_acc = noisy.get("summary", {}).get("mean", None)
         if mean_acc is None:
-            accs = [r["accuracy"] for r in noisy.get("results", [])]
+            accs = [r["accuracy"] for r in noisy.get("results", []) 
+                    if r.get("filename") != "clean"]  # exclude clean entry
             mean_acc = np.mean(accs) if accs else None
         
         if mean_acc is not None:
