@@ -51,6 +51,7 @@ class Triplet:
         self.embed_dims = params['embed_dims']
         self.shots = params['shots']
         self.learning_rate = params['learning_rate']
+        self.cooldown_lr = params['cooldown_lr']
         self.perturbation_rate = params['perturbation_rate']
         self.backend = params['backend']
         self.noise_train = params['noise_train']
@@ -65,6 +66,13 @@ class Triplet:
         self.testing = testing
         self.sim = 'density_matrix' if testing else params.get('sim', 'statevector')
         print(f"Sim: {self.sim}, Shots: {self.shots}")
+        self.threshold = params["threshold"]
+        self.variance_samples = params['variance_samples']
+        self.epoch_variance = params['epoch_variance']
+        self.variance = None # initialise to none for non-NT runs
+
+        # randomly initialise the weights
+        self.weights = 0.01 * np.random.randn(self.num_layers, self.num_wires, 3) # move here to allow for retraining. Otherwise it overwrites the loaded weights when training starts
 
         # file management
         # only create a new file when training, save stuff to the provided filename when testing
@@ -129,12 +137,7 @@ class Triplet:
         if "SPSA" in self.optimiser:
             opt = qml.SPSAOptimizer(maxiter=self.epochs, a=self.learning_rate, c=self.perturbation_rate)
 
-        # randomly initialise the weights
-        self.weights = 0.01 * np.random.randn(self.num_layers, self.num_wires, 3)
         self.loss_history = []
-
-        # get the mean variance of all the noise profiles
-        # self.variance, _, _ = self.find_variance(triplets=triplets, n_samples=1000)
 
 
         pbar = tqdm(range(self.epochs), desc="Training")
@@ -142,12 +145,20 @@ class Triplet:
             batch_index = np.random.randint(0, len(triplets), (self.batch_size,)) # select batch_size random triplets to include in epoch
             x_train_batch = [triplets[im] for im in batch_index]
 
+            # if i == 150 and self.cooldown_lr:
+            #     opt.stepsize = 0.1
+
+            if (i % self.epoch_variance == 0 or i == 0) and self.noise_train:
+                # get the mean variance of all the noise profiles
+                self.variance, _, _ = self.get_variance(triplets=triplets, n_samples=self.variance_samples)
+                print(f"Variance: {self.variance}")
+
             # replace lambda and save the previous loss to avoid re-evaluation
             # also allows me to save the individual contributions for plotting
             self.weights = opt.step(lambda w: self.loss(w, x_train_batch, self.variance)[0], self.weights)
 
             # separate clean eval for logging
-            total, clean, noisy = self.loss(self.weights, x_train_batch)
+            total, clean, noisy = self.loss(self.weights, x_train_batch, variance=self.variance)
             current_loss = float(total)
             self.loss_history.append(current_loss)
             self.clean_loss_history.append(float(clean))
@@ -160,7 +171,7 @@ class Triplet:
                 numpy.save('base_mnist', self.weights_list)
 
 
-    def loss(self, weights, features):
+    def loss(self, weights, features, variance):
         clean_loss = 0
         noisy_loss = 0
         total_loss = 0
@@ -171,23 +182,26 @@ class Triplet:
             N = self.circuit(self, weights, np.array(im[2]))
 
             # clean_loss += (np.abs(A[0]-P[0]) + np.abs(A[1]-P[1])) - (np.abs(A[0]-N[0]) + np.abs(A[1]-N[1]))
-            clean_loss += (np.square(A[0]-P[0]) + np.square(A[1]-P[1])) - (np.square(A[0]-N[0]) + np.square(A[1]-N[1]))
+            d_pos = sum(np.square(A[i]-P[i]) for i in range(len(A)))
+            d_neg = sum(np.square(A[i]-N[i]) for i in range(len(A)))
+            clean_loss += d_pos - d_neg
 
             # noisy embeddings
             if self.noise_train and self.np_train:
-                n_loss = []
-                # hold out some noise profiles for generialisation testing
-                trainable = [p for p in self.np_train if p['filename'] not in self.holdout_profiles]
-                Cn = random.sample(trainable, min(self.noise_samp_per_batch, len(trainable))) # select 10 random samples from the collected noise profiles
-                for prof in Cn:
-                    n_A = prof["circuit"](self, weights, np.array(im[0]))
-                    # l = (np.abs(A[0]-n_A[0]) + np.abs(A[1]-n_A[1])) # embed the noisy anchor close to clean anchor
-                    # l = (np.square(A[0]-n_A[0]) + np.square(A[1]-n_A[1])) # square loss noisy anchor should be close to clean anchor
-                    l = (np.square(n_A[0]-P[0]) + np.square(n_A[1]-P[1])) - (np.square(n_A[0]-N[0]) + np.square(n_A[1]-N[1])) # noisy anchor needs to be closer to the positive than the negative
-                    n_loss.append(l)
-                    #n_loss.append(prof["csc"] * l) 
+                # TODO: try noisy negative maybe. Encourage good seperation from other results? Could this be what drives samples apart better
+                A_arr = np.array(A)
+                N_arr = np.array(N)
+                anchor_noise = numpy.array(numpy.random.normal(0, variance, len(A)))
+                negative_noise = numpy.array(numpy.random.normal(0, variance, len(A)))
+                n_A = A_arr + anchor_noise
+                n_N = N_arr + negative_noise
+                d_pos = sum(np.square(n_A[i]-P[i]) for i in range(len(A)))
+                d_neg = sum(np.square(n_A[i]-n_N[i]) for i in range(len(A)))
+                noisy_loss += d_pos - d_neg
+
+
+                # noisy_loss += (np.square(A[0]-P[0]) + np.square(n_A[1]-P[1])) - (np.square(n_A[0]-n_N[0]) + np.square(n_A[1]-n_N[1])) # noisy anchor needs to be closer to the positive than the negative
                 # accumulate noise into loss function
-                noisy_loss += (1/(self.noise_samp_per_batch) * sum(n_loss))
 
             # loss += (np.square(A[0]-P[0]) + np.square(A[1]-P[1])) - (np.square(A[0]-N[0]) + np.square(A[1]-N[1])) # l2 loss
         total_loss = noisy_loss + clean_loss
@@ -263,7 +277,7 @@ class Triplet:
     def build_noisy_circuit(self, noise_model):
         noise_sim = AerSimulator(
             noise_model=noise_model,
-            method=self.sim,
+            method='density_matrix',
             basis_gates=['cx', 'u1', 'u2', 'u3', 'rx', 'ry', 'rz', 'id', 'x', 'y', 'z', 'h', 's', 'sdg', 't', 'tdg', 'swap', 'cx', 'ccx']
         )
         noisy_dev = qml.device(
@@ -272,7 +286,7 @@ class Triplet:
             backend=noise_sim,
         )
 
-        @qml.qnode(noisy_dev, shots=self.shots)
+        @qml.qnode(noisy_dev, shots=1000)
         def noisy_circuit(self, weights, features):
             AmplitudeEmbedding(
                 features=features.astype('float64'),
@@ -414,7 +428,7 @@ class Triplet:
     def load_weights(self, weights):
         self.weights = weights
 
-    def predict_noisy_clustering(self, x_test, y_test, noise_profile=None, variance=None):
+    def predict_noisy_clustering(self, x_train, y_train, x_test, y_test, noise_profile=None, variance=None):
         # select the holdout profile noise cirucits from circuit storage
         # OR select the provided noise profiles
         test_profiles = self.noise_helper.load_calibration_data(noise_profile if noise_profile else self.holdout_profiles)
@@ -424,10 +438,21 @@ class Triplet:
         grid = GridPlotter(train_labels, self.results_dir)
         umap = UMAP(n_components=2, random_state=42)
 
+        # train gmm again on density_matrix
+        # train_emb = self.get_embeddings(x_test, self.circuit)
+        # train_gmm = self.evaluate_embeddings(train_emb, [int(l) for l in y_train])
+
         clean_emb = self.get_embeddings(x_test, self.circuit)
-        gmm_clean = self.evaluate_embeddings_test(clean_emb, [int(l) for l in y_test])
+        gmm_clean = self.evaluate_embeddings_test(clean_emb, y_test)
+        # gmm_clean = self.evaluate_embeddings(clean_emb, [int(l) for l in y_test])
         print(f"Clean: {gmm_clean}")
         test_results = []
+        test_results.append({
+                'filename': "clean",
+                'backend': "clean",
+                'csc': 1.0,
+                'accuracy': gmm_clean
+            })
         for prof in test_profiles:
             circuit = self.build_noisy_circuit(prof["noise_model"])
             test_emb = self.get_embeddings(triplets=x_test, circuit=circuit)
@@ -503,45 +528,47 @@ class Triplet:
             print(f"Created results dir: {self.results_dir}")
 
 
-    def find_variance(self, triplets, n_samples=500):
-
+    def get_variance(self, triplets, n_samples=500):
         """
-        it takes an insane amount of time to perform inference on a bunch of noisy circuits. Furthermore, QuST assumes all gates are relevant,
-        this tunes results to the gates that matters for our circuit
+        it takes an insane amount of time to perform training on a bunch of noisy circuits. Furthermore, QuST assumes all gates are relevant,
+        computing the output variance tunes results to the gates that matters for our circuit
         alternatively, we measure the circuits variance before training and use the variance to perturb the noisy anchor
         """
-        # get the clean embedding with the models randomised weights
         samples = triplets[:n_samples]
-
         # clean embeddings
-        clean_embs = np.array([[float(z) for z in self.circuit(self, self.weights, np.array(im[0]))] for im in tqdm(samples, desc="Clean embeddings")])
+        clean_embs = np.array([[float(z) for z in self.circuit(self, self.weights, np.array(im[0]))] for im in samples])
 
         # per-profile shift distributions
         all_shifts = []
         profile_stats = []
 
-        for prof in tqdm(self.np_test, desc="Noisy profiles"):
+        for prof in self.np_train:
             noisy_embs = np.array([[float(z) for z in prof["circuit"](self, self.weights, np.array(im[0]))] for im in samples])
             shifts = np.linalg.norm(clean_embs - noisy_embs, axis=1)
             all_shifts.extend(shifts.tolist())
             profile_stats.append({
-                'filename': prof['filename'],
-                'backend': prof.get('backend', ''),
-                'csc': prof['csc'],
-                'mean_shift': float(shifts.mean()),
-                'std_shift': float(shifts.std()),
-                'max_shift': float(shifts.max()),
+            'filename': prof['filename'],
+            'backend': prof.get('backend', ''),
+            'csc': prof['csc'],
+            'mean_shift': float(shifts.mean()),
+            'std_shift': float(shifts.std()),
+            'max_shift': float(shifts.max()),
             })
 
+        # TODO: add filtering of extremely noisy profiles based on their variance. How do i decide this variance though
+        threshold = self.threshold # visually from shift distribution
+        filtered_shifts = np.array([p['mean_shift'] for p in profile_stats if p['mean_shift'] <= threshold])
+        
         all_shifts = np.array(all_shifts)
-        sigma = float(all_shifts.mean())
+        # sigma = float(filtered_shifts.mean())
+        sigma = float(filtered_shifts.mean())
         sigma_std = float(all_shifts.std())
 
-        print(f"\nCalibrated sigma: {sigma:.4f} ± {sigma_std:.4f}")
-        print(f"Range: [{all_shifts.min():.4f}, {all_shifts.max():.4f}]")
-        print(f"\nPer-profile breakdown:")
-        for p in sorted(profile_stats, key=lambda x: x['mean_shift']):
-            print(f"  {p['filename']}: mean={p['mean_shift']:.4f} std={p['std_shift']:.4f} csc={p['csc']:.3f}")
+        return sigma, sigma_std, all_shifts
+
+    def find_variance(self, triplets, n_samples=500):
+        self._ensure_results_dir()
+        sigma, sigma_std, all_shifts = self.get_variance(triplets=triplets, n_samples=n_samples)
 
         # plot
         fig, axes = plt.subplots(1, 2, figsize=(14, 5))
@@ -556,34 +583,13 @@ class Triplet:
         axes[0].set_title('Distribution of embedding shifts under noise')
         axes[0].legend()
 
-        # right — per-profile mean shift vs CSC
-        cscs = [p['csc'] for p in profile_stats]
-        means = [p['mean_shift'] for p in profile_stats]
-        stds = [p['std_shift'] for p in profile_stats]
-        backends = [p['backend'] for p in profile_stats]
-
-        colors_map = {b: c for b, c in zip(set(backends), ['steelblue', 'coral', 'teal'])}
-        for p in profile_stats:
-            axes[1].errorbar(
-                p['csc'], p['mean_shift'],
-                yerr=p['std_shift'],
-                fmt='o', color=colors_map[p['backend']],
-                capsize=4, alpha=0.8
-            )
-        for backend, color in colors_map.items():
-            axes[1].plot([], [], 'o', color=color, label=backend)
-
-        axes[1].set_xlabel('CSC')
-        axes[1].set_ylabel('Mean embedding shift')
-        axes[1].set_title('Noise-induced embedding shift vs CSC')
-        axes[1].legend()
 
         plt.suptitle('Noise calibration: embedding shift analysis', fontweight='bold')
         plt.tight_layout()
 
-        save_path = save_path or os.path.join(self.results_dir, 'noise_calibration.png')
+        save_path = os.path.join(self.results_dir, 'noise_calibration.png')
         plt.savefig(save_path, dpi=150)
         plt.close()
         print(f"Saved: {save_path}")
 
-        return sigma, sigma_std, profile_stats
+        return sigma, sigma_std
