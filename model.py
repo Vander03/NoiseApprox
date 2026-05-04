@@ -138,7 +138,10 @@ class Triplet:
             opt = qml.SPSAOptimizer(maxiter=self.epochs, a=self.learning_rate, c=self.perturbation_rate)
 
         self.loss_history = []
-
+        if self.noise_train:
+            # get the median variance of all the noise profiles
+            self.variance, _, _ = self.get_variance(triplets=triplets, n_samples=self.variance_samples)
+            print(f"Variance: {self.variance}")
 
         pbar = tqdm(range(self.epochs), desc="Training")
         for i in pbar:
@@ -147,11 +150,6 @@ class Triplet:
 
             # if i == 150 and self.cooldown_lr:
             #     opt.stepsize = 0.1
-
-            if (i % self.epoch_variance == 0 or i == 0) and self.noise_train:
-                # get the mean variance of all the noise profiles
-                self.variance, _, _ = self.get_variance(triplets=triplets, n_samples=self.variance_samples)
-                print(f"Variance: {self.variance}")
 
             # replace lambda and save the previous loss to avoid re-evaluation
             # also allows me to save the individual contributions for plotting
@@ -175,6 +173,7 @@ class Triplet:
         clean_loss = 0
         noisy_loss = 0
         total_loss = 0
+        # margin = 0.35 # 0.21
         for im in features:
             # clean embeddings
             A = self.circuit(self, weights, np.array(im[0]))
@@ -191,13 +190,16 @@ class Triplet:
                 # TODO: try noisy negative maybe. Encourage good seperation from other results? Could this be what drives samples apart better
                 A_arr = np.array(A)
                 N_arr = np.array(N)
-                anchor_noise = numpy.array(numpy.random.normal(0, variance, len(A)))
-                negative_noise = numpy.array(numpy.random.normal(0, variance, len(A)))
+                # old distribution, had noise variance at the extremes
+                # anchor_noise = numpy.array(numpy.random.normal(0, variance, len(A)))
+                # negative_noise = numpy.array(numpy.random.normal(0, variance, len(A)))
+                anchor_noise = numpy.random.uniform(-variance, variance, len(A))
+                negative_noise = numpy.random.uniform(-variance, variance, len(A))
                 n_A = A_arr + anchor_noise
                 n_N = N_arr + negative_noise
                 d_pos = sum(np.square(n_A[i]-P[i]) for i in range(len(A)))
                 d_neg = sum(np.square(n_A[i]-n_N[i]) for i in range(len(A)))
-                noisy_loss += d_pos - d_neg
+                clean_loss += d_pos - d_neg
 
 
                 # noisy_loss += (np.square(A[0]-P[0]) + np.square(n_A[1]-P[1])) - (np.square(n_A[0]-n_N[0]) + np.square(n_A[1]-n_N[1])) # noisy anchor needs to be closer to the positive than the negative
@@ -556,12 +558,12 @@ class Triplet:
             })
 
         # TODO: add filtering of extremely noisy profiles based on their variance. How do i decide this variance though
-        threshold = self.threshold # visually from shift distribution
-        filtered_shifts = np.array([p['mean_shift'] for p in profile_stats if p['mean_shift'] <= threshold])
+        # threshold = self.threshold # visually from shift distribution
+        # filtered_shifts = np.array([p['mean_shift'] for p in profile_stats if p['mean_shift'] <= threshold])
         
-        all_shifts = np.array(all_shifts)
+        all_shifts = numpy.array(all_shifts)
         # sigma = float(filtered_shifts.mean())
-        sigma = float(filtered_shifts.mean())
+        sigma = float(numpy.median(all_shifts))
         sigma_std = float(all_shifts.std())
 
         return sigma, sigma_std, all_shifts

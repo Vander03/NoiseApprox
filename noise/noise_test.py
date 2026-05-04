@@ -330,8 +330,9 @@ def analyse_model(path, num_profiles=10):
     config = run_info["config"]
     config['shots'] = 1000
 
-    # if 'qubit' in config['backend']:
-    #     config['backend'] = "qiskit.aer"
+    if 'qubit' in config['backend']:
+        config['backend'] = "qiskit.aer"
+        config['sim'] = "density_matrix"
 
     model = Triplet(config, testing=True, results_dir=path)
     weights = np.load(os.path.join(path, 'weights.npy'), allow_pickle=True)

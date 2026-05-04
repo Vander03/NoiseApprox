@@ -104,3 +104,10 @@ Mon May  4 06:43:55 AEST 2026: non-NT lr= seed=5 DONE
 Mon May  4 06:43:55 AEST 2026: NT lr= seed=5 START
 Mon May  4 07:43:26 AEST 2026: NT lr= seed=5 DONE
 Mon May  4 07:43:26 AEST 2026: All runs complete
+Mon May  4 11:47:07 AEST 2026: non-NT lr=0.1 seed=1 START
+Mon May  4 12:06:45 AEST 2026: non-NT lr=0.1 seed=1 DONE
+Mon May  4 12:06:45 AEST 2026: NT lr=0.1 seed=1 START
+Mon May  4 12:46:31 AEST 2026: non-NT lr=0.1 seed=1 START
+Mon May  4 13:08:16 AEST 2026: non-NT lr=0.1 seed=1 DONE
+Mon May  4 13:08:16 AEST 2026: NT lr=0.1 seed=1 START
+Mon May  4 14:01:39 AEST 2026: non-NT lr=0.1 seed=1 START

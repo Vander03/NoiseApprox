@@ -13,7 +13,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--message', type=str, required=True, help='describe the purpose of this run')
     parser.add_argument('--noise_train', type=lambda x: x.lower() == 'true', default=True)
-    parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--learning_rate', type=float, default=0.4)
     args = parser.parse_args()
     

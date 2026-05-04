@@ -61,5 +61,9 @@
             "csc": 0.8082762747769852,
             "accuracy": 73.2
         }
-    ]
+    ],
+    "qiskit_clean": 87.8,
+    "pennylane_test": 86.32,
+    "qiskit_pennylane_gap": 1.48,
+    "noisy_mean": 59.32
 }
