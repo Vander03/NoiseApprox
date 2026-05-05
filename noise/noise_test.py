@@ -335,8 +335,13 @@ def analyse_model(path, num_profiles=10):
         config['sim'] = "density_matrix"
 
     model = Triplet(config, testing=True, results_dir=path)
-    weights = np.load(os.path.join(path, 'weights.npy'), allow_pickle=True)
-    model.weights = weights[-1]
+    # try best weights first, fall back to last
+    best_path = os.path.join(path, 'best_weights.npy')
+    if os.path.exists(best_path):
+        model.weights = np.load(best_path, allow_pickle=True)
+    else:
+        weights = np.load(os.path.join(path, 'weights.npy'), allow_pickle=True)
+        model.weights = weights[-1]
     
     triplets, labels = triplet_generator.generate_pca_triplets(
         dataset=config['dataset'],
@@ -395,7 +400,7 @@ if __name__ == '__main__':
     # if retrain_path:
     #     analyse_model(retrain_path, num_profiles=10)
     # else:
-    eval_path = "Results/2026-05-03/20-24-30__NT1_e150_shotsNone_lr0.4_cNone_histTrue__MNIST_l3"
+    eval_path = "Results/2026-05-04/22-19-48__NT1_e250_shotsNone_lr0.1_cNone_histTrue__MNIST_l3"
     analyse_model(eval_path, num_profiles=10)
 
 

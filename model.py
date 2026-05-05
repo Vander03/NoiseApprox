@@ -42,6 +42,8 @@ class Triplet:
         self.noisy_loss_history = []
         self.losses = []
         self.holdout_profiles = self.noise_helper.holdout_profiles
+        self.best_loss = float('inf')
+        self.current_epoch = 0
 
         # unpack params
         self.num_wires = params['num_qubits']
@@ -70,6 +72,8 @@ class Triplet:
         self.variance_samples = params['variance_samples']
         self.epoch_variance = params['epoch_variance']
         self.variance = None # initialise to none for non-NT runs
+        self.staged_epochs = params.get('staged_epochs', 50)
+        self.ramp = params.get('ramp', 50)
 
         # randomly initialise the weights
         self.weights = 0.01 * np.random.randn(self.num_layers, self.num_wires, 3) # move here to allow for retraining. Otherwise it overwrites the loaded weights when training starts
@@ -140,23 +144,34 @@ class Triplet:
         self.loss_history = []
         if self.noise_train:
             # get the median variance of all the noise profiles
-            self.variance, _, _ = self.get_variance(triplets=triplets, n_samples=self.variance_samples)
+            self.variance, _, _ = self.get_variance(triplets=triplets)
             print(f"Variance: {self.variance}")
 
         pbar = tqdm(range(self.epochs), desc="Training")
         for i in pbar:
             batch_index = np.random.randint(0, len(triplets), (self.batch_size,)) # select batch_size random triplets to include in epoch
             x_train_batch = [triplets[im] for im in batch_index]
-
+            self.current_epoch = i
             # if i == 150 and self.cooldown_lr:
             #     opt.stepsize = 0.1
 
             # replace lambda and save the previous loss to avoid re-evaluation
             # also allows me to save the individual contributions for plotting
-            self.weights = opt.step(lambda w: self.loss(w, x_train_batch, self.variance)[0], self.weights)
+            # stage 1: clean only, establish geometry before introducing noise
+            if self.noise_train and i < self.staged_epochs:
+                self.weights = opt.step(
+                    lambda w: self.loss(w, x_train_batch)[1],  # clean_loss only
+                    self.weights
+                )
+            else:
+                self.weights = opt.step(
+                    lambda w: self.loss(w, x_train_batch)[0],  # total_loss
+                    self.weights
+                )
+            # self.weights = opt.step(lambda w: self.loss(w, x_train_batch)[0], self.weights)
 
             # separate clean eval for logging
-            total, clean, noisy = self.loss(self.weights, x_train_batch, variance=self.variance)
+            total, clean, noisy = self.loss(self.weights, x_train_batch)
             current_loss = float(total)
             self.loss_history.append(current_loss)
             self.clean_loss_history.append(float(clean))
@@ -164,12 +179,22 @@ class Triplet:
 
             pbar.set_postfix(loss=f"{current_loss:.4f}")
 
+            # track best weights
+            if current_loss < self.best_loss:
+                self.best_loss = current_loss
+                self.best_weights = self.weights.copy()
+            
             if i % 20 == 0 and i > 1:
                 self.weights_list.append(self.weights)
-                numpy.save('base_mnist', self.weights_list)
 
+    def hypersphere_random(self, embedding):
+        # sample direction uniformly on unit hypersphere
+        direction = numpy.random.randn(len(embedding))
+        direction = direction / numpy.linalg.norm(direction)
 
-    def loss(self, weights, features, variance):
+        return direction
+
+    def loss(self, weights, features):
         clean_loss = 0
         noisy_loss = 0
         total_loss = 0
@@ -193,13 +218,23 @@ class Triplet:
                 # old distribution, had noise variance at the extremes
                 # anchor_noise = numpy.array(numpy.random.normal(0, variance, len(A)))
                 # negative_noise = numpy.array(numpy.random.normal(0, variance, len(A)))
-                anchor_noise = numpy.random.uniform(-variance, variance, len(A))
-                negative_noise = numpy.random.uniform(-variance, variance, len(A))
-                n_A = A_arr + anchor_noise
-                n_N = N_arr + negative_noise
+                # anchor_noise = numpy.random.uniform(-self.variance, self.variance, len(A))
+                # negative_noise = numpy.random.uniform(-self.variance, self.variance, len(A))
+                # n_A = A_arr + anchor_noise
+                # n_N = N_arr + negative_noise
+
+                # shift samples in the same direciton but with different magnitudes to simulate correlated shifts
+                # uniform shifts to ensure the sample is always perturbed, up to a maximum of the median variance of the noise profiles
+                n_A = A_arr + (self.hypersphere_random(A) * numpy.random.uniform(0, self.variance))
+                n_N = N_arr + (self.hypersphere_random(N) * numpy.random.uniform(0, self.variance))
+
+                # A_distance = np.linalg.norm(np.array(A) - n_A)
+                # N_distance = np.linalg.norm(np.array(N) - n_N)
+                # print(f"Anchor dist: {A_distance}, Neg dist: {N_distance}")
+
                 d_pos = sum(np.square(n_A[i]-P[i]) for i in range(len(A)))
                 d_neg = sum(np.square(n_A[i]-n_N[i]) for i in range(len(A)))
-                clean_loss += d_pos - d_neg
+                noisy_loss += (d_pos - d_neg)
 
 
                 # noisy_loss += (np.square(A[0]-P[0]) + np.square(n_A[1]-P[1])) - (np.square(n_A[0]-n_N[0]) + np.square(n_A[1]-n_N[1])) # noisy anchor needs to be closer to the positive than the negative
@@ -311,10 +346,12 @@ class Triplet:
         # save loss history and weights
         np.save(os.path.join(self.results_dir, 'loss_history.npy'), self.loss_history)
         numpy.save(os.path.join(self.results_dir, 'weights.npy'), self.weights_list)
+        # save best weights separately
+        numpy.save(os.path.join(self.results_dir, 'best_weights.npy'), self.best_weights)
 
         # save loss plot
         self.plot_loss(save_path=os.path.join(self.results_dir, 'loss.png'))
-
+        self.weights = self.best_weights
         # run embedding eval and save plots
         gmm_train = self.predict_clustering(
             triplets, labels,
@@ -530,36 +567,28 @@ class Triplet:
             print(f"Created results dir: {self.results_dir}")
 
 
-    def get_variance(self, triplets, n_samples=500):
+    def get_variance(self, triplets):
         """
         it takes an insane amount of time to perform training on a bunch of noisy circuits. Furthermore, QuST assumes all gates are relevant,
         computing the output variance tunes results to the gates that matters for our circuit
-        alternatively, we measure the circuits variance before training and use the variance to perturb the noisy anchor
+        alternatively, we measure the circuits variance before training and use the variance to perturb the embeddings
         """
-        samples = triplets[:n_samples]
+        # zero weights for identity circuit variance measurements
+        zero_weights = numpy.zeros_like(self.weights)
+        samples = triplets[:self.variance_samples]
         # clean embeddings
-        clean_embs = np.array([[float(z) for z in self.circuit(self, self.weights, np.array(im[0]))] for im in samples])
+        clean_embs = np.array([[float(z) for z in self.circuit(self, zero_weights, np.array(im[0]))] for im in samples])
 
         # per-profile shift distributions
         all_shifts = []
-        profile_stats = []
 
-        for prof in self.np_train:
-            noisy_embs = np.array([[float(z) for z in prof["circuit"](self, self.weights, np.array(im[0]))] for im in samples])
+        for prof in tqdm(self.np_train, desc="Getting variance embeddings"):
+            noisy_embs = np.array([[float(z) for z in prof["circuit"](self, zero_weights, np.array(im[0]))] for im in samples])
             shifts = np.linalg.norm(clean_embs - noisy_embs, axis=1)
             all_shifts.extend(shifts.tolist())
-            profile_stats.append({
-            'filename': prof['filename'],
-            'backend': prof.get('backend', ''),
-            'csc': prof['csc'],
-            'mean_shift': float(shifts.mean()),
-            'std_shift': float(shifts.std()),
-            'max_shift': float(shifts.max()),
-            })
 
         # TODO: add filtering of extremely noisy profiles based on their variance. How do i decide this variance though
-        # threshold = self.threshold # visually from shift distribution
-        # filtered_shifts = np.array([p['mean_shift'] for p in profile_stats if p['mean_shift'] <= threshold])
+        # REMOVED FILTERING IN PLACE OF MEDIAN
         
         all_shifts = numpy.array(all_shifts)
         # sigma = float(filtered_shifts.mean())
@@ -567,6 +596,7 @@ class Triplet:
         sigma_std = float(all_shifts.std())
 
         return sigma, sigma_std, all_shifts
+
 
     def find_variance(self, triplets, n_samples=500):
         self._ensure_results_dir()

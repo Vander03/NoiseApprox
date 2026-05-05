@@ -111,3 +111,99 @@ Mon May  4 12:46:31 AEST 2026: non-NT lr=0.1 seed=1 START
 Mon May  4 13:08:16 AEST 2026: non-NT lr=0.1 seed=1 DONE
 Mon May  4 13:08:16 AEST 2026: NT lr=0.1 seed=1 START
 Mon May  4 14:01:39 AEST 2026: non-NT lr=0.1 seed=1 START
+Mon May  4 14:22:57 AEST 2026: NT lr=0.1 seed=1
+Mon May  4 14:22:57 AEST 2026: NT lr=0.1 seed=1 START
+Mon May  4 14:46:31 AEST 2026: NT lr=0.1 seed=1 DONE
+Mon May  4 14:46:31 AEST 2026: non-NT lr=0.1 seed=2 START
+Mon May  4 15:08:35 AEST 2026: NT lr=0.1 seed=2
+Mon May  4 15:08:35 AEST 2026: NT lr=0.1 seed=2 START
+Mon May  4 15:32:03 AEST 2026: NT lr=0.1 seed=2 DONE
+Mon May  4 15:32:03 AEST 2026: non-NT lr=0.1 seed=3 START
+Mon May  4 15:53:54 AEST 2026: NT lr=0.1 seed=3
+Mon May  4 15:53:55 AEST 2026: NT lr=0.1 seed=3 START
+Mon May  4 16:17:23 AEST 2026: NT lr=0.1 seed=3 DONE
+Mon May  4 16:17:23 AEST 2026: non-NT lr=0.1 seed=4 START
+Mon May  4 16:39:23 AEST 2026: NT lr=0.1 seed=4
+Mon May  4 16:39:23 AEST 2026: NT lr=0.1 seed=4 START
+Mon May  4 17:02:07 AEST 2026: NT lr=0.1 seed=4 DONE
+Mon May  4 17:02:07 AEST 2026: non-NT lr=0.1 seed=5 START
+Mon May  4 17:23:16 AEST 2026: NT lr=0.1 seed=5
+Mon May  4 17:23:16 AEST 2026: NT lr=0.1 seed=5 START
+Mon May  4 17:45:48 AEST 2026: NT lr=0.1 seed=5 DONE
+Mon May  4 17:45:48 AEST 2026: non-NT lr=0.2 seed=1 START
+Mon May  4 17:48:14 AEST 2026: non-NT lr=0.1 seed=1 START
+Mon May  4 17:48:18 AEST 2026: NT lr=0.1 seed=1
+Mon May  4 17:48:18 AEST 2026: NT lr=0.1 seed=1 START
+Mon May  4 17:48:22 AEST 2026: non-NT lr=0.1 seed=2 START
+Mon May  4 17:48:26 AEST 2026: NT lr=0.1 seed=2
+Mon May  4 17:48:26 AEST 2026: NT lr=0.1 seed=2 START
+Mon May  4 17:48:44 AEST 2026: non-NT lr=0.1 seed=1 START
+Mon May  4 17:57:45 AEST 2026: non-NT lr=0.4 seed=1 START
+Tue May  5 00:35:04 AEST 2026: non-NT lr=0.1 seed=1 START
+Tue May  5 01:04:49 AEST 2026: NT lr=0.1 seed=1
+Tue May  5 01:04:49 AEST 2026: NT lr=0.1 seed=1 START
+Tue May  5 01:04:53 AEST 2026: non-NT lr=0.1 seed=2 START
+Tue May  5 01:34:15 AEST 2026: NT lr=0.1 seed=2
+Tue May  5 01:34:15 AEST 2026: NT lr=0.1 seed=2 START
+Tue May  5 01:34:19 AEST 2026: non-NT lr=0.1 seed=3 START
+Tue May  5 02:03:31 AEST 2026: NT lr=0.1 seed=3
+Tue May  5 02:03:31 AEST 2026: NT lr=0.1 seed=3 START
+Tue May  5 02:03:35 AEST 2026: non-NT lr=0.1 seed=4 START
+Tue May  5 02:32:43 AEST 2026: NT lr=0.1 seed=4
+Tue May  5 02:32:43 AEST 2026: NT lr=0.1 seed=4 START
+Tue May  5 02:32:47 AEST 2026: non-NT lr=0.1 seed=5 START
+Tue May  5 03:01:58 AEST 2026: NT lr=0.1 seed=5
+Tue May  5 03:01:58 AEST 2026: NT lr=0.1 seed=5 START
+Tue May  5 03:02:03 AEST 2026: non-NT lr=0.1 seed=6 START
+Tue May  5 03:31:09 AEST 2026: NT lr=0.1 seed=6
+Tue May  5 03:31:09 AEST 2026: NT lr=0.1 seed=6 START
+Tue May  5 03:31:13 AEST 2026: non-NT lr=0.1 seed=7 START
+Tue May  5 04:00:30 AEST 2026: NT lr=0.1 seed=7
+Tue May  5 04:00:30 AEST 2026: NT lr=0.1 seed=7 START
+Tue May  5 04:00:34 AEST 2026: All runs complete
+Tue May  5 09:49:01 AEST 2026: NT lr=0.1 seed=1 START
+Tue May  5 10:21:21 AEST 2026: NT lr=0.1 seed=1 DONE
+Tue May  5 10:21:21 AEST 2026: NT lr=0.1 seed=2 START
+Tue May  5 12:13:01 AEST 2026: non-NT lr=0.1 seed=1 START
+Tue May  5 12:13:42 AEST 2026: non-NT lr=0.1 seed=1 START
+Tue May  5 12:44:42 AEST 2026: NT lr=0.1 seed=1
+Tue May  5 12:44:42 AEST 2026: NT lr=0.1 seed=1 START
+Tue May  5 13:19:08 AEST 2026: NT lr=0.1 seed=1 DONE
+Tue May  5 13:19:08 AEST 2026: non-NT lr=0.1 seed=2 START
+Tue May  5 13:49:50 AEST 2026: NT lr=0.1 seed=2
+Tue May  5 13:49:50 AEST 2026: NT lr=0.1 seed=2 START
+Tue May  5 14:24:44 AEST 2026: NT lr=0.1 seed=2 DONE
+Tue May  5 14:24:44 AEST 2026: non-NT lr=0.1 seed=3 START
+Tue May  5 14:56:17 AEST 2026: NT lr=0.1 seed=3
+Tue May  5 14:56:17 AEST 2026: NT lr=0.1 seed=3 START
+Tue May  5 15:30:51 AEST 2026: NT lr=0.1 seed=3 DONE
+Tue May  5 15:30:51 AEST 2026: non-NT lr=0.1 seed=4 START
+Tue May  5 16:02:14 AEST 2026: NT lr=0.1 seed=4
+Tue May  5 16:02:14 AEST 2026: NT lr=0.1 seed=4 START
+Tue May  5 16:37:27 AEST 2026: NT lr=0.1 seed=4 DONE
+Tue May  5 16:37:27 AEST 2026: non-NT lr=0.1 seed=5 START
+Tue May  5 16:54:49 AEST 2026: non-NT lr=0.1 seed=3 START
+Tue May  5 17:01:47 AEST 2026: non-NT lr=0.1 seed=3 START
+Tue May  5 17:56:54 AEST 2026: non-NT lr=0.1 seed=1 START
+Tue May  5 17:58:24 AEST 2026: non-NT lr=0.1 seed=1 START
+Tue May  5 17:58:39 AEST 2026: non-NT lr=0.1 seed=1 START
+Tue May  5 18:00:43 AEST 2026: non-NT lr=0.1 seed=1 START
+Tue May  5 18:01:23 AEST 2026: NT lr=0.1 seed=1 START
+Tue May  5 18:36:21 AEST 2026: NT lr=0.1 seed=1 DONE
+Tue May  5 18:36:21 AEST 2026: non-NT lr=0.1 seed=1 START
+Tue May  5 19:07:14 AEST 2026: NT lr=0.1 seed=1
+Tue May  5 19:07:14 AEST 2026: NT lr=0.1 seed=4 START
+Tue May  5 19:41:26 AEST 2026: NT lr=0.1 seed=4 DONE
+Tue May  5 19:41:26 AEST 2026: non-NT lr=0.1 seed=4 START
+Tue May  5 20:11:30 AEST 2026: NT lr=0.1 seed=4
+Tue May  5 20:11:30 AEST 2026: NT lr=0.1 seed=2 START
+Tue May  5 20:45:48 AEST 2026: NT lr=0.1 seed=2 DONE
+Tue May  5 20:45:48 AEST 2026: non-NT lr=0.1 seed=2 START
+Tue May  5 21:16:06 AEST 2026: NT lr=0.1 seed=2
+Tue May  5 21:16:06 AEST 2026: NT lr=0.1 seed=3 START
+Tue May  5 21:50:57 AEST 2026: NT lr=0.1 seed=3 DONE
+Tue May  5 21:50:57 AEST 2026: non-NT lr=0.1 seed=3 START
+Tue May  5 22:21:40 AEST 2026: NT lr=0.1 seed=3
+Tue May  5 22:21:40 AEST 2026: NT lr=0.1 seed=5 START
+Tue May  5 22:55:44 AEST 2026: NT lr=0.1 seed=5 DONE
+Tue May  5 22:55:44 AEST 2026: non-NT lr=0.1 seed=5 START
