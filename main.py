@@ -46,11 +46,13 @@ if __name__ == '__main__':
     parser.add_argument('--noise_train', type=lambda x: x.lower() == 'true', default=True)
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--learning_rate', type=float, default=0.1)
+    parser.add_argument('--ramp', type=float, default=50)
+    parser.add_argument('--staged', type=float, default=50)
     args = parser.parse_args()
     
     params = ({
         "dataset": "MNIST", # Dataset the run was trained on
-        "epochs": 250, # number of epochs the model was trained on
+        "epochs": 300, # number of epochs the model was trained on
         "num_qubits": 5, # number of qubits in the circuit, width of the circuit
         "PCA_dims": 32, # number of dimensions the data was reduced to
         "backend": pennylane, # backend the circuits were simulated on
@@ -78,8 +80,8 @@ if __name__ == '__main__':
         "variance_samples": 10, # number of samples to calculate variance per profile
         "threshold": 0.10, # threshold of variance to allow during training
         "seed": args.seed,
-        "staged_epochs": 50, # number of epochs before the noise training starts
-        "staged_epochs": 50 # number of epochs before the noise training gets to full strength
+        "staged_epochs": args.staged, # number of epochs before the noise training starts
+        "ramp": args.ramp # number of epochs before the noise training gets to full strength
     })
 
     np.random.seed(args.seed)

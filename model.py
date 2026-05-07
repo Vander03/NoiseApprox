@@ -74,6 +74,7 @@ class Triplet:
         self.variance = None # initialise to none for non-NT runs
         self.staged_epochs = params.get('staged_epochs', 50)
         self.ramp = params.get('ramp', 50)
+        print(f"RAMP: {self.ramp}")
 
         # randomly initialise the weights
         self.weights = 0.01 * np.random.randn(self.num_layers, self.num_wires, 3) # move here to allow for retraining. Otherwise it overwrites the loaded weights when training starts
@@ -152,23 +153,7 @@ class Triplet:
             batch_index = np.random.randint(0, len(triplets), (self.batch_size,)) # select batch_size random triplets to include in epoch
             x_train_batch = [triplets[im] for im in batch_index]
             self.current_epoch = i
-            # if i == 150 and self.cooldown_lr:
-            #     opt.stepsize = 0.1
-
-            # replace lambda and save the previous loss to avoid re-evaluation
-            # also allows me to save the individual contributions for plotting
-            # stage 1: clean only, establish geometry before introducing noise
-            if self.noise_train and i < self.staged_epochs:
-                self.weights = opt.step(
-                    lambda w: self.loss(w, x_train_batch)[1],  # clean_loss only
-                    self.weights
-                )
-            else:
-                self.weights = opt.step(
-                    lambda w: self.loss(w, x_train_batch)[0],  # total_loss
-                    self.weights
-                )
-            # self.weights = opt.step(lambda w: self.loss(w, x_train_batch)[0], self.weights)
+            self.weights = opt.step(lambda w: self.loss(w, x_train_batch)[0], self.weights)
 
             # separate clean eval for logging
             total, clean, noisy = self.loss(self.weights, x_train_batch)
@@ -223,6 +208,10 @@ class Triplet:
                 # n_A = A_arr + anchor_noise
                 # n_N = N_arr + negative_noise
 
+                if self.current_epoch < self.staged_epochs:
+                    noisy_weight = 0.0
+                else:
+                    noisy_weight = min(1.0, (self.current_epoch - self.staged_epochs) / max(self.ramp, 1))
                 # shift samples in the same direciton but with different magnitudes to simulate correlated shifts
                 # uniform shifts to ensure the sample is always perturbed, up to a maximum of the median variance of the noise profiles
                 n_A = A_arr + (self.hypersphere_random(A) * numpy.random.uniform(0, self.variance))
@@ -234,7 +223,7 @@ class Triplet:
 
                 d_pos = sum(np.square(n_A[i]-P[i]) for i in range(len(A)))
                 d_neg = sum(np.square(n_A[i]-n_N[i]) for i in range(len(A)))
-                noisy_loss += (d_pos - d_neg)
+                noisy_loss += noisy_weight * (d_pos - d_neg)
 
 
                 # noisy_loss += (np.square(A[0]-P[0]) + np.square(n_A[1]-P[1])) - (np.square(n_A[0]-n_N[0]) + np.square(n_A[1]-n_N[1])) # noisy anchor needs to be closer to the positive than the negative
@@ -250,13 +239,13 @@ class Triplet:
     #     for wire in range(self.num_wires-1):
     #         qml.CNOT(wires=[wire, self.num_wires-1])
 
+    # ring
     def layer(self, W):
         for i in range(self.num_wires):
             qml.Rot(W[i, 0], W[i, 1], W[i, 2], wires=i)
         for wire in range(self.num_wires - 1):
             qml.CNOT(wires=[wire, wire + 1])  # each qubit talks to its neighbour
         qml.CNOT(wires=[self.num_wires - 1, 0])  # close the ring
-
 
     def generate_y_hats(self, y_hat, num_clusters):
         import itertools

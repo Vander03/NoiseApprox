@@ -63,7 +63,7 @@ def print_run_means(results_root="Results", keyword=None):
     for r in runs:
         nt_str = "NT" if r["nt"] else "non-NT"
         clean_str = f"{r['clean']:.1f}%" if r["clean"] else "N/A"
-        print(f"{nt_str:<8} {str(r['lr']):<6} {str(r['seed']):<6} {clean_str:>8} {r['mean']:>11.2f}%  {r['message'][:150]}  {r['filename']}")
+        print(f"{nt_str:<8} {str(r['lr']):<6} {str(r['seed']):<6} {clean_str:>8} {r['mean']:>11.2f}%  {r['message'][len(r["message"])-13:]}  {r['filename'][:50]}")
 
 if __name__ == "__main__":
     import argparse

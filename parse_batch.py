@@ -15,7 +15,7 @@ from collections import defaultdict
 import matplotlib.colors as mcolors
 
 results_root = "Results"
-keyword = "staged"  # change to match your run messages
+keyword = "50rampseed"  # change to match your run messages
 samples = 500
 
 # ─────────────────────────────────────────────────────────────
@@ -53,6 +53,12 @@ for date_dir in sorted(os.listdir(results_root)):
                 if r.get("filename") != "clean"]
         mean_acc = numpy.mean(accs) if accs else None
 
+        for backend in ['ibm_kingston', 'ibm_fez', 'ibm_marrakesh']:
+            backend_accs = [r['accuracy'] for r in noisy.get("results", [])
+                            if r.get('backend') == backend 
+                            and r.get('filename') != 'clean']
+            print(f"{backend}: mean={numpy.mean(backend_accs):.1f}%")
+
         if mean_acc is not None:
             lr = config["learning_rate"]
             nt = config["noise_train"]
@@ -73,6 +79,53 @@ print("-" * 60)
 for (lr, nt), accs in sorted(summary.items()):
     accs = numpy.array(accs)
     print(f"{lr} {nt:<10} {len(accs):>4} {accs.mean():>8.2f} {accs.std():>8.2f} {accs.min():>8.2f} {accs.max():>8.2f}")
+
+
+# ─────────────────────────────────────────────────────────────
+# PER-BACKEND SUMMARY
+# ─────────────────────────────────────────────────────────────
+
+backends = ['ibm_kingston', 'ibm_fez', 'ibm_marrakesh']
+backend_summary = defaultdict(lambda: defaultdict(list))  # backend → condition → [accs]
+
+for run in matched_runs:
+    path   = run["path"]
+    config = run["config"]
+    nt     = config["noise_train"]
+    condition = "NT" if nt else "non-NT"
+    if (keyword not in config['message']):
+        continue
+
+    noisy_path = os.path.join(path, "noisy_eval_results.json")
+    with open(noisy_path) as f:
+        noisy_data = json.load(f)
+
+    results = noisy_data.get("results", [])
+    clean_acc = next((r["accuracy"] for r in results if r.get("filename") == "clean"), None)
+
+    for backend in backends:
+        backend_accs = [r["accuracy"] for r in results
+                        if r.get("backend") == backend
+                        and r.get("filename") != "clean"]
+        if backend_accs:
+            backend_summary[backend][condition].extend(backend_accs)
+            backend_summary[backend][f"{condition}_clean"].extend([clean_acc] if clean_acc else [])
+
+print(f"\n{'Backend':<20} {'Condition':<10} {'N':>4} {'Clean':>8} {'Noisy Mean':>12} {'Drop':>8}")
+print("-" * 70)
+for backend in backends:
+    for condition in ["non-NT", "NT"]:
+        noisy_accs = backend_summary[backend][condition]
+        clean_accs = backend_summary[backend][f"{condition}_clean"]
+        if not noisy_accs:
+            continue
+        noisy_mean = numpy.mean(noisy_accs)
+        clean_mean = numpy.mean(clean_accs) if clean_accs else 0
+        drop = clean_mean - noisy_mean
+        n = len(noisy_accs)
+        print(f"{backend:<20} {condition:<10} {n:>4} {clean_mean:>8.1f}% {noisy_mean:>11.1f}% {drop:>7.1f}%")
+    print()
+# in summarise_seeds.py or a new script
 
 sys.exit()
 
