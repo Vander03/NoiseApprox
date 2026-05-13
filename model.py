@@ -145,8 +145,8 @@ class Triplet:
         self.loss_history = []
         if self.noise_train:
             # get the median variance of all the noise profiles
-            self.variance, _, _ = self.get_variance(triplets=triplets)
-            print(f"Variance: {self.variance}")
+            self.fit_noise_distribution(triplets=triplets)
+            # print(f"Variance: {self.variance}")
 
         pbar = tqdm(range(self.epochs), desc="Training")
         for i in pbar:
@@ -178,6 +178,15 @@ class Triplet:
         direction = direction / numpy.linalg.norm(direction)
 
         return direction
+    
+    def sample_noise(self):
+        """sample from fitted noise distribution"""
+        return numpy.random.multivariate_normal(self.noise_mean, self.noise_cov)
+    
+    def sample_noise(self):
+        """sample a noise shift vector from the fitted GMM"""
+        noise_vec, _ = self.noise_gmm.sample(1)  # returns (1, embed_dims)
+        return noise_vec[0]  # shape (embed_dims,)
 
     def loss(self, weights, features):
         clean_loss = 0
@@ -214,16 +223,29 @@ class Triplet:
                     noisy_weight = min(1.0, (self.current_epoch - self.staged_epochs) / max(self.ramp, 1))
                 # shift samples in the same direciton but with different magnitudes to simulate correlated shifts
                 # uniform shifts to ensure the sample is always perturbed, up to a maximum of the median variance of the noise profiles
-                n_A = A_arr + (self.hypersphere_random(A) * numpy.random.uniform(0, self.variance))
-                n_N = N_arr + (self.hypersphere_random(N) * numpy.random.uniform(0, self.variance))
+                # n_A = A_arr + (self.hypersphere_random(A) * numpy.random.uniform(0, self.variance))
+                # n_N = N_arr + (self.hypersphere_random(N) * numpy.random.uniform(0, self.variance))
+                noise_vec = self.sample_noise()          # the shift vector
+                shift_prob = self.noise_gmm.score_samples(noise_vec.reshape(1,-1))[0]
+                noisy_weight_sample = numpy.clip(numpy.exp(shift_prob), 0.0, 1.0)
+
+                n_A = A_arr + noise_vec                  # apply shift
+                n_N = N_arr + self.sample_noise()
 
                 # A_distance = np.linalg.norm(np.array(A) - n_A)
                 # N_distance = np.linalg.norm(np.array(N) - n_N)
                 # print(f"Anchor dist: {A_distance}, Neg dist: {N_distance}")
 
+                # weight by how representative this noise sample is
+                # shift_prob = self.noise_gmm.score_samples(n_A.reshape(1,-1))[0]
+                # noisy_weight_sample = numpy.exp(shift_prob)  # higher prob = higher weight
+
                 d_pos = sum(np.square(n_A[i]-P[i]) for i in range(len(A)))
                 d_neg = sum(np.square(n_A[i]-n_N[i]) for i in range(len(A)))
-                noisy_loss += noisy_weight * (d_pos - d_neg)
+                noisy_loss += (d_pos - d_neg)
+                # d_pos = sum(np.square(n_A[i]-P[i]) for i in range(len(A)))
+                # d_neg = sum(np.square(n_A[i]-n_N[i]) for i in range(len(A)))
+                # noisy_loss += (noisy_weight * (d_pos - d_neg))
 
 
                 # noisy_loss += (np.square(A[0]-P[0]) + np.square(n_A[1]-P[1])) - (np.square(n_A[0]-n_N[0]) + np.square(n_A[1]-n_N[1])) # noisy anchor needs to be closer to the positive than the negative
@@ -245,7 +267,7 @@ class Triplet:
             qml.Rot(W[i, 0], W[i, 1], W[i, 2], wires=i)
         for wire in range(self.num_wires - 1):
             qml.CNOT(wires=[wire, wire + 1])  # each qubit talks to its neighbour
-        qml.CNOT(wires=[self.num_wires - 1, 0])  # close the ring
+            qml.CNOT(wires=[self.num_wires - 1, 0])  # close the ring
 
     def generate_y_hats(self, y_hat, num_clusters):
         import itertools
@@ -564,17 +586,17 @@ class Triplet:
         """
         # zero weights for identity circuit variance measurements
         zero_weights = numpy.zeros_like(self.weights)
-        samples = triplets[:self.variance_samples]
+        sample = triplets[numpy.random.randint(0, len(triplets))][0]
         # clean embeddings
-        clean_embs = np.array([[float(z) for z in self.circuit(self, zero_weights, np.array(im[0]))] for im in samples])
+        clean_embs = np.array([float(z) for z in self.circuit(self, zero_weights, np.array(sample))])
 
         # per-profile shift distributions
         all_shifts = []
 
         for prof in tqdm(self.np_train, desc="Getting variance embeddings"):
-            noisy_embs = np.array([[float(z) for z in prof["circuit"](self, zero_weights, np.array(im[0]))] for im in samples])
-            shifts = np.linalg.norm(clean_embs - noisy_embs, axis=1)
-            all_shifts.extend(shifts.tolist())
+            for _ in range(self.variance_samples):  # run same sample N times
+                noisy_embs = np.array([float(z) for z in prof["circuit"](self, zero_weights, np.array(sample))])
+                all_shifts.append(clean_embs - noisy_embs)
 
         # TODO: add filtering of extremely noisy profiles based on their variance. How do i decide this variance though
         # REMOVED FILTERING IN PLACE OF MEDIAN
@@ -586,6 +608,50 @@ class Triplet:
 
         return sigma, sigma_std, all_shifts
 
+    def fit_noise_distribution(self, triplets, n_samples=10):
+        """fit multivariate Gaussian to observed embedding shifts"""
+        from sklearn.mixture import GaussianMixture
+        
+        zero_weights = numpy.zeros_like(self.weights)
+        sample_indices = numpy.random.choice(len(triplets), n_samples, replace=False)
+        
+        all_shift_vectors = []
+        emb = []
+        shift_backends = []
+        for idx in tqdm(sample_indices, desc="Getting variance embeddings"):
+            sample = triplets[idx][0]
+            clean_emb = numpy.array([float(z) for z in self.circuit(self, zero_weights, numpy.array(sample))])
+            emb.append((clean_emb, "Noiseless"))
+            
+            for prof in self.np_train:
+                noisy_emb = numpy.array([float(z) for z in prof["circuit"](self, zero_weights, numpy.array(sample))])
+                emb.append((noisy_emb, prof['backend']))
+                shift_vector = noisy_emb - clean_emb  # full vector not magnitude
+                all_shift_vectors.append(shift_vector)
+                shift_backends.append(prof['backend'])
+            # also embed holdout profiles to see where they fall
+            for prof in self.np_test:
+                noisy_emb = numpy.array([float(z) for z in prof["circuit"](self, zero_weights, numpy.array(sample))])
+                emb.append((noisy_emb, f"{prof['backend']}_holdout"))
+                shift_vector = noisy_emb - clean_emb  # full vector not magnitude
+                all_shift_vectors.append(shift_vector)
+                shift_backends.append(f"{prof['backend']}_holdout")
+        
+        all_shift_vectors = numpy.array(all_shift_vectors)
+        
+        self.plot_embedding_spread(emb, "noise_spread.png")
+        self.plot_embedding_spread(list(zip(all_shift_vectors, shift_backends)), "shift_spread.png")
+        self.plot_embedding_shift_magnitude(list(zip(all_shift_vectors, shift_backends)))
+
+        # fit multivariate Gaussian to shift vectors
+        # mean and covariance of the noise distribution
+        self.noise_gmm = GaussianMixture(n_components=1, random_state=42)
+        self.noise_gmm.fit(all_shift_vectors)
+        self.noise_mean = numpy.mean(all_shift_vectors, axis=0)
+        self.noise_cov  = numpy.cov(all_shift_vectors.T)
+        
+        print(f"Noise distribution mean: {self.noise_mean}")
+        print(f"Noise covariance diagonal: {numpy.diag(self.noise_cov)}")
 
     def find_variance(self, triplets, n_samples=500):
         self._ensure_results_dir()
@@ -614,3 +680,64 @@ class Triplet:
         print(f"Saved: {save_path}")
 
         return sigma, sigma_std
+    
+    def plot_embedding_spread(self, embeddings, save_name='embedding_spread.png'):
+        """
+        embeddings: list of (numpy_array, backend_str) tuples
+                    OR plain numpy array (no colour coding)
+        """
+        self._ensure_results_dir()
+
+        # handle both formats
+        emb_array = numpy.array([e[0] for e in embeddings])
+        backends  = [e[1] for e in embeddings]
+
+        umap_model = UMAP(n_components=2, random_state=42)
+        embs_2d = umap_model.fit_transform(emb_array)
+        fig, ax = plt.subplots(figsize=(9, 7))
+
+        unique_backends = sorted(set(backends))
+        colors = ['steelblue', 'coral', 'mediumseagreen', 'gold', 'orchid']
+        for i, backend in enumerate(unique_backends):
+            mask = [b == backend for b in backends]
+            pts  = embs_2d[mask]
+            if backend == "Noiseless":
+                ax.scatter(pts[:,0], pts[:,1], s=30, alpha=1, color=colors[i % len(colors)], label=backend, marker="D")
+            if "holdout" in backend:
+                ax.scatter(pts[:,0], pts[:,1], s=20, alpha=1, color=colors[i % len(colors)], label=backend, marker="X")
+            else:
+                ax.scatter(pts[:,0], pts[:,1], s=12, alpha=0.55, color=colors[i % len(colors)], label=backend)
+
+        ax.legend(fontsize=8, title='Backend')
+        ax.set_title(f'Embedding spread (n={len(emb_array)})')
+        ax.set_xlabel('UMAP 1')
+        ax.set_ylabel('UMAP 2')
+
+        save_path = os.path.join(self.results_dir, save_name)
+        plt.savefig(save_path, dpi=120)
+        plt.close()
+        print(f"Saved: {save_path}")
+
+    def plot_embedding_shift_magnitude(self, embeddings, save_name="embedding_shift_mag.png"):
+        self._ensure_results_dir()
+
+        emb_array = numpy.array([e[0] for e in embeddings])
+        backends  = [e[1] for e in embeddings]
+        magnitudes = numpy.linalg.norm(emb_array, axis=1)
+
+        unique_backends = sorted(set(backends))
+        data = [magnitudes[[b == backend for b in backends]] for backend in unique_backends]
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        parts = ax.violinplot(data, positions=range(len(unique_backends)), showmedians=True)
+
+        ax.set_xticks(range(len(unique_backends)))
+        ax.set_xticklabels(unique_backends, rotation=20, ha='right')
+        ax.set_ylabel('Shift magnitude (L2)')
+        ax.set_title('Embedding shift magnitude by backend')
+        plt.tight_layout()
+
+        save_path = os.path.join(self.results_dir, save_name)
+        plt.savefig(save_path, dpi=120)
+        plt.close()
+        print(f"Saved: {save_path}")

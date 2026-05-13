@@ -1,7 +1,7 @@
 import os, json
 import numpy as np
 
-def print_run_means(results_root="Results", keyword=None):
+def print_run_means(results_root="Results", keyword=None, seed=None):
     runs = []
     
     for date_dir in sorted(os.listdir(results_root)):
@@ -21,7 +21,7 @@ def print_run_means(results_root="Results", keyword=None):
                 noisy = json.load(f)
             
             message = run_info["config"].get("message", "")
-            if keyword and keyword not in message:
+            if (keyword and keyword not in message) or (run_info["config"].get("seed", 1) != seed):
                 continue
             
             results = noisy.get("results", [])
@@ -69,5 +69,6 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--keyword", type=str, default=None)
+    parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
-    print_run_means(keyword=args.keyword)
+    print_run_means(keyword=args.keyword, seed=args.seed)

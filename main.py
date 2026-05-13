@@ -52,7 +52,7 @@ if __name__ == '__main__':
     
     params = ({
         "dataset": "MNIST", # Dataset the run was trained on
-        "epochs": 300, # number of epochs the model was trained on
+        "epochs": 150, # number of epochs the model was trained on
         "num_qubits": 5, # number of qubits in the circuit, width of the circuit
         "PCA_dims": 32, # number of dimensions the data was reduced to
         "backend": pennylane, # backend the circuits were simulated on
@@ -70,7 +70,7 @@ if __name__ == '__main__':
         "optimiser": "ADAM", # selected optimiser
         "noise_train": args.noise_train, # if the model made use of Noise Training
         "noise_samp_per_batch": 2, # number of noise samples the model was exposed to per batch
-        "historic_load": 20, # number of historical noise profiles to select from each backend
+        "historic_load": 30, # number of historical noise profiles to select from each backend
         "fake": False, # if the model made use of fake noise profiles
         "message": args.message, # required param, details the purpose for running the model
         "noise_profiles": [], # array to store the noise profiles seen during training
@@ -81,7 +81,8 @@ if __name__ == '__main__':
         "threshold": 0.10, # threshold of variance to allow during training
         "seed": args.seed,
         "staged_epochs": args.staged, # number of epochs before the noise training starts
-        "ramp": args.ramp # number of epochs before the noise training gets to full strength
+        "ramp": args.ramp, # number of epochs before the noise training gets to full strength
+        "metric_learning": False
     })
 
     np.random.seed(args.seed)
@@ -94,14 +95,16 @@ if __name__ == '__main__':
         label_space=params['label_space'],
         num_triplets=params['num_triplets'],
         testing=False,
-        pca_dims=params['PCA_dims']
+        pca_dims=params['PCA_dims'],
+        metric_learning=params['metric_learning']
     )
     t_triplets, t_labels = triplet_generator.generate_pca_triplets(
         dataset=params['dataset'],
         label_space=params['label_space'],
         num_triplets=params['num_triplets'],
         testing=True,
-        pca_dims=params['PCA_dims']
+        pca_dims=params['PCA_dims'],
+        metric_learning=params['metric_learning']
     )
 
     network = model.Triplet(params)
