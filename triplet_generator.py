@@ -114,8 +114,9 @@ def generate_triplets(x, y, size=5000):
 def generate_augmented_triplets(x, y, num_triplets=5000):
     triplets = []
     labels = []
+    _rng = random.Random(42) # seperate random instance so each run has the same samples
     for _ in range(num_triplets):
-        idx = random.randint(0, len(x) - 1)
+        idx = _rng.randint(0, len(x) - 1)
         idy = y[idx] # save its label only for GMM evaluation
         anchor = x[idx]
         positive = augment(anchor)

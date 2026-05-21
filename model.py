@@ -82,6 +82,7 @@ class Triplet:
 
         # randomly initialise the weights
         self.weights = 0.01 * np.random.randn(self.num_layers, self.num_wires, 3) # move here to allow for retraining. Otherwise it overwrites the loaded weights when training starts
+        self._rng = random.Random(42) # seed for variances kept consistent between seeds
 
         # file management
         # only create a new file when training, save stuff to the provided filename when testing
@@ -104,8 +105,6 @@ class Triplet:
             )
 
             self.results_dir = os.path.join('Results', run_name)
-
-
 
         # Load noise data
         # only load the noise profiles during training, the testing function loads its own profiles for testing
@@ -160,7 +159,7 @@ class Triplet:
 
         pbar = tqdm(range(self.epochs), desc="Training")
         for i in pbar:
-            batch_index = np.random.randint(0, len(triplets), (self.batch_size,)) # select batch_size random triplets to include in epoch
+            batch_index = np.random.randint(0, len(triplets), self.batch_size) # select batch_size random triplets to include in epoch
             x_train_batch = [triplets[im] for im in batch_index]
             self.current_epoch = i
             self.weights = opt.step(lambda w: self.loss(w, x_train_batch)[0], self.weights)
@@ -348,7 +347,8 @@ class Triplet:
         """Clean or noisy device initialisation"""
         sim = AerSimulator(
             noise_model=noise_model,
-            method=self.sim, # maybe change back to density_matrix
+            method='density_matrix', # maybe change back to density_matrix
+            seed_simulator=42,
             max_parallel_threads=5, # I have 5 super cores so no use heating up the whole laptop for no increase in speed
             max_parallel_experiments=5
         )
@@ -359,6 +359,9 @@ class Triplet:
         noise_sim = AerSimulator(
             noise_model=noise_model,
             method='density_matrix',
+            seed_simulator=42,
+            max_parallel_threads=5, # I have 5 super cores so no use heating up the whole laptop for no increase in speed
+            max_parallel_experiments=5,
             basis_gates=['cx', 'u1', 'u2', 'u3', 'rx', 'ry', 'rz', 'id', 'x', 'y', 'z', 'h', 's', 'sdg', 't', 'tdg', 'swap', 'cx', 'ccx']
         )
         noisy_dev = qml.device(
@@ -470,8 +473,6 @@ class Triplet:
 
         # get embeddings
         train_emb = self.get_embeddings(triplets, self.circuit)
-        # TODO: investigate which dimensions the model uses to cluster
-        self.evaluate_embedding_space(embeddings=train_emb, save_name="train_embeddings_after.png")
         
         gmm_train = self.evaluate_embeddings(train_emb, anchor_labels)
 
@@ -644,19 +645,20 @@ class Triplet:
 
         return sigma, sigma_std, all_shifts
 
-    def fit_noise_distribution(self, triplets, labels, n_samples=30, before_training=True):
+    def fit_noise_distribution(self, triplets, labels, n_samples=30, before_training=True, save_title=None):
         """fit multivariate Gaussian to observed embedding shifts"""
         from sklearn.mixture import GaussianMixture
         
-        if before_training:
-            # only zero weights for first training
-            weights = numpy.zeros_like(self.weights)
-            # save embeddings used for initial comparison for comparison after training
-            # self.random_index = numpy.random.choice(len(triplets), 7, replace=False)
-            self.random_index = self.ss_samples
-        else:
-            weights = self.weights
-        # random_index = numpy.random.randint(len(triplets))
+        self.random_index = self.ss_samples
+        # if before_training:
+        #     # only zero weights for first training
+        #     # weights = numpy.zeros_like(self.weights)
+        #     # save embeddings used for initial comparison for comparison after training
+        #     # self.random_index = numpy.random.choice(len(triplets), 7, replace=False)
+        # else:
+        #     l = 1
+        #     # weights = self.weights
+        # # random_index = numpy.random.randint(len(triplets))
         
         all_shift_vectors = []
         emb = []
@@ -664,11 +666,11 @@ class Triplet:
         for r in self.random_index:
             for idx in tqdm(range(n_samples), desc="Getting variance embeddings"):
                 sample = triplets[r][0]
-                clean_emb = numpy.array([float(z) for z in self.qiskit_circuit(self, weights, numpy.array(sample))]) # TODO: this is wrong, needs to be qiskit circuit wtf
+                clean_emb = numpy.array([float(z) for z in self.qiskit_circuit(self, self.weights, numpy.array(sample))]) # TODO: this is wrong, needs to be qiskit circuit wtf
                 emb.append((clean_emb, "Noiseless"))
                 
                 for prof in self.np_train:
-                    noisy_emb = numpy.array([float(z) for z in prof["circuit"](self, weights, numpy.array(sample))])
+                    noisy_emb = numpy.array([float(z) for z in prof["circuit"](self, self.weights, numpy.array(sample))])
                     emb.append((noisy_emb, prof['backend']))
                     shift_vector = noisy_emb - clean_emb  # full vector not magnitude
                     all_shift_vectors.append(shift_vector)
@@ -689,18 +691,23 @@ class Triplet:
             
             # self.plot_embedding_spread(emb, f"noise_spread_{r}.png")
             # self.plot_embedding_spread_umap(emb, f"noise_spread_umap_{r}")
-        self.plot_embedding_spread(list(zip(all_shift_vectors, shift_backends)), save_name=f"shift_spread_before{before_training}.png")
+        if save_title is None:
+            save_title = f"shift_spread_before{before_training}.png"
+        self.plot_embedding_spread(list(zip(all_shift_vectors, shift_backends)), save_name=save_title)
             # self.plot_embedding_shift_magnitude(list(zip(all_shift_vectors, shift_backends)))
 
         # fit multivariate Gaussian to shift vectors
         # mean and covariance of the noise distribution
         self.noise_gmm = GaussianMixture(n_components=3, random_state=42) # for 3 backend profiles 
         self.noise_gmm.fit(all_shift_vectors)
-        self.noise_mean = numpy.mean(all_shift_vectors, axis=0)
-        self.noise_cov  = numpy.cov(all_shift_vectors.T)
+        self._ensure_results_dir() # save pickled noise GMM
+        with open(os.path.join(self.results_dir, 'noise_gmm.pkl'), 'wb') as f:
+            pickle.dump(self.noise_gmm, f)
+        # self.noise_mean = numpy.mean(all_shift_vectors, axis=0)
+        # self.noise_cov  = numpy.cov(all_shift_vectors.T)
         
-        print(f"Noise distribution mean: {self.noise_mean}")
-        print(f"Noise covariance diagonal: {numpy.diag(self.noise_cov)}")
+        # print(f"Noise distribution mean: {self.noise_mean}")
+        # print(f"Noise covariance diagonal: {numpy.diag(self.noise_cov)}")
 
     def evaluate_embedding_space(self, triplets, labels, save_name="embedding_dims_variance.png"):
         emb = []

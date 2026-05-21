@@ -358,7 +358,10 @@ def analyse_model(path, num_profiles=10):
         pca_dims=config['PCA_dims'],
         testing=True
     )
-
+    
+    model.ss_samples = [63, 550, 1755, 2633, 2653, 3444, 4518]
+    model.fit_noise_distribution(triplets=triplets, labels=labels, save_title=f"after_training_weights_variance{config["seed"]}.png")
+    return
     # loss_grid, sharpness = plot_loss_landscape_3d(
     #     model, t_triplets[:500], t_labels[:500],
     #     resolution=25,
@@ -400,7 +403,9 @@ if __name__ == '__main__':
     # if retrain_path:
     #     analyse_model(retrain_path, num_profiles=10)
     # else:
-    eval_path = "Results/2026-05-04/22-19-48__NT1_e250_shotsNone_lr0.1_cNone_histTrue__MNIST_l3"
+    # eval_path = "Results/2026-05-20/15-48-57__NT1_e150_shotsNone_lr0.1_cNone_histTrue__MNIST_l3"
+    # analyse_model(eval_path, num_profiles=10)
+    eval_path = "Results/2026-05-15/13-42-10__NT1_e150_shotsNone_lr0.1_cNone_histTrue__MNIST_l3"
     analyse_model(eval_path, num_profiles=10)
 
 

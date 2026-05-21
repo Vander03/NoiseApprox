@@ -113,11 +113,10 @@ try:
             metric_learning=params['metric_learning']
         )
 
-        print(f"Classes of the 7 samples:\n63: {labels[63]}\n550: {labels[550]}\n1755: {labels[1755]}\n2633: {labels[2633]}\n2653: {labels[2653]}\n3444: {labels[3444]}\n4518: {labels[4518]}")
 
         network = model.Triplet(params)
         network.ss_samples = [63, 550, 1755, 2633, 2653, 3444, 4518]
-        network.evaluate_embedding_space(triplets=triplets, labels=labels, save_name="embedding_before_training.png")
+        # network.evaluate_embedding_space(triplets=triplets, labels=labels, save_name="embedding_before_training.png")
         network.train(triplets, labels) # LABELS NOT USED IN MODEL. USED FOR PLOTS TESTING VARIANCE IN DIMENSIONS
         network.evaluate_embedding_space(triplets=triplets, labels=labels, save_name="embedding_after_training.png")
         network.fit_noise_distribution(triplets=triplets, before_training=False, labels=labels)
