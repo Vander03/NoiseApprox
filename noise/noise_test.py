@@ -11,7 +11,7 @@ pennylane = "Results/2026-04-30/20-09-43__NT0_e200_shotsNone_lr0.3_c0.05_histTru
 
 eval_path = "Results/2026-05-02/22-01-44__NT1_e150_shotsNone_lr0.4_cNone_histTrue__MNIST_l3"
 
-samples = 100
+samples = 500
 
 def summarise_holdout_results(results):
     if len(results) == 0: return

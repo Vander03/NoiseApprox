@@ -44,6 +44,7 @@ class Triplet:
         self.holdout_profiles = self.noise_helper.holdout_profiles
         self.best_loss = float('inf')
         self.current_epoch = 0
+        self.ss_samples = 0
 
         # unpack params
         self.num_wires = params['num_qubits']
@@ -75,6 +76,9 @@ class Triplet:
         self.staged_epochs = params.get('staged_epochs', 50)
         self.ramp = params.get('ramp', 50)
         print(f"RAMP: {self.ramp}")
+        self.cluster_weight = params.get('cluster_weight', 5)
+        self.backend_name = params.get('backend_name', None)
+        print(f"Loading {self.backend_name} only...")
 
         # randomly initialise the weights
         self.weights = 0.01 * np.random.randn(self.num_layers, self.num_wires, 3) # move here to allow for retraining. Otherwise it overwrites the loaded weights when training starts
@@ -107,7 +111,7 @@ class Triplet:
         # only load the noise profiles during training, the testing function loads its own profiles for testing
         if self.noise_train and (testing == False):
             print("\nLoading Calibration Data:")
-            self.noise_profiles = self.noise_helper.load_calibration_data()
+            self.noise_profiles = self.noise_helper.load_calibration_data(limit_backends=self.backend_name)
             for prof in tqdm(self.noise_profiles, desc="Building Encoders"):
                 prof["circuit"] = self.build_noisy_circuit(prof["noise_model"])
             
@@ -117,14 +121,13 @@ class Triplet:
             print(f"Train profiles: {len(self.np_train)} | Test profiles: {len(self.np_test)}")
             print(f"Train backends: {list(set(p['backend'] for p in self.np_train))}")
 
-        if 'aer' in self.backend:        
-            circuit = self.init_qiskit()
-        elif 'lightning' in self.backend:
-            circuit = qml.device('lightning.qubit', wires=self.num_wires)
+        # init circuit backends
+        qiskit = self.init_qiskit()
+        pennylane = qml.device('lightning.qubit', wires=self.num_wires)
 
 
         
-        @qml.qnode(circuit, shots=self.shots)
+        @qml.qnode(pennylane, shots=self.shots)
         def circuit(self, weights, features=None):
             AmplitudeEmbedding(features=features.astype('float64'), wires=range(self.num_wires), normalize=True, pad_with=0)
             #AmplitudeEmbedding(features=features.astype('float64'), wires=range(2), normalize=True, pad_with=0)
@@ -132,9 +135,18 @@ class Triplet:
                 self.layer(W)
             return [qml.expval(qml.PauliZ(i)) for i in range(self.embed_dims)]
         
+        @qml.qnode(qiskit, shots=1000)
+        def qiskit_circuit(self, weights, features=None):
+            AmplitudeEmbedding(features=features.astype('float64'), wires=range(self.num_wires), normalize=True, pad_with=0)
+            #AmplitudeEmbedding(features=features.astype('float64'), wires=range(2), normalize=True, pad_with=0)
+            for W in weights:
+                self.layer(W)
+            return [qml.expval(qml.PauliZ(i)) for i in range(self.embed_dims)]
+                    
         self.circuit = circuit
+        self.qiskit_circuit = qiskit_circuit
         
-    def train(self, triplets):
+    def train(self, triplets, labels):
         if "ADAM" in self.optimiser:
             opt = qml.AdamOptimizer(stepsize=self.learning_rate)
         if "GRAD" in self.optimiser:
@@ -143,10 +155,8 @@ class Triplet:
             opt = qml.SPSAOptimizer(maxiter=self.epochs, a=self.learning_rate, c=self.perturbation_rate)
 
         self.loss_history = []
-        if self.noise_train:
-            # get the median variance of all the noise profiles
-            self.fit_noise_distribution(triplets=triplets)
-            # print(f"Variance: {self.variance}")
+        # if self.noise_train:    self.fit_noise_distribution(triplets=triplets)
+        self.fit_noise_distribution(triplets=triplets, labels=labels)
 
         pbar = tqdm(range(self.epochs), desc="Training")
         for i in pbar:
@@ -190,14 +200,20 @@ class Triplet:
 
     def loss(self, weights, features):
         clean_loss = 0
-        noisy_loss = 0
+        cluster_loss = 0
         total_loss = 0
+        embeddings = []
         # margin = 0.35 # 0.21
         for im in features:
             # clean embeddings
             A = self.circuit(self, weights, np.array(im[0]))
             P = self.circuit(self, weights, np.array(im[1]))
             N = self.circuit(self, weights, np.array(im[2]))
+            # save embeddings to evaluate inter-cluster seperation
+            embeddings.append(np.array(A))
+            embeddings.append(np.array(P))
+            embeddings.append(np.array(N))
+
 
             # clean_loss += (np.abs(A[0]-P[0]) + np.abs(A[1]-P[1])) - (np.abs(A[0]-N[0]) + np.abs(A[1]-N[1]))
             d_pos = sum(np.square(A[i]-P[i]) for i in range(len(A)))
@@ -205,55 +221,64 @@ class Triplet:
             clean_loss += d_pos - d_neg
 
             # noisy embeddings
-            if self.noise_train and self.np_train:
+            if self.noise_train and self.np_train and False:
                 # TODO: try noisy negative maybe. Encourage good seperation from other results? Could this be what drives samples apart better
                 A_arr = np.array(A)
+                P_arr = np.array(P)
                 N_arr = np.array(N)
-                # old distribution, had noise variance at the extremes
-                # anchor_noise = numpy.array(numpy.random.normal(0, variance, len(A)))
-                # negative_noise = numpy.array(numpy.random.normal(0, variance, len(A)))
-                # anchor_noise = numpy.random.uniform(-self.variance, self.variance, len(A))
-                # negative_noise = numpy.random.uniform(-self.variance, self.variance, len(A))
-                # n_A = A_arr + anchor_noise
-                # n_N = N_arr + negative_noise
 
                 if self.current_epoch < self.staged_epochs:
                     noisy_weight = 0.0
                 else:
                     noisy_weight = min(1.0, (self.current_epoch - self.staged_epochs) / max(self.ramp, 1))
-                # shift samples in the same direciton but with different magnitudes to simulate correlated shifts
-                # uniform shifts to ensure the sample is always perturbed, up to a maximum of the median variance of the noise profiles
-                # n_A = A_arr + (self.hypersphere_random(A) * numpy.random.uniform(0, self.variance))
-                # n_N = N_arr + (self.hypersphere_random(N) * numpy.random.uniform(0, self.variance))
-                noise_vec = self.sample_noise()          # the shift vector
-                shift_prob = self.noise_gmm.score_samples(noise_vec.reshape(1,-1))[0]
-                noisy_weight_sample = numpy.clip(numpy.exp(shift_prob), 0.0, 1.0)
+                    
+                # shift_prob = self.noise_gmm.score_samples(noise_vec.reshape(1,-1))[0]
+                # noisy_weight_sample = numpy.clip(numpy.exp(shift_prob), 0.0, 1.0)
 
-                n_A = A_arr + noise_vec                  # apply shift
+                # apply a shift vector sampled from the shift vector
+                n_A = A_arr + self.sample_noise()
+                n_P = P_arr + self.sample_noise()
                 n_N = N_arr + self.sample_noise()
 
-                # A_distance = np.linalg.norm(np.array(A) - n_A)
-                # N_distance = np.linalg.norm(np.array(N) - n_N)
-                # print(f"Anchor dist: {A_distance}, Neg dist: {N_distance}")
-
-                # weight by how representative this noise sample is
-                # shift_prob = self.noise_gmm.score_samples(n_A.reshape(1,-1))[0]
-                # noisy_weight_sample = numpy.exp(shift_prob)  # higher prob = higher weight
-
-                d_pos = sum(np.square(n_A[i]-P[i]) for i in range(len(A)))
-                d_neg = sum(np.square(n_A[i]-n_N[i]) for i in range(len(A)))
-                noisy_loss += (d_pos - d_neg)
+                # save embeddings to evaluate inter-cluster seperation
+                embeddings.append(n_A)
+                embeddings.append(n_P)
+                embeddings.append(n_N)
                 # d_pos = sum(np.square(n_A[i]-P[i]) for i in range(len(A)))
                 # d_neg = sum(np.square(n_A[i]-n_N[i]) for i in range(len(A)))
-                # noisy_loss += (noisy_weight * (d_pos - d_neg))
+                # noisy_loss += (d_pos - d_neg)
+        
+        # dimensionality test
+        # fit GMM on clean + noisy embeddings
+        if self.noise_train and False:
+            from autograd.tracer import getval
+            emb_np = numpy.array([getval(e).tolist() for e in embeddings], dtype=float)
+            # print(f"Dimensionality: {numpy.linalg.matrix_rank(numpy.cov(emb_np.T))}")
+            train_gmm = GaussianMixture(n_components=3, random_state=42, n_init=5)
+            assignments = train_gmm.fit_predict(emb_np) # we dont care for correct assignments just clusters we can use to find the median of each cluster
+            emb_pl = np.array(embeddings)  # back into pennylane numpy
+            separation_loss = 0
+            centres = []
+            for k in range(3):
+                mask = (assignments == k)
+                if mask.sum() < 2:  # guard against empty clusters
+                    continue
+                centre_k = np.mean(emb_pl[mask], axis=0)  # differentiable
+                centres.append(centre_k)
+
+            for i in range(len(centres)):
+                for j in range(i+1, len(centres)):
+                    dist = np.sum(np.square(centres[i] - centres[j]))
+                    margin = 0.5  # minimum desired separation
+                    separation_loss += np.maximum(0, margin - dist)
+
+            cluster_loss = (self.cluster_weight * separation_loss)
 
 
-                # noisy_loss += (np.square(A[0]-P[0]) + np.square(n_A[1]-P[1])) - (np.square(n_A[0]-n_N[0]) + np.square(n_A[1]-n_N[1])) # noisy anchor needs to be closer to the positive than the negative
-                # accumulate noise into loss function
-
-            # loss += (np.square(A[0]-P[0]) + np.square(A[1]-P[1])) - (np.square(A[0]-N[0]) + np.square(A[1]-N[1])) # l2 loss
-        total_loss = noisy_loss + clean_loss
-        return total_loss / len(features), clean_loss / len(features), noisy_loss / len(features)
+            total_loss = cluster_loss + clean_loss
+        else:
+            total_loss = clean_loss
+        return total_loss / len(features), clean_loss / len(features), cluster_loss / len(features)
 
     # def layer(self, W):
     #     for i in range(self.num_wires):
@@ -268,6 +293,14 @@ class Triplet:
         for wire in range(self.num_wires - 1):
             qml.CNOT(wires=[wire, wire + 1])  # each qubit talks to its neighbour
             qml.CNOT(wires=[self.num_wires - 1, 0])  # close the ring
+    # def layer(self, W):
+    #     for i in range(self.num_wires):
+    #         qml.RX(W[i, 0], wires=i)  # X rotation
+    #         qml.RY(W[i, 1], wires=i)  # Y rotation  
+    #         qml.RZ(W[i, 2], wires=i)  # Z rotation
+    #     for wire in range(self.num_wires - 1):
+    #         qml.CNOT(wires=[wire, wire + 1])
+    #     qml.CNOT(wires=[self.num_wires - 1, 0])
 
     def generate_y_hats(self, y_hat, num_clusters):
         import itertools
@@ -334,7 +367,7 @@ class Triplet:
             backend=noise_sim,
         )
 
-        @qml.qnode(noisy_dev, shots=1000)
+        @qml.qnode(noisy_dev, shots=5000)
         def noisy_circuit(self, weights, features):
             AmplitudeEmbedding(
                 features=features.astype('float64'),
@@ -437,6 +470,9 @@ class Triplet:
 
         # get embeddings
         train_emb = self.get_embeddings(triplets, self.circuit)
+        # TODO: investigate which dimensions the model uses to cluster
+        self.evaluate_embedding_space(embeddings=train_emb, save_name="train_embeddings_after.png")
+        
         gmm_train = self.evaluate_embeddings(train_emb, anchor_labels)
 
         # training grid
@@ -492,7 +528,7 @@ class Triplet:
         # train_emb = self.get_embeddings(x_test, self.circuit)
         # train_gmm = self.evaluate_embeddings(train_emb, [int(l) for l in y_train])
 
-        clean_emb = self.get_embeddings(x_test, self.circuit)
+        clean_emb = self.get_embeddings(x_test, self.qiskit_circuit)
         gmm_clean = self.evaluate_embeddings_test(clean_emb, y_test)
         # gmm_clean = self.evaluate_embeddings(clean_emb, [int(l) for l in y_test])
         print(f"Clean: {gmm_clean}")
@@ -608,50 +644,72 @@ class Triplet:
 
         return sigma, sigma_std, all_shifts
 
-    def fit_noise_distribution(self, triplets, n_samples=10):
+    def fit_noise_distribution(self, triplets, labels, n_samples=30, before_training=True):
         """fit multivariate Gaussian to observed embedding shifts"""
         from sklearn.mixture import GaussianMixture
         
-        zero_weights = numpy.zeros_like(self.weights)
-        sample_indices = numpy.random.choice(len(triplets), n_samples, replace=False)
+        if before_training:
+            # only zero weights for first training
+            weights = numpy.zeros_like(self.weights)
+            # save embeddings used for initial comparison for comparison after training
+            # self.random_index = numpy.random.choice(len(triplets), 7, replace=False)
+            self.random_index = self.ss_samples
+        else:
+            weights = self.weights
+        # random_index = numpy.random.randint(len(triplets))
         
         all_shift_vectors = []
         emb = []
         shift_backends = []
-        for idx in tqdm(sample_indices, desc="Getting variance embeddings"):
-            sample = triplets[idx][0]
-            clean_emb = numpy.array([float(z) for z in self.circuit(self, zero_weights, numpy.array(sample))])
-            emb.append((clean_emb, "Noiseless"))
+        for r in self.random_index:
+            for idx in tqdm(range(n_samples), desc="Getting variance embeddings"):
+                sample = triplets[r][0]
+                clean_emb = numpy.array([float(z) for z in self.qiskit_circuit(self, weights, numpy.array(sample))]) # TODO: this is wrong, needs to be qiskit circuit wtf
+                emb.append((clean_emb, "Noiseless"))
+                
+                for prof in self.np_train:
+                    noisy_emb = numpy.array([float(z) for z in prof["circuit"](self, weights, numpy.array(sample))])
+                    emb.append((noisy_emb, prof['backend']))
+                    shift_vector = noisy_emb - clean_emb  # full vector not magnitude
+                    all_shift_vectors.append(shift_vector)
+                    # shift_backends.append(prof['backend'])
+                    shift_backends.append(r)
+
+
+
+                # also embed holdout profiles to see where they fall
+                # for prof in self.np_test:
+                #     noisy_emb = numpy.array([float(z) for z in prof["circuit"](self, zero_weights, numpy.array(sample))])
+                #     emb.append((noisy_emb, f"{prof['backend']}_holdout"))
+                #     shift_vector = noisy_emb - clean_emb  # full vector not magnitude
+                #     all_shift_vectors.append(shift_vector)
+                #     shift_backends.append(f"{prof['backend']}_holdout")
             
-            for prof in self.np_train:
-                noisy_emb = numpy.array([float(z) for z in prof["circuit"](self, zero_weights, numpy.array(sample))])
-                emb.append((noisy_emb, prof['backend']))
-                shift_vector = noisy_emb - clean_emb  # full vector not magnitude
-                all_shift_vectors.append(shift_vector)
-                shift_backends.append(prof['backend'])
-            # also embed holdout profiles to see where they fall
-            for prof in self.np_test:
-                noisy_emb = numpy.array([float(z) for z in prof["circuit"](self, zero_weights, numpy.array(sample))])
-                emb.append((noisy_emb, f"{prof['backend']}_holdout"))
-                shift_vector = noisy_emb - clean_emb  # full vector not magnitude
-                all_shift_vectors.append(shift_vector)
-                shift_backends.append(f"{prof['backend']}_holdout")
-        
         all_shift_vectors = numpy.array(all_shift_vectors)
-        
-        self.plot_embedding_spread(emb, "noise_spread.png")
-        self.plot_embedding_spread(list(zip(all_shift_vectors, shift_backends)), "shift_spread.png")
-        self.plot_embedding_shift_magnitude(list(zip(all_shift_vectors, shift_backends)))
+            
+            # self.plot_embedding_spread(emb, f"noise_spread_{r}.png")
+            # self.plot_embedding_spread_umap(emb, f"noise_spread_umap_{r}")
+        self.plot_embedding_spread(list(zip(all_shift_vectors, shift_backends)), save_name=f"shift_spread_before{before_training}.png")
+            # self.plot_embedding_shift_magnitude(list(zip(all_shift_vectors, shift_backends)))
 
         # fit multivariate Gaussian to shift vectors
         # mean and covariance of the noise distribution
-        self.noise_gmm = GaussianMixture(n_components=1, random_state=42)
+        self.noise_gmm = GaussianMixture(n_components=3, random_state=42) # for 3 backend profiles 
         self.noise_gmm.fit(all_shift_vectors)
         self.noise_mean = numpy.mean(all_shift_vectors, axis=0)
         self.noise_cov  = numpy.cov(all_shift_vectors.T)
         
         print(f"Noise distribution mean: {self.noise_mean}")
         print(f"Noise covariance diagonal: {numpy.diag(self.noise_cov)}")
+
+    def evaluate_embedding_space(self, triplets, labels, save_name="embedding_dims_variance.png"):
+        emb = []
+        for i, triplet in enumerate(tqdm(triplets, desc="Getting Clean Embeddings")):
+            sample = triplet[0]  # anchor
+            clean_emb = numpy.array([float(z) for z in self.qiskit_circuit(self, self.weights, numpy.array(sample))])
+            emb.append((clean_emb, str(labels[i])))
+        
+        self.plot_embedding_spread(emb, save_name=save_name, title="Embedding distribution by dimension", y_label="Expectation value")
 
     def find_variance(self, triplets, n_samples=500):
         self._ensure_results_dir()
@@ -681,7 +739,7 @@ class Triplet:
 
         return sigma, sigma_std
     
-    def plot_embedding_spread(self, embeddings, save_name='embedding_spread.png'):
+    def plot_embedding_spread_umap(self, embeddings, save_name='embedding_spread_umap.png'):
         """
         embeddings: list of (numpy_array, backend_str) tuples
                     OR plain numpy array (no colour coding)
@@ -699,19 +757,77 @@ class Triplet:
         unique_backends = sorted(set(backends))
         colors = ['steelblue', 'coral', 'mediumseagreen', 'gold', 'orchid']
         for i, backend in enumerate(unique_backends):
-            mask = [b == backend for b in backends]
+            mask = numpy.array([b == backend for b in unique_backends])
             pts  = embs_2d[mask]
             if backend == "Noiseless":
-                ax.scatter(pts[:,0], pts[:,1], s=30, alpha=1, color=colors[i % len(colors)], label=backend, marker="D")
-            if "holdout" in backend:
-                ax.scatter(pts[:,0], pts[:,1], s=20, alpha=1, color=colors[i % len(colors)], label=backend, marker="X")
+                ax.scatter(pts[:,0], pts[:,1], s=30, alpha=1, color=colors[i % len(colors)], 
+                        label=backend, marker="D", zorder=5)  
+            elif "holdout" in backend:
+                ax.scatter(pts[:,0], pts[:,1], s=20, alpha=1, color=colors[i % len(colors)], 
+                        label=backend, marker="X", zorder=1)  
             else:
-                ax.scatter(pts[:,0], pts[:,1], s=12, alpha=0.55, color=colors[i % len(colors)], label=backend)
+                ax.scatter(pts[:,0], pts[:,1], s=12, alpha=0.55, color=colors[i % len(colors)], 
+                        label=backend, zorder=1)  
 
         ax.legend(fontsize=8, title='Backend')
         ax.set_title(f'Embedding spread (n={len(emb_array)})')
         ax.set_xlabel('UMAP 1')
         ax.set_ylabel('UMAP 2')
+
+        save_path = os.path.join(self.results_dir, save_name)
+        plt.savefig(save_path, dpi=120)
+        plt.close()
+        print(f"Saved: {save_path}")
+
+
+    def plot_embedding_spread(self, embeddings, save_name='embedding_spread.png', title='Per-dimension shift spread by sample', y_label="Shift Magnitude"):
+        self._ensure_results_dir()
+
+        emb_array = numpy.array([e[0] for e in embeddings])
+        label  = [e[1] for e in embeddings]
+
+        unique_labels = sorted(set(label))
+        if 'Noiseless' in unique_labels:
+            unique_labels = ['Noiseless'] + [b for b in unique_labels if b != 'Noiseless']
+
+        n_labels = len(unique_labels)
+        n_dims = emb_array.shape[1]
+        colors = ['steelblue', 'coral', 'mediumseagreen', 'gold', 'orchid']
+
+        # fixed candle width — image grows with more dims/labels
+        candle_width = 0.12
+        group_width = candle_width * n_labels  # total width per dim group
+        fig_width = max(6, n_dims * (group_width + 0.4) + 1)  # +0.4 gap, +1 margin
+        
+        fig, ax = plt.subplots(figsize=(fig_width, 4))
+
+        for i, l in enumerate(unique_labels):
+            mask = numpy.array([b == l for b in label])
+            pts = emb_array[mask]
+            positions = numpy.arange(n_dims) + (i - n_labels/2 + 0.5) * candle_width
+            ax.boxplot(
+                [pts[:, d] for d in range(n_dims)],
+                positions=positions,
+                widths=candle_width * 0.8,
+                patch_artist=True,
+                boxprops=dict(facecolor=colors[i % len(colors)], alpha=0.6),
+                medianprops=dict(color='black', linewidth=1.5),
+                whiskerprops=dict(color=colors[i % len(colors)]),
+                capprops=dict(color=colors[i % len(colors)]),
+                flierprops=dict(marker='o', color=colors[i % len(colors)], alpha=0.3, markersize=3),
+                label=f"{l}"
+            )
+
+        ax.set_xticks(numpy.arange(n_dims))
+        ax.set_xticklabels([f'Z{d}' for d in range(n_dims)])
+        ax.set_xlim(-0.5, n_dims - 0.5)
+        ax.axhline(0, color='gray', linestyle='--', linewidth=0.8, alpha=0.5)
+        ax.set_ylabel(y_label)
+        ax.set_xlabel('Embedding dimension')
+        ax.set_title(title)
+        ax.grid(axis='y', alpha=0.3)
+        ax.legend(fontsize=8, title='Sample')
+        plt.tight_layout()
 
         save_path = os.path.join(self.results_dir, save_name)
         plt.savefig(save_path, dpi=120)

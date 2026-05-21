@@ -23,20 +23,20 @@ class noise:
         self.fake = fake # determines if the model uses fake noise profiles to train
         self.hist_count = hist_count # the number of historical noise profiles to load for each backend
 
-        # self.holdout_profiles = [
-        #     "hist_ibm_kingston_2026-04-15.json",
-        #     "hist_ibm_kingston_2026-04-11.json",
-        #     "hist_ibm_kingston_2026-04-12.json",
-        #     "hist_ibm_fez_2026-04-16.json",
-        #     "hist_ibm_fez_2026-04-04.json",
-        #     "hist_ibm_fez_2026-04-10.json",
-        #     "hist_ibm_marrakesh_2026-04-12.json",
-        #     "hist_ibm_marrakesh_2026-04-08.json",
-        #     "hist_ibm_marrakesh_2026-04-10.json",
-        #     "hist_ibm_marrakesh_2026-04-14.json",
-        # ]
+        self.holdout_profiles = [
+            "hist_ibm_kingston_2026-04-15.json",
+            "hist_ibm_kingston_2026-04-11.json",
+            "hist_ibm_kingston_2026-04-12.json",
+            "hist_ibm_fez_2026-04-16.json",
+            "hist_ibm_fez_2026-04-04.json",
+            "hist_ibm_fez_2026-04-10.json",
+            "hist_ibm_marrakesh_2026-04-12.json",
+            "hist_ibm_marrakesh_2026-04-08.json",
+            "hist_ibm_marrakesh_2026-04-10.json",
+            "hist_ibm_marrakesh_2026-04-14.json",
+        ]
 
-    def load_calibration_data(self, load_prof=None):
+    def load_calibration_data(self, load_prof=None, limit_backends=None):
         files = [f for f in os.listdir("calibrations") if f.endswith(".json")]
         
         # pre-filter filenames before loading from disk
@@ -47,6 +47,8 @@ class noise:
             if is_fake and not self.fake:
                 continue
             if is_hist and not self.hist_count:
+                continue
+            if limit_backends and limit_backends not in filename:
                 continue
             filtered_files.append(filename)
 

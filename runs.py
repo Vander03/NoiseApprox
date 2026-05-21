@@ -21,7 +21,7 @@ def print_run_means(results_root="Results", keyword=None, seed=None):
                 noisy = json.load(f)
             
             message = run_info["config"].get("message", "")
-            if (keyword and keyword not in message) or (run_info["config"].get("seed", 1) != seed):
+            if (keyword and keyword not in message) or (seed and run_info["config"].get("seed", 1) != seed):
                 continue
             
             results = noisy.get("results", [])
@@ -45,13 +45,13 @@ def print_run_means(results_root="Results", keyword=None, seed=None):
             mean = np.mean(accs)
             nt = run_info["config"].get("noise_train", False)
             lr = run_info["config"].get("learning_rate", "?")
-            seed = run_info["config"].get("seed", "?")
+            run_seed = run_info["config"].get("seed", "?")
             
             runs.append({
                 "dir": run_dir,
                 "nt": nt,
                 "lr": lr,
-                "seed": seed,
+                "seed": run_seed,
                 "clean": clean,
                 "mean": mean,
                 "message": message,
