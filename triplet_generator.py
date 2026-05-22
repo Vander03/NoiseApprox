@@ -72,10 +72,13 @@ def perform_pca(x, pca_dims=32):
     :param pca_dims: the number of dimensions (features) to reduce each example to via PCA.
     :return: Numpy array with [0, 1] scaled result of PCA dimensionality reduction.
     """
+    x = np.array(x)
+    if x.ndim == 3:
+        x = x.reshape(x.shape[0], -1)  # flatten (n, 28, 28) -> (n, 784)
     pca = PCA(pca_dims)
-    # Normalize image data so its pythagorean sum is 1
     pca.fit(preprocessing.normalize(x))
     return scale_data(pca.transform(preprocessing.normalize(x)))
+
 
 
 def generate_triplets(x, y, size=5000):

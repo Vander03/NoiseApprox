@@ -55,9 +55,9 @@ try:
         args = parser.parse_args()
         
         params = ({
-            "dataset": "MNIST", # Dataset the run was trained on
+            "dataset": "fashionMNIST", # Dataset the run was trained on
             "epochs": 150, # number of epochs the model was trained on
-            "num_qubits": 5, # number of qubits in the circuit, width of the circuit
+            "num_qubits": 11, # number of qubits in the circuit, width of the circuit # TODO try 11 no PCA
             "PCA_dims": 32, # number of dimensions the data was reduced to
             "backend": pennylane, # backend the circuits were simulated on
             "sim": "statevector", # statevector / density_matrix
@@ -67,7 +67,7 @@ try:
             "layers": 6, # depth of the circuit
             "batch_size": 128, # number of samples collected per batch
             "max_train_samples": 1000, # maximum training samples
-            "embed_dims": 5, # number of qubits to measure at the end of the circuit
+            "embed_dims": 11, # number of qubits to measure at the end of the circuit
             "learning_rate": args.learning_rate, # learning rate param applicable to SPSA, Grad Descent and Adam
             "cooldown_lr": None,
             "perturbation_rate": None, # noisy variance to perturb the parameters by, Applicable to SPSA
@@ -118,10 +118,10 @@ try:
         network.ss_samples = [63, 550, 1755, 2633, 2653, 3444, 4518]
         # network.evaluate_embedding_space(triplets=triplets, labels=labels, save_name="embedding_before_training.png")
         network.train(triplets, labels) # LABELS NOT USED IN MODEL. USED FOR PLOTS TESTING VARIANCE IN DIMENSIONS
-        network.evaluate_embedding_space(triplets=triplets, labels=labels, save_name="embedding_after_training.png")
-        network.fit_noise_distribution(triplets=triplets, before_training=False, labels=labels)
+        # network.evaluate_embedding_space(triplets=triplets, labels=labels, save_name="embedding_after_training.png")
+        # network.fit_noise_distribution(triplets=triplets, before_training=False, labels=labels)
         network.save_experiment(triplets, labels, t_triplets, t_labels)
-        # noise_test.analyse_model(network.results_dir, num_profiles=10)
+        noise_test.analyse_model(network.results_dir)
 except KeyboardInterrupt:
     # Exits silently without printing the long traceback message
     sys.exit(0)

@@ -108,7 +108,7 @@ class Triplet:
 
         # Load noise data
         # only load the noise profiles during training, the testing function loads its own profiles for testing
-        if self.noise_train and (testing == False):
+        if (self.noise_train and (testing == False)) or True:
             print("\nLoading Calibration Data:")
             self.noise_profiles = self.noise_helper.load_calibration_data(limit_backends=self.backend_name)
             for prof in tqdm(self.noise_profiles, desc="Building Encoders"):
@@ -155,7 +155,14 @@ class Triplet:
 
         self.loss_history = []
         # if self.noise_train:    self.fit_noise_distribution(triplets=triplets)
-        self.fit_noise_distribution(triplets=triplets, labels=labels)
+        # self.fit_noise_distribution(triplets=triplets, labels=labels)
+        if self.noise_train:
+            clean_embs, shift_bank, _ = self.build_clustered_shift_bank(triplets)
+            self.knn_shifts = numpy.array([s[1] for s in shift_bank])
+            knn_embs = numpy.array([s[0] for s in shift_bank])
+            from sklearn.neighbors import NearestNeighbors
+            self.knn = NearestNeighbors(n_neighbors=1)
+            self.knn.fit(knn_embs)
 
         pbar = tqdm(range(self.epochs), desc="Training")
         for i in pbar:
@@ -188,18 +195,20 @@ class Triplet:
 
         return direction
     
-    def sample_noise(self):
-        """sample from fitted noise distribution"""
-        return numpy.random.multivariate_normal(self.noise_mean, self.noise_cov)
+    # def sample_noise(self):
+    #     """sample from fitted noise distribution"""
+    #     return numpy.random.multivariate_normal(self.noise_mean, self.noise_cov)
     
-    def sample_noise(self):
-        """sample a noise shift vector from the fitted GMM"""
-        noise_vec, _ = self.noise_gmm.sample(1)  # returns (1, embed_dims)
-        return noise_vec[0]  # shape (embed_dims,)
+    def sample_noise_knn(self, clean_embedding):
+        from autograd.tracer import getval
+        emb_np = numpy.array(getval(clean_embedding).tolist())
+        _, neighbour_idx = self.knn.kneighbors(emb_np.reshape(1, -1))
+        return self.knn_shifts[neighbour_idx[0][0]]
 
     def loss(self, weights, features):
         clean_loss = 0
         cluster_loss = 0
+        consistency_loss = 0
         total_loss = 0
         embeddings = []
         # margin = 0.35 # 0.21
@@ -220,7 +229,7 @@ class Triplet:
             clean_loss += d_pos - d_neg
 
             # noisy embeddings
-            if self.noise_train and self.np_train and False:
+            if self.noise_train and self.np_train:
                 # TODO: try noisy negative maybe. Encourage good seperation from other results? Could this be what drives samples apart better
                 A_arr = np.array(A)
                 P_arr = np.array(P)
@@ -235,49 +244,50 @@ class Triplet:
                 # noisy_weight_sample = numpy.clip(numpy.exp(shift_prob), 0.0, 1.0)
 
                 # apply a shift vector sampled from the shift vector
-                n_A = A_arr + self.sample_noise()
-                n_P = P_arr + self.sample_noise()
-                n_N = N_arr + self.sample_noise()
+                n_A = A_arr + self.sample_noise_knn(A_arr)
+                n_P = P_arr + self.sample_noise_knn(P_arr)
+                n_N = N_arr + self.sample_noise_knn(N_arr)
 
                 # save embeddings to evaluate inter-cluster seperation
                 embeddings.append(n_A)
                 embeddings.append(n_P)
                 embeddings.append(n_N)
-                # d_pos = sum(np.square(n_A[i]-P[i]) for i in range(len(A)))
-                # d_neg = sum(np.square(n_A[i]-n_N[i]) for i in range(len(A)))
-                # noisy_loss += (d_pos - d_neg)
+
+                consistency_loss += sum(np.square(n_A[i] - A_arr[i]) for i in range(len(A)))
+                consistency_loss += sum(np.square(n_P[i] - P_arr[i]) for i in range(len(P)))
+                consistency_loss += sum(np.square(n_N[i] - N_arr[i]) for i in range(len(N)))
         
         # dimensionality test
         # fit GMM on clean + noisy embeddings
-        if self.noise_train and False:
-            from autograd.tracer import getval
-            emb_np = numpy.array([getval(e).tolist() for e in embeddings], dtype=float)
-            # print(f"Dimensionality: {numpy.linalg.matrix_rank(numpy.cov(emb_np.T))}")
-            train_gmm = GaussianMixture(n_components=3, random_state=42, n_init=5)
-            assignments = train_gmm.fit_predict(emb_np) # we dont care for correct assignments just clusters we can use to find the median of each cluster
-            emb_pl = np.array(embeddings)  # back into pennylane numpy
-            separation_loss = 0
-            centres = []
-            for k in range(3):
-                mask = (assignments == k)
-                if mask.sum() < 2:  # guard against empty clusters
-                    continue
-                centre_k = np.mean(emb_pl[mask], axis=0)  # differentiable
-                centres.append(centre_k)
+        # if self.noise_train:
+        #     from autograd.tracer import getval
+        #     emb_np = numpy.array([getval(e).tolist() for e in embeddings], dtype=float)
+        #     # print(f"Dimensionality: {numpy.linalg.matrix_rank(numpy.cov(emb_np.T))}")
+        #     train_gmm = GaussianMixture(n_components=3, random_state=42, n_init=5)
+        #     assignments = train_gmm.fit_predict(emb_np) # we dont care for correct assignments just clusters we can use to find the median of each cluster
+        #     emb_pl = np.array(embeddings)  # back into pennylane numpy
+        #     separation_loss = 0
+        #     centres = []
+        #     for k in range(3):
+        #         mask = (assignments == k)
+        #         if mask.sum() < 2:  # guard against empty clusters
+        #             continue
+        #         centre_k = np.mean(emb_pl[mask], axis=0)  # differentiable
+        #         centres.append(centre_k)
 
-            for i in range(len(centres)):
-                for j in range(i+1, len(centres)):
-                    dist = np.sum(np.square(centres[i] - centres[j]))
-                    margin = 0.5  # minimum desired separation
-                    separation_loss += np.maximum(0, margin - dist)
+        #     for i in range(len(centres)):
+        #         for j in range(i+1, len(centres)):
+        #             dist = np.sum(np.square(centres[i] - centres[j]))
+        #             margin = 0.5  # minimum desired separation
+        #             separation_loss += np.maximum(0, margin - dist)
 
-            cluster_loss = (self.cluster_weight * separation_loss)
+        #     cluster_loss = (self.cluster_weight * separation_loss)
 
 
-            total_loss = cluster_loss + clean_loss
-        else:
-            total_loss = clean_loss
-        return total_loss / len(features), clean_loss / len(features), cluster_loss / len(features)
+        total_loss = clean_loss + consistency_loss
+        # else:
+            # total_loss = clean_loss
+        return total_loss / len(features), clean_loss / len(features), consistency_loss / len(features)
 
     # def layer(self, W):
     #     for i in range(self.num_wires):
@@ -530,7 +540,7 @@ class Triplet:
         # train_gmm = self.evaluate_embeddings(train_emb, [int(l) for l in y_train])
 
         clean_emb = self.get_embeddings(x_test, self.qiskit_circuit)
-        gmm_clean = self.evaluate_embeddings_test(clean_emb, y_test)
+        gmm_clean = self.evaluate_embeddings(clean_emb, y_test) # refit gmm in eval environment
         # gmm_clean = self.evaluate_embeddings(clean_emb, [int(l) for l in y_test])
         print(f"Clean: {gmm_clean}")
         test_results = []
@@ -703,11 +713,56 @@ class Triplet:
         self._ensure_results_dir() # save pickled noise GMM
         with open(os.path.join(self.results_dir, 'noise_gmm.pkl'), 'wb') as f:
             pickle.dump(self.noise_gmm, f)
-        # self.noise_mean = numpy.mean(all_shift_vectors, axis=0)
-        # self.noise_cov  = numpy.cov(all_shift_vectors.T)
+        self.noise_mean = numpy.mean(all_shift_vectors, axis=0)
+        self.noise_cov  = numpy.cov(all_shift_vectors.T)
         
         # print(f"Noise distribution mean: {self.noise_mean}")
         # print(f"Noise covariance diagonal: {numpy.diag(self.noise_cov)}")
+
+    def build_clustered_shift_bank(self, triplets, n_clusters=10, samples_per_cluster=5, n_noise_samples=10):
+        """get clean embeddings for all triplets, cluster them, select representatives, measure real shifts"""
+        self._ensure_results_dir()
+        # get clean embeddings for all training samples
+        print("Getting clean embeddings...")
+        clean_embs = []
+        indices = numpy.random.choice(len(triplets), 500, replace=False)
+        anchors = [triplets[i][0] for i in indices]
+        noiseless_weights = np.load("Results/2026-05-22/13-02-17__NT0_e150_shotsNone_lr0.1_cNone_histTrue__fashionMNIST_l3/best_weights.npy", allow_pickle=True)
+        for t in tqdm(anchors):
+            emb = numpy.array([float(z) for z in self.qiskit_circuit(self, noiseless_weights, numpy.array(t))])
+            clean_embs.append(emb)
+        
+        # cluster clean embeddings
+        clean_embs = numpy.array(clean_embs)  # add this after the embedding loop
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        kmeans.fit(clean_embs)
+
+        # select representative samples per cluster
+        calibration_indices = []
+        for k in range(n_clusters):
+            cluster_mask = kmeans.labels_ == k
+            cluster_indices = numpy.where(cluster_mask)[0]
+            selected = cluster_indices[:samples_per_cluster]
+            calibration_indices.extend(selected)
+        
+        # measure real shifts for calibration samples
+        shift_bank = []  # list of (clean_emb, shift_vector) tuples
+        for idx in tqdm(calibration_indices):
+            sample = anchors[idx]
+            clean_emb = clean_embs[idx]
+            shifts_for_sample = []
+            for prof in numpy.random.choice(self.np_train, min(5, len(self.np_train)), replace=False):
+                noisy_emb = numpy.array([float(z) for z in prof["circuit"](self, noiseless_weights, numpy.array(sample))])
+                shifts_for_sample.append(noisy_emb - clean_emb)
+            shift = numpy.mean(shifts_for_sample, axis=0)
+            shift_bank.append((clean_emb, shift))
+
+        knn_shifts_arr = numpy.array([s[1] for s in shift_bank])
+        knn_embs_arr   = numpy.array([s[0] for s in shift_bank])
+        self._ensure_results_dir()
+        numpy.save(os.path.join(self.results_dir, 'knn_shifts.npy'), knn_shifts_arr)
+        numpy.save(os.path.join(self.results_dir, 'knn_embs.npy'),   knn_embs_arr)
+        return clean_embs, shift_bank, kmeans
 
     def evaluate_embedding_space(self, triplets, labels, save_name="embedding_dims_variance.png"):
         emb = []

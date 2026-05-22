@@ -1,7 +1,7 @@
 #!/bin/bash
 cd /Users/schalk/Desktop/QUT/EGH400/SliQ
 
-SEEDS=(3 3 1 2 4 5)
+SEEDS=(1 2 3 4 5)
 
 echo "Starting runs..."
 for seed in "${SEEDS[@]}"; do
@@ -9,7 +9,7 @@ for seed in "${SEEDS[@]}"; do
         echo "                  === NT | seed=${seed} ==="
         echo "$(date): NT lr=${lr} seed=${seed} START" >> run_log.txt
         python main.py \
-            --message "NT lr${lr} seed${seed} reduced weighting and added more eval samples keyword:3NoiseFit" \
+            --message "NT seed${seed} seeded sample loading knn stale shifts from noiseless model keyword:knnperp" \
             --noise_train True \
             --seed ${seed} \
             --learning_rate 0.1 \
@@ -22,7 +22,7 @@ for seed in "${SEEDS[@]}"; do
     echo "                  === $(date): non-NT lr=${lr} seed=${seed} ==="
     echo "$(date): non-NT lr=${lr} seed=${seed} START" >> run_log.txt
     python main.py \
-        --message "non-NT lr${lr} seed${seed} reduced weighting and added more eval samples keyword:3NoiseFit" \
+        --message "non-NT seed${seed} seeded sample loading keyword:knnperp" \
         --noise_train False \
         --seed ${seed} \
         --learning_rate 0.1 \

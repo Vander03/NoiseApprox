@@ -752,3 +752,32 @@ Mon May 18 12:53:00 AEST 2026: NT lr= seed=3 START
 Mon May 18 14:11:20 AEST 2026: NT lr= seed=3 START
 Mon May 18 14:22:20 AEST 2026: NT lr= seed=3 DONE
 Mon May 18 14:22:20 AEST 2026: NT lr= seed=3 START
+Thu May 21 21:46:18 AEST 2026: NT lr= seed=1 START
+Thu May 21 22:14:41 AEST 2026: NT lr= seed=1 DONE
+Thu May 21 22:14:41 AEST 2026: NT lr= seed=2 START
+Thu May 21 22:43:06 AEST 2026: NT lr= seed=2 DONE
+Thu May 21 22:43:06 AEST 2026: NT lr= seed=3 START
+Thu May 21 23:11:28 AEST 2026: NT lr= seed=3 DONE
+Thu May 21 23:11:28 AEST 2026: NT lr= seed=4 START
+Thu May 21 23:39:54 AEST 2026: NT lr= seed=4 DONE
+Thu May 21 23:39:54 AEST 2026: NT lr= seed=5 START
+Fri May 22 00:08:16 AEST 2026: NT lr= seed=5 DONE
+Fri May 22 00:08:16 AEST 2026: non-NT lr= seed=1 START
+Fri May 22 00:33:53 AEST 2026: NT lr= seed=1
+Fri May 22 00:33:53 AEST 2026: non-NT lr= seed=2 START
+Fri May 22 00:59:26 AEST 2026: NT lr= seed=2
+Fri May 22 00:59:26 AEST 2026: non-NT lr= seed=3 START
+Fri May 22 01:25:00 AEST 2026: NT lr= seed=3
+Fri May 22 01:25:00 AEST 2026: non-NT lr= seed=4 START
+Fri May 22 01:50:36 AEST 2026: NT lr= seed=4
+Fri May 22 01:50:36 AEST 2026: non-NT lr= seed=5 START
+Fri May 22 02:16:06 AEST 2026: NT lr= seed=5
+Fri May 22 02:16:06 AEST 2026: All runs complete
+Fri May 22 12:03:11 AEST 2026: NT lr= seed=1 START
+Fri May 22 12:03:25 AEST 2026: NT lr= seed=1 DONE
+Fri May 22 12:03:25 AEST 2026: NT lr= seed=2 START
+Fri May 22 12:03:52 AEST 2026: NT lr= seed=1 START
+Fri May 22 12:34:18 AEST 2026: NT lr= seed=1 DONE
+Fri May 22 12:34:18 AEST 2026: NT lr= seed=2 START
+Fri May 22 12:34:40 AEST 2026: NT lr= seed=2 DONE
+Fri May 22 12:34:40 AEST 2026: NT lr= seed=3 START

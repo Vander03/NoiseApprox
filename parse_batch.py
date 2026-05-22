@@ -15,7 +15,7 @@ from collections import defaultdict
 import matplotlib.colors as mcolors
 
 results_root = "Results"
-keyword = "clusterNoWeightOvernight"  # change to match your run messages
+keyword = "knnconsistency"  # change to match your run messages
 samples = 500
 
 # ─────────────────────────────────────────────────────────────
@@ -158,6 +158,28 @@ for run in seed_runs:
 
     print(f"{seed:<8} {nt:<10} {mean:>8.1f}% {clean:>7.1f}% {mn:>11.1f}% {mx:>11.1f}%")
 
+print(f"\n{'Seed':<8} {'Condition':<10} {'Weight Norm':>12}")
+print("-" * 35)
+
+for run in seed_runs:
+    path   = run["path"]
+    config = run["config"]
+    seed   = config.get("seed", "?")
+    nt     = "NT" if config["noise_train"] else "non-NT"
+
+    best_path = os.path.join(path, 'best_weights.npy')
+    weights_path = os.path.join(path, 'weights.npy')
+    
+    if os.path.exists(best_path):
+        weights = numpy.load(best_path, allow_pickle=True)
+    elif os.path.exists(weights_path):
+        weights = numpy.load(weights_path, allow_pickle=True)[-1]
+    else:
+        continue
+
+    norm = numpy.linalg.norm(weights)
+    print(f"{seed:<8} {nt:<10} {norm:>12.4f}")
+    
 sys.exit()
 
 # ─────────────────────────────────────────────────────────────

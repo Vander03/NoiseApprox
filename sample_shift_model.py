@@ -36,12 +36,14 @@ def build_clustered_shift_bank(model, triplets, n_clusters=10, samples_per_clust
     
     # measure real shifts for calibration samples
     shift_bank = []  # list of (clean_emb, shift_vector) tuples
-    for idx in calibration_indices:
+    for idx in tqdm.tqdm(calibration_indices):
         sample = triplets[idx][0]
         clean_emb = clean_embs[idx]
-        prof = numpy.random.choice(model.np_train)
-        noisy_emb = numpy.array([float(z) for z in prof["circuit"](model, model.weights, numpy.array(sample))])
-        shift = noisy_emb - clean_emb
+        shifts_for_sample = []
+        for prof in numpy.random.choice(model.np_train, min(20, len(model.np_train)), replace=False):
+            noisy_emb = numpy.array([float(z) for z in prof["circuit"](model, model.weights, numpy.array(sample))])
+            shifts_for_sample.append(noisy_emb - clean_emb)
+        shift = numpy.mean(shifts_for_sample, axis=0)
         shift_bank.append((clean_emb, shift))
     
     return clean_embs, shift_bank, kmeans
@@ -120,12 +122,12 @@ def analyse_model(path):
         testing=False
     )
     
-    with open(os.path.join(path, 'noise_gmm.pkl'), 'rb') as f:
+    with open(os.path.join('./noise_gmm.pkl'), 'rb') as f:
         model.noise_gmm = pickle.load(f)
     model.ss_samples = [63, 550, 1755, 2633, 2653, 3444, 4518]
     clean_embs, shift_bank, kmeans = build_clustered_shift_bank(model=model, triplets=triplets)
     results = compare_approximations(model=model, triplets=triplets, shift_bank=shift_bank, clean_embs=clean_embs)
     return
 
-path = "Results/2026-05-21/15-45-14__NT1_e150_shotsNone_lr0.1_cNone_histTrue__MNIST_l3"
-analyse_model("Results/2026-05-21/15-45-14__NT1_e150_shotsNone_lr0.1_cNone_histTrue__MNIST_l3")
+path = "Results/2026-05-22/13-02-17__NT0_e150_shotsNone_lr0.1_cNone_histTrue__fashionMNIST_l3"
+analyse_model(path)
