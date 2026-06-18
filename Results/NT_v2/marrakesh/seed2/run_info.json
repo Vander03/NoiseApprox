@@ -1,0 +1,142 @@
+{
+    "config": {
+        "dataset": "fashionMNIST",
+        "epochs": 50,
+        "num_qubits": 6,
+        "PCA_dims": 64,
+        "backend": "lightning.qubit",
+        "sim": "statevector",
+        "shots": null,
+        "num_triplets": 5000,
+        "label_space": 3,
+        "layers": 6,
+        "batch_size": 128,
+        "max_train_samples": 1000,
+        "embed_dims": 6,
+        "learning_rate": 0.1,
+        "cooldown_lr": null,
+        "perturbation_rate": null,
+        "optimiser": "ADAM",
+        "noise_train": true,
+        "noise_samp_per_batch": 2,
+        "historic_load": 20,
+        "fake": false,
+        "message": "NT seed2 marrakesh keyword:1neighbour3class0.2",
+        "epoch_variance": 5,
+        "variance_samples": 1000,
+        "threshold": 0.1,
+        "seed": 2,
+        "staged_epochs": 50.0,
+        "ramp": 50.0,
+        "metric_learning": false,
+        "cluster_weight": 10,
+        "backend_name": "marrakesh",
+        "neighbours": 1,
+        "results_dir": "Results/NT_v2/marrakesh/seed2",
+        "noise_profiles": [
+            {
+                "filename": "ibm_marrakesh_2026-04-11.json",
+                "csc": 0.8138249801280012
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-26.json",
+                "csc": 0.8099135983131943
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-25.json",
+                "csc": 0.8093519431579679
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-24.json",
+                "csc": 0.8072076431849781
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-23.json",
+                "csc": 0.8095443524653297
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-22.json",
+                "csc": 0.806592330471539
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-21.json",
+                "csc": 0.814866820037583
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-20.json",
+                "csc": 0.8078904907990483
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-19.json",
+                "csc": 0.7999342801796718
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-18.json",
+                "csc": 0.8068489997938431
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-17.json",
+                "csc": 0.8102706178540819
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-16.json",
+                "csc": 0.7869463800051687
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-15.json",
+                "csc": 0.7948477312840964
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-14.json",
+                "csc": 0.8082762747769852
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-13.json",
+                "csc": 0.8153458763121062
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-12.json",
+                "csc": 0.8257924846538336
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-11.json",
+                "csc": 0.8123238528963486
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-10.json",
+                "csc": 0.8198695903175816
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-09.json",
+                "csc": 0.8183089254368979
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-08.json",
+                "csc": 0.8128048665950425
+            },
+            {
+                "filename": "hist_ibm_marrakesh_2026-04-07.json",
+                "csc": 0.811313545250034
+            }
+        ],
+        "holdout_profiles": [
+            "hist_ibm_marrakesh_2026-04-03.json",
+            "hist_ibm_marrakesh_2026-04-02.json",
+            "hist_ibm_marrakesh_2026-04-01.json",
+            "hist_ibm_marrakesh_2026-03-31.json",
+            "hist_ibm_marrakesh_2026-03-30.json"
+        ]
+    },
+    "results": {
+        "gmm_accuracy_train": [
+            91.68,
+            null
+        ],
+        "gmm_accuracy_test": [
+            91.68,
+            89.56
+        ],
+        "final_loss": 0.004802207640390304,
+        "min_loss": 0.0028082705341687204
+    }
+}

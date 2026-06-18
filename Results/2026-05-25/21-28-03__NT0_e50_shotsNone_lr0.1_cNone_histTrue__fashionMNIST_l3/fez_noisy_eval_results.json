@@ -1,0 +1,44 @@
+{
+    "backend": "qiskit.aer",
+    "sim": "density_matrix",
+    "shots": 1000,
+    "backend_name": "fez",
+    "results": [
+        {
+            "filename": "clean",
+            "backend": "clean",
+            "csc": 1.0,
+            "accuracy": 90.8
+        },
+        {
+            "filename": "hist_ibm_fez_2026-04-24.json",
+            "backend": "ibm_fez",
+            "csc": 0.8359553260510898,
+            "accuracy": 78.2
+        },
+        {
+            "filename": "hist_ibm_fez_2026-04-13.json",
+            "backend": "ibm_fez",
+            "csc": 0.8421913365048488,
+            "accuracy": 77.6
+        },
+        {
+            "filename": "hist_ibm_fez_2026-03-23.json",
+            "backend": "ibm_fez",
+            "csc": 0.852134220277943,
+            "accuracy": 83.0
+        },
+        {
+            "filename": "hist_ibm_fez_2026-01-29.json",
+            "backend": "ibm_fez",
+            "csc": 0.8505682285685956,
+            "accuracy": 72.6
+        },
+        {
+            "filename": "hist_ibm_fez_2026-03-18.json",
+            "backend": "ibm_fez",
+            "csc": 0.8502859295268891,
+            "accuracy": 78.8
+        }
+    ]
+}

@@ -5,10 +5,48 @@ import triplet_generator
 import numpy as np
 import json, os, argparse
 from sklearn.neighbors import NearestNeighbors
+from visualiser import Visualiser
 
 SAMPLES = 500
 
-def load_model(path):
+
+def print_noisy_eval_results(path):
+    """print all saved noisy eval results for this run directory"""
+    import glob
+    result_files = glob.glob(os.path.join(path, '*noisy_eval_results.json'))
+    
+    if not result_files:
+        print("No noisy eval results found.")
+        return
+
+    for result_file in sorted(result_files):
+        backend = os.path.basename(result_file).replace('_noisy_eval_results.json', '').replace('noisy_eval_results.json', 'default')
+        with open(result_file) as f:
+            data = json.load(f)
+        
+        results = data.get('results', [])
+        if not results:
+            continue
+
+        clean = next((r['accuracy'] for r in results if r['filename'] == 'clean'), None)
+        noisy = [r for r in results if r['filename'] != 'clean']
+        
+        if not noisy:
+            continue
+
+        noisy_mean = np.mean([r['accuracy'] for r in noisy])
+        noisy_min  = np.min([r['accuracy'] for r in noisy])
+        noisy_max  = np.max([r['accuracy'] for r in noisy])
+        drop       = clean - noisy_mean if clean else 0
+
+        print(f"\n  [{backend}]")
+        print(f"  Clean: {clean:.1f}% | Noisy Mean: {noisy_mean:.1f}% | Drop: {drop:.1f}% | Min: {noisy_min:.1f}% | Max: {noisy_max:.1f}%")
+        for r in noisy:
+            short = r['filename'].replace('hist_', '').replace('.json', '')
+            print(f"    {short:<35} {r['accuracy']:.1f}%")
+
+
+def load_model(path, backend=None):
     with open(os.path.join(path, "run_info.json")) as f:
         run_info = json.load(f)
     config = run_info["config"]
@@ -16,7 +54,10 @@ def load_model(path):
     if 'qubit' in config['backend']:
         config['backend'] = "qiskit.aer"
         config['sim'] = "density_matrix"
-
+    
+    if backend is not None:
+        print(f"Changing Backend to: {backend}")
+        config['backend_name'] = backend
     model = Triplet(config, testing=True, results_dir=path)
     best_path = os.path.join(path, 'best_weights.npy')
     if os.path.exists(best_path):
@@ -101,10 +142,11 @@ def compare_approximations(model, triplets, shift_bank):
     return results
 
 
-def analyse_model(path, baseline=False, variance=False, approximation=False):
+def analyse_model(path, baseline=False, variance=False, approximation=False, backend=None):
     print(f"\n=== Analysing: {path} ===")
-    model, config = load_model(path)
+    model, config = load_model(path, backend)
     triplets, labels, t_triplets, t_labels = load_triplets(config)
+
 
     if baseline:
         pca_gmm_baseline(config)
@@ -117,6 +159,22 @@ def analyse_model(path, baseline=False, variance=False, approximation=False):
         y_test=t_labels,
     )
 
+    # group profiles by backend
+    backends = {}
+    for prof in model.np_train:
+        if prof['backend'] == 'ibm_kingston':
+            if 'ibm_kingston' not in backends:
+                backends['ibm_kingston'] = []
+            backends['ibm_kingston'].append(prof)
+
+    vis = Visualiser(model.results_dir)
+    # vis.plot_shift_approximation_comparison(
+    #     model=model,
+    #     triplets=t_triplets,  # full test triplets, not sliced
+    #     sample_indices=[10, 50, 100, 200, 400],  # safe indices within range
+    #     backends=backends
+    # )
+
     if variance:
         print("\nEvaluating clean variance...")
         model.predict_clustering_variance(x_test=t_triplets, y_test=t_labels, variance=4)
@@ -125,6 +183,9 @@ def analyse_model(path, baseline=False, variance=False, approximation=False):
         print("\nBuilding shift bank for approximation comparison...")
         _, shift_bank, _ = model.build_clustered_shift_bank(triplets)
         compare_approximations(model, triplets, shift_bank)
+
+    print("\n=== Noisy Eval Results ===")
+    print_noisy_eval_results(path)
 
     return results
 
@@ -135,6 +196,7 @@ if __name__ == '__main__':
     parser.add_argument('--baseline', action='store_true', help='run PCA GMM baseline')
     parser.add_argument('--variance', action='store_true', help='run clean variance evaluation')
     parser.add_argument('--approximation', action='store_true', help='compare GMM vs KNN shift approximation')
+    parser.add_argument('--backend')
     args = parser.parse_args()
 
-    analyse_model(args.path, baseline=args.baseline, variance=args.variance, approximation=args.approximation)
+    analyse_model(args.path, baseline=args.baseline, variance=args.variance, approximation=args.approximation, backend=args.backend)

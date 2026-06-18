@@ -35,17 +35,68 @@ class noise:
         #     "hist_ibm_marrakesh_2026-04-10.json",
         #     "hist_ibm_marrakesh_2026-04-14.json",
         # ]
-        self.holdout_profiles = [
-            "hist_ibm_kingston_2026-04-24.json",
-            "hist_ibm_kingston_2026-04-13.json",
-            "hist_ibm_kingston_2026-03-23.json",
-            "hist_ibm_kingston_2026-01-29.json",
-            "hist_ibm_kingston_2026-03-18.json"
+        # self.kingston_holdout = [
+        #     "hist_ibm_kingston_2026-04-24.json",
+        #     "hist_ibm_kingston_2026-04-13.json",
+        #     "hist_ibm_kingston_2026-03-23.json",
+        #     "hist_ibm_kingston_2026-01-29.json",
+        #     "hist_ibm_kingston_2026-03-18.json"
+        # ]
+
+        self.kingston_holdout = [
+            "hist_ibm_kingston_2026-04-03.json",
+            "hist_ibm_kingston_2026-04-02.json",
+            "hist_ibm_kingston_2026-04-01.json",
+            "hist_ibm_kingston_2026-03-31.json",
+            "hist_ibm_kingston_2026-03-30.json",
         ]
+
+        # self.fez_holdout = [
+        #     "hist_ibm_fez_2026-04-24.json",
+        #     "hist_ibm_fez_2026-04-13.json",
+        #     "hist_ibm_fez_2026-03-23.json",
+        #     "hist_ibm_fez_2026-01-29.json",
+        #     "hist_ibm_fez_2026-03-18.json"
+        # ]
+
+        self.fez_holdout = [
+            "hist_ibm_fez_2026-04-03.json",  # just before training window
+            "hist_ibm_fez_2026-04-02.json",
+            "hist_ibm_fez_2026-04-01.json",
+            "hist_ibm_fez_2026-03-31.json",
+            "hist_ibm_fez_2026-03-30.json",
+        ]
+        
+        self.marrakesh_holdout = [
+            "hist_ibm_marrakesh_2026-04-03.json",
+            "hist_ibm_marrakesh_2026-04-02.json",
+            "hist_ibm_marrakesh_2026-04-01.json",
+            "hist_ibm_marrakesh_2026-03-31.json",
+            "hist_ibm_marrakesh_2026-03-30.json",
+        ]
+        # self.marrakesh_holdout = [
+        #     "hist_ibm_marrakesh_2026-04-24.json",
+        #     "hist_ibm_marrakesh_2026-04-13.json",
+        #     "hist_ibm_marrakesh_2026-03-23.json",
+        #     "hist_ibm_marrakesh_2026-01-29.json",
+        #     "hist_ibm_marrakesh_2026-03-18.json"
+        # ]
+
+    def get_holdout_profiles(self, backend_name):
+        if 'kingston' in backend_name:
+            return self.kingston_holdout
+        elif 'fez' in backend_name:
+            return self.fez_holdout
+        elif 'marrakesh' in backend_name:
+            return self.marrakesh_holdout
+        return []
 
     def load_calibration_data(self, load_prof=None, limit_backends=None):
         files = [f for f in os.listdir("calibrations") if f.endswith(".json")]
         
+        # get correct holdout profiles for this backend
+        holdout_profiles = self.get_holdout_profiles(limit_backends) if limit_backends else []
+
         # pre-filter filenames before loading from disk
         filtered_files = []
         for filename in files:
@@ -57,7 +108,10 @@ class noise:
                 continue
             if limit_backends and limit_backends not in filename:
                 continue
+            if filename in holdout_profiles:
+                continue  # exclude holdout profiles from training
             filtered_files.append(filename)
+
 
         # if hist, pre-select which files to load before loading them
         if self.hist_count:

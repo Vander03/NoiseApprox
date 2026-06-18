@@ -52,13 +52,15 @@ try:
         parser.add_argument('--learning_rate', type=float, default=0.1)
         parser.add_argument('--ramp', type=float, default=50)
         parser.add_argument('--staged', type=float, default=50)
+        parser.add_argument('--backend', type=str, default="fez")
+        parser.add_argument('--results_dir', type=str, default=None)
         args = parser.parse_args()
         
         params = ({
             "dataset": "fashionMNIST", # Dataset the run was trained on
-            "epochs": 150, # number of epochs the model was trained on
-            "num_qubits": 11, # number of qubits in the circuit, width of the circuit # TODO try 11 no PCA
-            "PCA_dims": 32, # number of dimensions the data was reduced to
+            "epochs": 50, # number of epochs the model was trained on
+            "num_qubits": 6, # number of qubits in the circuit, width of the circuit # TODO try 11 no PCA
+            "PCA_dims": 64, # number of dimensions the data was reduced to
             "backend": pennylane, # backend the circuits were simulated on
             "sim": "statevector", # statevector / density_matrix
             "shots": None, # number of shots used during circuit eval (N/A for pennylane)
@@ -67,7 +69,7 @@ try:
             "layers": 6, # depth of the circuit
             "batch_size": 128, # number of samples collected per batch
             "max_train_samples": 1000, # maximum training samples
-            "embed_dims": 11, # number of qubits to measure at the end of the circuit
+            "embed_dims": 6, # number of qubits to measure at the end of the circuit
             "learning_rate": args.learning_rate, # learning rate param applicable to SPSA, Grad Descent and Adam
             "cooldown_lr": None,
             "perturbation_rate": None, # noisy variance to perturb the parameters by, Applicable to SPSA
@@ -88,21 +90,27 @@ try:
             "ramp": args.ramp, # number of epochs before the noise training gets to full strength
             "metric_learning": False,
             "cluster_weight": 10,
-            "backend_name": "kingston" # filter the backends to this computer
+            "backend_name": args.backend, # filter the backends to this computer
+            "neighbours": 1,
+            "results_dir": args.results_dir
         })
 
+        import numpy
+        numpy.random.seed(args.seed)
         np.random.seed(args.seed)
         import random
         random.seed(args.seed)
 
         # preprocessing
+
         triplets, labels = triplet_generator.generate_pca_triplets(
             params['dataset'],
             label_space=params['label_space'],
             num_triplets=params['num_triplets'],
             testing=False,
             pca_dims=params['PCA_dims'],
-            metric_learning=params['metric_learning']
+            metric_learning=params['metric_learning'],
+            noise_train=params['noise_train']
         )
         t_triplets, t_labels = triplet_generator.generate_pca_triplets(
             dataset=params['dataset'],
@@ -110,17 +118,19 @@ try:
             num_triplets=params['num_triplets'],
             testing=True,
             pca_dims=params['PCA_dims'],
-            metric_learning=params['metric_learning']
+            metric_learning=params['metric_learning'],
+            noise_train=params['noise_train']
         )
 
 
         network = model.Triplet(params)
-        network.ss_samples = [63, 550, 1755, 2633, 2653, 3444, 4518]
-        # network.evaluate_embedding_space(triplets=triplets, labels=labels, save_name="embedding_before_training.png")
         network.train(triplets, labels) # LABELS NOT USED IN MODEL. USED FOR PLOTS TESTING VARIANCE IN DIMENSIONS
-        # network.evaluate_embedding_space(triplets=triplets, labels=labels, save_name="embedding_after_training.png")
-        # network.fit_noise_distribution(triplets=triplets, before_training=False, labels=labels)
         network.save_experiment(triplets, labels, t_triplets, t_labels)
+        from visualiser import Visualiser
+        vis = Visualiser(network.results_dir)
+        vis.plot_loss(network.loss_history, network.clean_loss_history, network.noisy_loss_history)
+        vis.evaluate_embedding_space(triplets[:500], labels[:500], network)
+        # vis.measure_shift_distribution(triplets, network, ss_samples=[63, 550, 1755])
         noise_test.analyse_model(network.results_dir)
 except KeyboardInterrupt:
     # Exits silently without printing the long traceback message

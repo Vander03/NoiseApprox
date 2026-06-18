@@ -7,7 +7,7 @@ from PIL import Image
 from os import listdir
 from os.path import isfile, join
 from tqdm import tqdm
-def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=False, pca_dims=32, metric_learning=False):
+def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=False, pca_dims=32, metric_learning=False, noise_train=False):
     """
     Generates PCA triplet training examples from the specified dataset with specified qubit and label space sizes.
     :param dataset: String name of folder in datasets/[dataset] containing training and testing .npy files.
@@ -21,12 +21,18 @@ def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=Fa
     """
     x, y = load_data(dataset, testing)
     x, y = filter_labels(x, y, label_space)
+    x = np.array(x)
+    if x.ndim == 3:
+        x = x.reshape(x.shape[0], -1)  # flatten (n, 28, 28) -> (n, 784)
     # x = scale_data(preprocessing.normalize(x))
     x = perform_pca(x=x, pca_dims=pca_dims)
     if metric_learning:
         return generate_triplets
-    else:
+    if noise_train:
+        return anchor2(x, y, num_triplets)
+    if not noise_train:
         return generate_augmented_triplets(x, y, num_triplets)
+
 
 
 def load_data(dataset, testing):
@@ -72,9 +78,6 @@ def perform_pca(x, pca_dims=32):
     :param pca_dims: the number of dimensions (features) to reduce each example to via PCA.
     :return: Numpy array with [0, 1] scaled result of PCA dimensionality reduction.
     """
-    x = np.array(x)
-    if x.ndim == 3:
-        x = x.reshape(x.shape[0], -1)  # flatten (n, 28, 28) -> (n, 784)
     pca = PCA(pca_dims)
     pca.fit(preprocessing.normalize(x))
     return scale_data(pca.transform(preprocessing.normalize(x)))
@@ -123,6 +126,24 @@ def generate_augmented_triplets(x, y, num_triplets=5000):
         idy = y[idx] # save its label only for GMM evaluation
         anchor = x[idx]
         positive = augment(anchor)
+        neg_idx = idx
+        while neg_idx == idx:
+            neg_idx = random.randint(0, len(x) - 1)
+        negative = x[neg_idx]
+        
+        triplets.append((anchor, positive, negative))
+        labels.append(idy)
+    return triplets, labels
+
+def anchor2(x, y, num_triplets=5000):
+    triplets = []
+    labels = []
+    _rng = random.Random(42) # seperate random instance so each run has the same samples
+    for _ in range(num_triplets):
+        idx = _rng.randint(0, len(x) - 1)
+        idy = y[idx] # save its label only for GMM evaluation
+        anchor = x[idx]
+        positive = anchor
         neg_idx = idx
         while neg_idx == idx:
             neg_idx = random.randint(0, len(x) - 1)

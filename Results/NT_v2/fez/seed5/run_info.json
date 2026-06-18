@@ -1,0 +1,142 @@
+{
+    "config": {
+        "dataset": "fashionMNIST",
+        "epochs": 50,
+        "num_qubits": 6,
+        "PCA_dims": 64,
+        "backend": "lightning.qubit",
+        "sim": "statevector",
+        "shots": null,
+        "num_triplets": 5000,
+        "label_space": 3,
+        "layers": 6,
+        "batch_size": 128,
+        "max_train_samples": 1000,
+        "embed_dims": 6,
+        "learning_rate": 0.1,
+        "cooldown_lr": null,
+        "perturbation_rate": null,
+        "optimiser": "ADAM",
+        "noise_train": true,
+        "noise_samp_per_batch": 2,
+        "historic_load": 20,
+        "fake": false,
+        "message": "NT seed5 fez keyword:1neighbour3class0.2",
+        "epoch_variance": 5,
+        "variance_samples": 1000,
+        "threshold": 0.1,
+        "seed": 5,
+        "staged_epochs": 50.0,
+        "ramp": 50.0,
+        "metric_learning": false,
+        "cluster_weight": 10,
+        "backend_name": "fez",
+        "neighbours": 1,
+        "results_dir": "Results/NT_v2/fez/seed5",
+        "noise_profiles": [
+            {
+                "filename": "ibm_fez_2026-04-11.json",
+                "csc": 0.8371338480134096
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-26.json",
+                "csc": 0.8429806748586043
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-25.json",
+                "csc": 0.8400249493261666
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-24.json",
+                "csc": 0.8359553260510898
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-23.json",
+                "csc": 0.8404552007934799
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-22.json",
+                "csc": 0.8403798675269452
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-21.json",
+                "csc": 0.835581354107308
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-20.json",
+                "csc": 0.8368685329017895
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-19.json",
+                "csc": 0.8406217632507968
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-18.json",
+                "csc": 0.8407889123363298
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-17.json",
+                "csc": 0.8391962085614701
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-16.json",
+                "csc": 0.8379947149581622
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-15.json",
+                "csc": 0.8413257717253777
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-14.json",
+                "csc": 0.8448480878549345
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-13.json",
+                "csc": 0.8421913365048488
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-12.json",
+                "csc": 0.8432204513065147
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-11.json",
+                "csc": 0.8393849099519727
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-10.json",
+                "csc": 0.838075680192799
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-09.json",
+                "csc": 0.8415220264509582
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-08.json",
+                "csc": 0.8441068189488391
+            },
+            {
+                "filename": "hist_ibm_fez_2026-04-07.json",
+                "csc": 0.8397460642622545
+            }
+        ],
+        "holdout_profiles": [
+            "hist_ibm_fez_2026-04-03.json",
+            "hist_ibm_fez_2026-04-02.json",
+            "hist_ibm_fez_2026-04-01.json",
+            "hist_ibm_fez_2026-03-31.json",
+            "hist_ibm_fez_2026-03-30.json"
+        ]
+    },
+    "results": {
+        "gmm_accuracy_train": [
+            92.66,
+            null
+        ],
+        "gmm_accuracy_test": [
+            92.66,
+            91.04
+        ],
+        "final_loss": 0.010291721472361015,
+        "min_loss": 0.004486034377467532
+    }
+}
