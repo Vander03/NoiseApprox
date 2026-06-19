@@ -26,11 +26,11 @@ def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=Fa
         x = x.reshape(x.shape[0], -1)  # flatten (n, 28, 28) -> (n, 784)
     # x = scale_data(preprocessing.normalize(x))
     x = perform_pca(x=x, pca_dims=pca_dims)
-    if metric_learning:
-        return generate_triplets
     if noise_train:
+        # anchor-postive are the same sample, used for embedding space shift-augmented positive
         return anchor2(x, y, num_triplets)
     if not noise_train:
+        # traditional augmented anchor positive with any-other-sample negative
         return generate_augmented_triplets(x, y, num_triplets)
 
 

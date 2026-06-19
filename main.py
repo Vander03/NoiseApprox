@@ -50,8 +50,6 @@ try:
         parser.add_argument('--noise_train', type=lambda x: x.lower() == 'true', default=True)
         parser.add_argument('--seed', type=int, default=1)
         parser.add_argument('--learning_rate', type=float, default=0.1)
-        parser.add_argument('--ramp', type=float, default=50)
-        parser.add_argument('--staged', type=float, default=50)
         parser.add_argument('--backend', type=str, default="fez")
         parser.add_argument('--results_dir', type=str, default=None)
         args = parser.parse_args()
@@ -82,13 +80,8 @@ try:
             "noise_profiles": [], # array to store the noise profiles seen during training
             "holdout_profiles": [], # save the holdout profiles juuust in case they change
             "results": {}, # results dictionary for storing the final results
-            "epoch_variance": 5, # how often the variance gets updated
             "variance_samples": 1000, # number of samples to calculate variance per profile
-            "threshold": 0.10, # threshold of variance to allow during training
             "seed": args.seed,
-            "staged_epochs": args.staged, # number of epochs before the noise training starts
-            "ramp": args.ramp, # number of epochs before the noise training gets to full strength
-            "metric_learning": False,
             "cluster_weight": 10,
             "backend_name": args.backend, # filter the backends to this computer
             "neighbours": 1,

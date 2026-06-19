@@ -188,52 +188,7 @@ class Triplet:
         _, neighbour_idx = self.knn.kneighbors(emb_np.reshape(1, -1))
         return self.knn_shifts[neighbour_idx[0][0]]
     
-    # def build_clustered_shift_bank(self, triplets, n_clusters=20, samples_per_cluster=10):
-    #     """get clean embeddings for all triplets, cluster them, select representatives, measure real shifts"""
-    #     self._ensure_results_dir()
-    #     print("Getting clean embeddings...")
-    #     clean_embs = []
-    #     indices = numpy.random.choice(len(triplets), 1000, replace=False)
-    #     anchors = [triplets[i][0] for i in indices]
-    #     noiseless_weights = np.load("noiseless_trained_6_fashion.npy", allow_pickle=True)
-
-    #     for t in tqdm(anchors):
-    #         emb = numpy.array([float(z) for z in self.qiskit_circuit(self, noiseless_weights, numpy.array(t))])
-    #         clean_embs.append(emb)
-
-    #     clean_embs = numpy.array(clean_embs)
-    #     kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-    #     kmeans.fit(clean_embs)
-
-    #     # select representative samples per cluster
-    #     calibration_indices = []
-    #     for k in range(n_clusters):
-    #         cluster_mask = kmeans.labels_ == k
-    #         cluster_indices = numpy.where(cluster_mask)[0]
-    #         selected = cluster_indices[:samples_per_cluster]
-    #         calibration_indices.extend(selected)
-
-    #     # measure real shifts for calibration samples
-    #     shift_bank = []
-    #     for idx in tqdm(calibration_indices):
-    #         sample = anchors[idx]
-    #         clean_emb = clean_embs[idx]
-    #         shifts_for_sample = []
-    #         for prof in self.np_train:
-    #             noisy_emb = numpy.array([float(z) for z in prof["circuit"](self, noiseless_weights, numpy.array(sample))])
-    #             shifts_for_sample.append(noisy_emb - clean_emb)
-    #         shift = numpy.mean(shifts_for_sample, axis=0)
-    #         shift_bank.append((clean_emb, shift))
-
-    #     knn_shifts_arr = numpy.array([s[1] for s in shift_bank])
-    #     knn_embs_arr = numpy.array([s[0] for s in shift_bank])
-    #     numpy.save(os.path.join(self.results_dir, 'knn_shifts.npy'), knn_shifts_arr)
-    #     numpy.save(os.path.join(self.results_dir, 'knn_embs.npy'), knn_embs_arr)
-
-    #     from visualiser import Visualiser
-    #     vis = Visualiser(self.results_dir)
-    #     # vis.plot_shift_bank(clean_embs, shift_bank, kmeans)
-    #     return clean_embs, shift_bank, kmeans
+    
     def build_clustered_shift_bank(self, triplets, n_clusters=20, samples_per_cluster=10):
         """get clean embeddings for all triplets, cluster them, select representatives, measure real shifts"""
         self._ensure_results_dir()
@@ -258,6 +213,7 @@ class Triplet:
             kmeans.fit(knn_embs_arr)
             return knn_embs_arr, shift_bank, kmeans
 
+        # saved shift bank not found, build new shift bank
         print("Building shift bank...")
         os.makedirs(shared_bank_dir, exist_ok=True)
 
@@ -351,20 +307,13 @@ class Triplet:
                 self.weights_list.append(self.weights)
 
     def loss(self, weights, features):
-        clean_loss = 0
-        consistency_loss = 0
-        total_loss = 0
-        embeddings = []
-        noisy_weight = 0.0
+        loss = 0
 
         for im in features:
             # clean embeddings
             A = self.circuit(self, weights, np.array(im[0]))
             P = self.circuit(self, weights, np.array(im[1]))
             N = self.circuit(self, weights, np.array(im[2]))
-            embeddings.append(np.array(A))
-            embeddings.append(np.array(P))
-            embeddings.append(np.array(N))
             margin = 0.02
             if self.noise_train:
                 P_arr = np.array(P)
@@ -373,35 +322,9 @@ class Triplet:
             
             d_pos = sum(np.square(A[i] - P[i]) for i in range(len(A)))
             d_neg = sum(np.square(A[i] - N[i]) for i in range(len(A)))
-            clean_loss += np.maximum(0, d_pos - d_neg + margin)
+            loss += np.maximum(0, d_pos - d_neg + margin)
 
-            # noisy embeddings
-            if self.noise_train and self.np_train and False:
-                A_arr = np.array(A)
-                P_arr = np.array(P)
-                N_arr = np.array(N)
-
-                if self.current_epoch >= self.staged_epochs:
-                    noisy_weight = min(0.5, (self.current_epoch - self.staged_epochs) / max(self.ramp, 1))
-
-                # apply a shift vector sampled from the shift bank
-                # n_A = A_arr + self.sample_noise_knn(A_arr)
-                n_P = P_arr + self.sample_noise_knn(P_arr)
-                # n_N = N_arr + self.sample_noise_knn(N_arr)
-
-                # embeddings.append(n_A)
-                # embeddings.append(n_P)
-                # embeddings.append(n_N)
-
-                # consistency_loss += sum(np.square(n_A[i] - A_arr[i]) for i in range(len(A)))
-                # consistency_loss += sum(np.square(n_P[i] - P_arr[i]) for i in range(len(P)))
-                # consistency_loss += sum(np.square(n_N[i] - N_arr[i]) for i in range(len(N)))
-
-        # consistency_loss *= 0.1 # scaling
-        # clean_loss *= (1-noisy_weight)
-        # consistency_loss *= noisy_weight
-        total_loss = clean_loss + consistency_loss # scale consistency to not explode
-        return total_loss / len(features), clean_loss / len(features), consistency_loss / len(features)
+        return loss / len(features)
 
     def generate_y_hats(self, y_hat, num_clusters):
         import itertools

@@ -8,6 +8,11 @@ import matplotlib
 matplotlib.use('Agg')
 from collections import defaultdict
 
+"""
+This file allows for the filtering of certain seeded runs based on the keyword in their messages
+Best way I could think of to collect and analyse seeded runs
+"""
+
 results_root = "Results"
 keyword      = "keyword:1neighbour3class0.2"
 
@@ -119,7 +124,7 @@ for condition_dir in ['NT', 'NT_v2']:
 # ─────────────────────────────────────────────────────────────
 # SCAN — noiseless: Results/noiseless/seedX/
 # ─────────────────────────────────────────────────────────────
-
+# noiseless doesnt change between seeds to save time rerunning
 noiseless_path = os.path.join(results_root, "noiseless")
 if os.path.isdir(noiseless_path):
     for seed_dir in sorted(os.listdir(noiseless_path)):
@@ -189,28 +194,3 @@ for run in seed_runs:
             continue
         print(f"{seed:<8} {nt:<10} {backend_tag:<12} {numpy.mean(accs):>8.1f}% "
               f"{clean_acc or 0:>7.1f}% {numpy.min(accs):>11.1f}% {numpy.max(accs):>11.1f}%")
-
-# ─────────────────────────────────────────────────────────────
-# WEIGHT NORMS
-# ─────────────────────────────────────────────────────────────
-
-# print(f"\n{'Seed':<8} {'Condition':<10} {'Weight Norm':>12}")
-# print("-" * 35)
-
-# for run in seed_runs:
-#     path   = run["path"]
-#     config = run["config"]
-#     seed   = config.get("seed", "?")
-#     nt     = "NT" if config["noise_train"] else "non-NT"
-
-#     best_path    = os.path.join(path, 'best_weights.npy')
-#     weights_path = os.path.join(path, 'weights.npy')
-
-#     if os.path.exists(best_path):
-#         weights = numpy.load(best_path, allow_pickle=True)
-#     elif os.path.exists(weights_path):
-#         weights = numpy.load(weights_path, allow_pickle=True)[-1]
-#     else:
-#         continue
-
-#     print(f"{seed:<8} {nt:<10} {numpy.linalg.norm(weights):>12.4f}")
