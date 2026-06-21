@@ -1,5 +1,4 @@
 import triplet_generator
-import sliq
 import model
 import numpy as np
 import argparse
