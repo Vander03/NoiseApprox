@@ -23,25 +23,6 @@ class noise:
         self.fake = fake # determines if the model uses fake noise profiles to train
         self.hist_count = hist_count # the number of historical noise profiles to load for each backend
 
-        # self.holdout_profiles = [
-        #     "hist_ibm_kingston_2026-04-15.json",
-        #     "hist_ibm_kingston_2026-04-11.json",
-        #     "hist_ibm_kingston_2026-04-12.json",
-        #     "hist_ibm_fez_2026-04-16.json",
-        #     "hist_ibm_fez_2026-04-04.json",
-        #     "hist_ibm_fez_2026-04-10.json",
-        #     "hist_ibm_marrakesh_2026-04-12.json",
-        #     "hist_ibm_marrakesh_2026-04-08.json",
-        #     "hist_ibm_marrakesh_2026-04-10.json",
-        #     "hist_ibm_marrakesh_2026-04-14.json",
-        # ]
-        # self.kingston_holdout = [
-        #     "hist_ibm_kingston_2026-04-24.json",
-        #     "hist_ibm_kingston_2026-04-13.json",
-        #     "hist_ibm_kingston_2026-03-23.json",
-        #     "hist_ibm_kingston_2026-01-29.json",
-        #     "hist_ibm_kingston_2026-03-18.json"
-        # ]
 
         self.kingston_holdout = [
             "hist_ibm_kingston_2026-04-03.json",
@@ -51,16 +32,8 @@ class noise:
             "hist_ibm_kingston_2026-03-30.json",
         ]
 
-        # self.fez_holdout = [
-        #     "hist_ibm_fez_2026-04-24.json",
-        #     "hist_ibm_fez_2026-04-13.json",
-        #     "hist_ibm_fez_2026-03-23.json",
-        #     "hist_ibm_fez_2026-01-29.json",
-        #     "hist_ibm_fez_2026-03-18.json"
-        # ]
-
         self.fez_holdout = [
-            "hist_ibm_fez_2026-04-03.json",  # just before training window
+            "hist_ibm_fez_2026-04-03.json",
             "hist_ibm_fez_2026-04-02.json",
             "hist_ibm_fez_2026-04-01.json",
             "hist_ibm_fez_2026-03-31.json",
@@ -74,13 +47,6 @@ class noise:
             "hist_ibm_marrakesh_2026-03-31.json",
             "hist_ibm_marrakesh_2026-03-30.json",
         ]
-        # self.marrakesh_holdout = [
-        #     "hist_ibm_marrakesh_2026-04-24.json",
-        #     "hist_ibm_marrakesh_2026-04-13.json",
-        #     "hist_ibm_marrakesh_2026-03-23.json",
-        #     "hist_ibm_marrakesh_2026-01-29.json",
-        #     "hist_ibm_marrakesh_2026-03-18.json"
-        # ]
 
     def get_holdout_profiles(self, backend_name):
         if 'kingston' in backend_name:
@@ -134,10 +100,10 @@ class noise:
         # if load_prof is not None, load the profiles provided
         if load_prof:
             if isinstance(load_prof, str):
-                load_prof = [load_prof]  # wrap single filename in a list
+                load_prof = [load_prof] 
             filtered_files = list(load_prof)
 
-        # now load only the selected files
+        # now load the selected files
         profiles = []
         for filename in tqdm(filtered_files, desc="Loading calibration profiles"):
             filepath = os.path.join("calibrations", filename)
@@ -156,7 +122,7 @@ class noise:
         props = BackendProperties.from_dict(data["properties"])
         try:
             noise_model = NoiseModel.from_backend_properties(props, thermal_relaxation=False)
-            if DEBUGGING: print(f"{data['backend']} - (thermal relaxation skipped - no frequency data)")
+            if DEBUGGING: print(f"{data['backend']} - (thermal relaxation skipped - no frequency data)") # no freq for most of them, removed from Qiskit API
         except Exception as e:
             print(f"  Skipping {filename}: {e}")
             return
@@ -204,10 +170,3 @@ class noise:
         qubits: list of (gate_errors, readout_error) per qubit
         """
         return sum(noise.GSC(gate_errors, readout_error) for gate_errors, readout_error in qubits) / len(qubits)
-
-    # def MSE(ideal_emb, perturbed_emb):
-    #     """
-    #     Computes MSE between two embedding arrays for all embeddings in a batch
-    #     """
-    #     return sum([(prediction - target) ** 2 for prediction, target in zip(ideal_emb, perturbed_emb)])
-
