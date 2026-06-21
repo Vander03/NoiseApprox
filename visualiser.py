@@ -14,7 +14,7 @@ class Visualiser:
     def _ensure_results_dir(self):
         os.makedirs(self.results_dir, exist_ok=True)
 
-    def plot_loss(self, loss_history, clean_loss_history=None, noisy_loss_history=None, dataset="MNIST"):
+    def plot_loss(self, loss_history, dataset="MNIST"):
         smoothed_total = pd.Series(loss_history).rolling(window=10, min_periods=1).mean()
 
         fig, ax = plt.subplots(figsize=(10, 5))
@@ -86,7 +86,7 @@ class Visualiser:
         plt.close()
         print(f"Saved: {save_path}")
 
-    def plot_shift_approximation_quality(self, clean_embs, shift_bank, kmeans, backend, predicted_shifts=None, cosine_sims=None, holdout_shifts=None):
+    def plot_shift_approximation_quality(self, clean_embs, shift_bank, backend, predicted_shifts=None, cosine_sims=None, holdout_shifts=None):
         """cosine similarity distribution and compass plot for direction"""
         from umap import UMAP
         from sklearn.neighbors import NearestNeighbors
@@ -336,7 +336,7 @@ class Visualiser:
         plt.close()
         print(f"Saved: shift_heatmap_comparison.png")
 
-    def plot_shift_field_cosine_overlay(self, clean_embs, shift_bank, kmeans, backend, cosine_sims, external_knn_embs=None, external_knn_shifts=None):
+    def plot_shift_field_cosine_overlay(self, clean_embs, shift_bank, backend, cosine_sims):
         from umap import UMAP
         from sklearn.neighbors import NearestNeighbors
         import matplotlib.pyplot as plt

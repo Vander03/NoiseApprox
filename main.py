@@ -46,7 +46,6 @@ try:
             "noise_profiles": [], # array to store the noise profiles seen during training
             "holdout_profiles": [], # save the holdout profiles juuust in case they change
             "results": {}, # results dictionary for storing the final results
-            "variance_samples": 1000, # number of samples to calculate variance per profile
             "seed": args.seed,
             "cluster_weight": 10,
             "backend_name": args.backend, # filter the backends to this computer

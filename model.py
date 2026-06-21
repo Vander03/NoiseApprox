@@ -28,11 +28,7 @@ class Triplet:
         self.params = params
         self.weights_list = []
         self.loss_history = []
-        self.clean_loss_history = []
-        self.noisy_loss_history = []
-        # self.holdout_profiles = self.noise_helper.holdout_profiles
         self.best_loss = float("inf")
-        self.ss_samples = 0
 
         # unpack params
         self.num_wires = params["num_qubits"]
@@ -57,8 +53,6 @@ class Triplet:
         self.testing = testing
         self.sim = "density_matrix" if testing else params.get("sim", "statevector")
         print(f"Sim: {self.sim}, Shots: {self.shots}")
-        self.variance_samples = params["variance_samples"]
-        self.cluster_weight = params.get("cluster_weight", 5)
         self.backend_name = params.get("backend_name", None)
         print(f"Loading {self.backend_name} only...")
         self.neighbours = params.get("neighbours", 1)
@@ -163,7 +157,7 @@ class Triplet:
         noise_sim = AerSimulator(
             noise_model=noise_model,
             method="density_matrix",
-            seed_simulator=42,  # seed the shots to minimise the effects of shot variance
+            seed_simulator=42, # seed the shots to minimise the effects of shot variance
             max_parallel_threads=5,
             max_parallel_experiments=5,
             basis_gates=[

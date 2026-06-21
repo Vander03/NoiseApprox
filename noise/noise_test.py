@@ -35,9 +35,9 @@ def print_noisy_eval_results(path):
             continue
 
         noisy_mean = np.mean([r['accuracy'] for r in noisy])
-        noisy_min  = np.min([r['accuracy'] for r in noisy])
-        noisy_max  = np.max([r['accuracy'] for r in noisy])
-        drop       = clean - noisy_mean if clean else 0
+        noisy_min = np.min([r['accuracy'] for r in noisy])
+        noisy_max = np.max([r['accuracy'] for r in noisy])
+        drop = clean - noisy_mean if clean else 0
 
         print(f"\n  [{backend}]")
         print(f"  Clean: {clean:.1f}% | Noisy Mean: {noisy_mean:.1f}% | Drop: {drop:.1f}% | Min: {noisy_min:.1f}% | Max: {noisy_max:.1f}%")

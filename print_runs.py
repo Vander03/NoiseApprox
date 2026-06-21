@@ -45,11 +45,11 @@ def print_run_means(results_root="Results", keyword=None, seed=None):
             if not accs:
                 continue
             
-            mean     = np.mean(accs)
-            nt       = run_info["config"].get("noise_train", False)
-            lr       = run_info["config"].get("learning_rate", "?")
+            mean = np.mean(accs)
+            nt = run_info["config"].get("noise_train", False)
+            lr = run_info["config"].get("learning_rate", "?")
             run_seed = run_info["config"].get("seed", "?")
-            labels   = run_info["config"].get("label_space", "?")
+            labels = run_info["config"].get("label_space", "?")
             
             runs.append({
                 "dir":      run_dir,
@@ -66,7 +66,7 @@ def print_run_means(results_root="Results", keyword=None, seed=None):
     print(f"\n{'NT':<8} {'LR':<6} {'Seed':<6} {'Classes':<9} {'Clean':>8} {'Noisy Mean':>12}  Message")
     print("-" * 88)
     for r in runs:
-        nt_str    = "NT" if r["nt"] else "non-NT"
+        nt_str = "NT" if r["nt"] else "non-NT"
         clean_str = f"{r['clean']:.1f}%" if r["clean"] else "N/A"
         print(f"{nt_str:<8} {str(r['lr']):<6} {str(r['seed']):<6} {str(r['labels']):<9} {clean_str:>8} {r['mean']:>11.2f}%  {r['message'][len(r['message'])-13:]}  {r['filename'][:50]}")
 
@@ -74,6 +74,6 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--keyword", type=str, default=None)
-    parser.add_argument("--seed",    type=int, default=None)
+    parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
     print_run_means(keyword=args.keyword, seed=args.seed)

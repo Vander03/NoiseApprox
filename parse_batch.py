@@ -14,15 +14,15 @@ Best way I could think of to collect and analyse seeded runs
 """
 
 results_root = "Results"
-keyword      = "keyword:1neighbour3class0.2"
+keyword = "keyword:1neighbour3class0.2"
 
 # ─────────────────────────────────────────────────────────────
 # CORE PROCESSING
 # ─────────────────────────────────────────────────────────────
 
-summary        = defaultdict(list)
-matched_runs   = []
-backends       = ['ibm_kingston', 'ibm_fez', 'ibm_marrakesh']
+summary = defaultdict(list)
+matched_runs = []
+backends = ['ibm_kingston', 'ibm_fez', 'ibm_marrakesh']
 backend_summary = defaultdict(lambda: defaultdict(list))
 
 
@@ -33,7 +33,7 @@ def _process_run(run_path, force_condition=None):
 
     with open(run_info_path) as f:
         run_info = json.load(f)
-    config  = run_info["config"]
+    config = run_info["config"]
     message = config.get("message", "")
 
     # noiseless runs bypass keyword filter
@@ -45,8 +45,7 @@ def _process_run(run_path, force_condition=None):
     else:
         nt = "NT" if config["noise_train"] else "non-NT"
 
-    lr        = config["learning_rate"]
-    seed      = config.get("seed", "?")
+    lr = config["learning_rate"]
     condition = (f"lr={lr}", nt)
 
     noisy_files = []
@@ -61,7 +60,7 @@ def _process_run(run_path, force_condition=None):
     for noisy_path in noisy_files:
         with open(noisy_path) as f:
             noisy_data = json.load(f)
-        results   = noisy_data.get("results", [])
+        results = noisy_data.get("results", [])
         clean_acc = next((r["accuracy"] for r in results if r.get("filename") == "clean"), None)
         noisy_accs = [r["accuracy"] for r in results if r.get("filename") != "clean"]
         all_accs.extend(noisy_accs)
@@ -151,14 +150,14 @@ print("=" * 75)
 for backend in backends:
     for condition in ["noiseless", "non-NT", "NT"]:
         noisy_means = backend_summary[backend][condition]
-        clean_accs  = backend_summary[backend][f"{condition}_clean"]
+        clean_accs = backend_summary[backend][f"{condition}_clean"]
         if not noisy_means:
             continue
         noisy_mean = numpy.mean(noisy_means)
-        noisy_std  = numpy.std(noisy_means)
+        noisy_std = numpy.std(noisy_means)
         clean_mean = numpy.mean(clean_accs) if clean_accs else 0
-        drop       = clean_mean - noisy_mean
-        n          = len(noisy_means)
+        drop = clean_mean - noisy_mean
+        n = len(noisy_means)
         print(f"{backend:<20} {condition:<10} {n:>4} {clean_mean:>8.1f}% "
               f"{noisy_mean:>11.1f}% {noisy_std:>7.2f} {drop:>7.1f}%")
     print()
@@ -176,10 +175,10 @@ seed_runs = sorted(matched_runs, key=lambda r: (
 ))
 
 for run in seed_runs:
-    path   = run["path"]
+    path = run["path"]
     config = run["config"]
-    seed   = config.get("seed", "?")
-    nt     = run["condition"]
+    seed = config.get("seed", "?")
+    nt = run["condition"]
 
     for fname in sorted(os.listdir(path)):
         if not fname.endswith("noisy_eval_results.json"):
@@ -187,9 +186,9 @@ for run in seed_runs:
         backend_tag = fname.replace("_noisy_eval_results.json", "").replace("noisy_eval_results.json", "default")
         with open(os.path.join(path, fname)) as f:
             noisy_data = json.load(f)
-        results   = noisy_data.get("results", [])
+        results = noisy_data.get("results", [])
         clean_acc = next((r["accuracy"] for r in results if r.get("filename") == "clean"), None)
-        accs      = [r["accuracy"] for r in results if r.get("filename") != "clean"]
+        accs = [r["accuracy"] for r in results if r.get("filename") != "clean"]
         if not accs:
             continue
         print(f"{seed:<8} {nt:<10} {backend_tag:<12} {numpy.mean(accs):>8.1f}% "

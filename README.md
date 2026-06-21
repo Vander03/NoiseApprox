@@ -23,7 +23,7 @@ During training, each anchor embedding is perturbed by the shift vector of its n
 
 ```
 eP = eA + delta_eA
-L  = max(0, ||eA - eP||^2 - ||eA - eN||^2 + m)
+L = max(0, ||eA - eP||^2 - ||eA - eN||^2 + m)
 ```
 
 This encodes hardware noise invariance into the learned representations without any noisy circuit evaluations during training.

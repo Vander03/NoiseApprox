@@ -40,9 +40,9 @@ def evaluate_test_approximation(model, test_triplets, knn_embs, knn_shifts, n_sa
     print("Getting ground truth noisy shifts...")
     ground_truth_shifts = []
     for i, t in enumerate(tqdm(samples)):
-        sample    = t[0] # select anchor
+        sample = t[0] # select anchor
         clean_emb = test_embs[i] # associated clean embedding
-        shifts    = []
+        shifts = []
         # select a random 5 loaded profiles to evaluate shift approximation
         for prof in numpy.random.choice(model.np_train, min(5, len(model.np_train)), replace=False):
             noisy_emb = numpy.array([float(z) for z in prof["circuit"](model, model.weights, numpy.array(sample))])
@@ -55,7 +55,7 @@ def evaluate_test_approximation(model, test_triplets, knn_embs, knn_shifts, n_sa
     cosine_sims = []
     # compute the cosine similarity between the test sets predicted vs ground_truth shifts
     for pred, ground_truth in zip(predicted_shifts, ground_truth_shifts):
-        norm    = numpy.linalg.norm(pred) * numpy.linalg.norm(ground_truth)
+        norm = numpy.linalg.norm(pred) * numpy.linalg.norm(ground_truth)
         cos_sim = numpy.dot(pred, ground_truth) / norm if norm > 1e-8 else 0.0
         cosine_sims.append(cos_sim)
 
@@ -64,7 +64,7 @@ def evaluate_test_approximation(model, test_triplets, knn_embs, knn_shifts, n_sa
     return test_embs, ground_truth_shifts, predicted_shifts, cosine_sims
 
 
-def analyse(seed_path, dataset="fashionMNIST", label_space=3, trained_weights_path=None):
+def analyse(seed_path, trained_weights_path=None):
     """
     Run tests on the model and generate plots based on results.
     """
@@ -73,7 +73,7 @@ def analyse(seed_path, dataset="fashionMNIST", label_space=3, trained_weights_pa
 
     backend_name = config.get("backend_name", "unknown")
 
-    backend_dir    = os.path.dirname(seed_path)
+    backend_dir = os.path.dirname(seed_path)
     shift_bank_dir = os.path.join(backend_dir, "shift_bank")
 
     if trained_weights_path is not None:
@@ -87,7 +87,7 @@ def analyse(seed_path, dataset="fashionMNIST", label_space=3, trained_weights_pa
     print(f"Backend dir: {backend_dir}")
 
     knn_shifts = numpy.load(os.path.join(shift_bank_dir, "knn_shifts.npy"), allow_pickle=True)
-    knn_embs = numpy.load(os.path.join(shift_bank_dir, "knn_embs.npy"),   allow_pickle=True)
+    knn_embs = numpy.load(os.path.join(shift_bank_dir, "knn_embs.npy"),  allow_pickle=True)
 
     model = Triplet(config, testing=True, results_dir=seed_path)
 
@@ -138,7 +138,7 @@ def analyse(seed_path, dataset="fashionMNIST", label_space=3, trained_weights_pa
     print("Computing holdout shifts for compass...")
     holdout_shifts = []
     for t in tqdm(test_triplets[:200]):
-        sample    = t[0]
+        sample = t[0]
         clean_emb = numpy.array([float(z) for z in model.qiskit_circuit(
             model, model.weights, numpy.array(sample))])
         for prof in model.np_test:
@@ -151,7 +151,6 @@ def analyse(seed_path, dataset="fashionMNIST", label_space=3, trained_weights_pa
     vis.plot_shift_approximation_quality(
         test_embs,
         list(zip(test_embs, ground_truth_shifts)),
-        kmeans=kmeans,
         backend=backend_name,
         predicted_shifts=predicted_shifts,
         cosine_sims=cosine_sims,
@@ -162,7 +161,6 @@ def analyse(seed_path, dataset="fashionMNIST", label_space=3, trained_weights_pa
     vis.plot_shift_field_cosine_overlay(
         test_embs,
         list(zip(test_embs, ground_truth_shifts)),
-        kmeans,
         backend=backend_name,
         cosine_sims=cosine_sims
     )
@@ -173,11 +171,11 @@ def analyse(seed_path, dataset="fashionMNIST", label_space=3, trained_weights_pa
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path",            type=str, required=True,  help="path to seed directory e.g. Results/NT_v3/kingston/seed1")
-    parser.add_argument("--dataset",         type=str, default="fashionMNIST")
-    parser.add_argument("--label_space",     type=int, default=3)
+    parser.add_argument("--path",  type=str, required=True, help="path to seed directory e.g. Results/NT_v3/kingston/seed1")
+    parser.add_argument("--dataset",   type=str, default="fashionMNIST")
+    parser.add_argument("--label_space",  type=int, default=3)
     # trained weights used for evaluating how well preductions hold up after the other model has converged
     # If not supplied, we use the noiseless trained model weights
-    parser.add_argument("--trained_weights", type=str, default=None,   help="path to trained weights .npy file, enables trained_validation mode")
+    parser.add_argument("--trained_weights", type=str, default=None,  help="path to trained weights .npy file, enables trained_validation mode")
     args = parser.parse_args()
-    analyse(args.path, args.dataset, args.label_space, args.trained_weights)
+    analyse(args.path, args.trained_weights)
