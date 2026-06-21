@@ -2,8 +2,6 @@ import numpy
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
-from umap import UMAP
-from tqdm import tqdm
 
 
 class Visualiser:

@@ -1,1 +1,0 @@
-Measured the difference in randomised weight initialisation with seed 1 (this run) vs seed 3 (05-20/15:48:57) I think

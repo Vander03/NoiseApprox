@@ -1,1 +1,0 @@
-Seed 3 variance test of zerod weights showed shifts. Weights not only aspect to adjusted shifts.

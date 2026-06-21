@@ -105,6 +105,9 @@ Results/
         embeddings_train.png
 ```
 
+## Calibrations Folder
+The quantum computer calibration data is located in `calibrations`, and includes 180 days of historical data, along with test (fake) profiles. This work only makes use of the historical profiles.
+
 ## Evaluating approximation quality
 
 `get_results.py` runs post-hoc analysis on a trained (or noiseless) model, generating shift bank diagnostic plots.

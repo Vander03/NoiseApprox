@@ -1,2 +1,0 @@
-Measured initialisation for seed 1 zero weight shifts. 
-Going to run seed 3 next with 0 weights and see if the noise shifts change across seeds
