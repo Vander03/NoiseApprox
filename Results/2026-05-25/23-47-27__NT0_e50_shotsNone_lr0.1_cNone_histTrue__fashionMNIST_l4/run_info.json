@@ -1,0 +1,55 @@
+{
+    "config": {
+        "dataset": "fashionMNIST",
+        "epochs": 50,
+        "num_qubits": 6,
+        "PCA_dims": 64,
+        "backend": "lightning.qubit",
+        "sim": "statevector",
+        "shots": null,
+        "num_triplets": 5000,
+        "label_space": 4,
+        "layers": 6,
+        "batch_size": 128,
+        "max_train_samples": 1000,
+        "embed_dims": 6,
+        "learning_rate": 0.1,
+        "cooldown_lr": null,
+        "perturbation_rate": null,
+        "optimiser": "ADAM",
+        "noise_train": false,
+        "noise_samp_per_batch": 2,
+        "historic_load": 20,
+        "fake": false,
+        "message": "non-NT seed4 seeded sample loading changed scaling of consistency loss from 0.5 consist, 0.05 triplet keyword:noaug",
+        "epoch_variance": 5,
+        "variance_samples": 1000,
+        "threshold": 0.1,
+        "seed": 4,
+        "staged_epochs": 50,
+        "ramp": 50.0,
+        "metric_learning": false,
+        "cluster_weight": 10,
+        "backend_name": "kingston",
+        "noise_profiles": [],
+        "holdout_profiles": [
+            "hist_ibm_kingston_2026-04-24.json",
+            "hist_ibm_kingston_2026-04-13.json",
+            "hist_ibm_kingston_2026-03-23.json",
+            "hist_ibm_kingston_2026-01-29.json",
+            "hist_ibm_kingston_2026-03-18.json"
+        ]
+    },
+    "results": {
+        "gmm_accuracy_train": [
+            81.4,
+            null
+        ],
+        "gmm_accuracy_test": [
+            81.4,
+            75.66
+        ],
+        "final_loss": 0.0045783586531765305,
+        "min_loss": 0.0038164684533321253
+    }
+}

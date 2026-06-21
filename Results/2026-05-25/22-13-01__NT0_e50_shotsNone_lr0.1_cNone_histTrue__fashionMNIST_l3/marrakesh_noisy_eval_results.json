@@ -1,0 +1,44 @@
+{
+    "backend": "qiskit.aer",
+    "sim": "density_matrix",
+    "shots": 1000,
+    "backend_name": "marrakesh",
+    "results": [
+        {
+            "filename": "clean",
+            "backend": "clean",
+            "csc": 1.0,
+            "accuracy": 92.8
+        },
+        {
+            "filename": "hist_ibm_marrakesh_2026-04-24.json",
+            "backend": "ibm_marrakesh",
+            "csc": 0.8072076431849781,
+            "accuracy": 89.4
+        },
+        {
+            "filename": "hist_ibm_marrakesh_2026-04-13.json",
+            "backend": "ibm_marrakesh",
+            "csc": 0.8153458763121062,
+            "accuracy": 92.4
+        },
+        {
+            "filename": "hist_ibm_marrakesh_2026-03-23.json",
+            "backend": "ibm_marrakesh",
+            "csc": 0.8181386629016084,
+            "accuracy": 90.4
+        },
+        {
+            "filename": "hist_ibm_marrakesh_2026-01-29.json",
+            "backend": "ibm_marrakesh",
+            "csc": 0.8461459397945802,
+            "accuracy": 90.8
+        },
+        {
+            "filename": "hist_ibm_marrakesh_2026-03-18.json",
+            "backend": "ibm_marrakesh",
+            "csc": 0.8187656783463554,
+            "accuracy": 91.8
+        }
+    ]
+}

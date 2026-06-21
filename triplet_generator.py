@@ -7,7 +7,7 @@ from PIL import Image
 from os import listdir
 from os.path import isfile, join
 from tqdm import tqdm
-def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=False, pca_dims=32):
+def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=False, pca_dims=32, metric_learning=False, noise_train=False):
     """
     Generates PCA triplet training examples from the specified dataset with specified qubit and label space sizes.
     :param dataset: String name of folder in datasets/[dataset] containing training and testing .npy files.
@@ -21,9 +21,18 @@ def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=Fa
     """
     x, y = load_data(dataset, testing)
     x, y = filter_labels(x, y, label_space)
+    x = np.array(x)
+    if x.ndim == 3:
+        x = x.reshape(x.shape[0], -1)  # flatten (n, 28, 28) -> (n, 784)
     # x = scale_data(preprocessing.normalize(x))
     x = perform_pca(x=x, pca_dims=pca_dims)
-    return generate_augmented_triplets(x, y, num_triplets)
+    if noise_train:
+        # anchor-postive are the same sample, used for embedding space shift-augmented positive
+        return anchor2(x, y, num_triplets)
+    if not noise_train:
+        # traditional augmented anchor positive with any-other-sample negative
+        return generate_augmented_triplets(x, y, num_triplets)
+
 
 
 def load_data(dataset, testing):
@@ -70,9 +79,9 @@ def perform_pca(x, pca_dims=32):
     :return: Numpy array with [0, 1] scaled result of PCA dimensionality reduction.
     """
     pca = PCA(pca_dims)
-    # Normalize image data so its pythagorean sum is 1
     pca.fit(preprocessing.normalize(x))
     return scale_data(pca.transform(preprocessing.normalize(x)))
+
 
 
 def generate_triplets(x, y, size=5000):
@@ -105,17 +114,36 @@ def generate_triplets(x, y, size=5000):
         # Once 3 examples have been found, add examples, their indices, and their labels to output lists
         triplets.append((x[index], x[p_index], x[n_index]))
         image_indices.append((index, p_index, n_index))
-        labels.append((y[index], y[p_index], y[n_index]))
-    return triplets, image_indices, labels
+        labels.append(y[index])
+    return triplets, labels
 
 def generate_augmented_triplets(x, y, num_triplets=5000):
     triplets = []
     labels = []
+    _rng = random.Random(42) # seperate random instance so each run has the same samples
     for _ in range(num_triplets):
-        idx = random.randint(0, len(x) - 1)
+        idx = _rng.randint(0, len(x) - 1)
         idy = y[idx] # save its label only for GMM evaluation
         anchor = x[idx]
         positive = augment(anchor)
+        neg_idx = idx
+        while neg_idx == idx:
+            neg_idx = random.randint(0, len(x) - 1)
+        negative = x[neg_idx]
+        
+        triplets.append((anchor, positive, negative))
+        labels.append(idy)
+    return triplets, labels
+
+def anchor2(x, y, num_triplets=5000):
+    triplets = []
+    labels = []
+    _rng = random.Random(42) # seperate random instance so each run has the same samples
+    for _ in range(num_triplets):
+        idx = _rng.randint(0, len(x) - 1)
+        idy = y[idx] # save its label only for GMM evaluation
+        anchor = x[idx]
+        positive = anchor
         neg_idx = idx
         while neg_idx == idx:
             neg_idx = random.randint(0, len(x) - 1)

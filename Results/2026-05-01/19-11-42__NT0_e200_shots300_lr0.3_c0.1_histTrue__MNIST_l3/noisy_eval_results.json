@@ -1,0 +1,18 @@
+{
+    "shots": 1000,
+    "results": [
+        {
+            "filename": "hist_ibm_fez_2025-04-30.json",
+            "backend": "ibm_fez",
+            "csc": 0.43743857626310795,
+            "accuracy": 41.9
+        }
+    ],
+    "summary": {
+        "mean": 41.9,
+        "std": 0.0,
+        "min": 41.9,
+        "max": 41.9,
+        "n_profiles": 1
+    }
+}

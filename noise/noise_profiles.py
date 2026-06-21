@@ -13,7 +13,6 @@ service = QiskitRuntimeService()
 def fetch_fake_calibration_history():
     print("Fake Backends")
     fake_backends = FakeProviderForBackendV2()
-    # print([(b.name, b.num_qubits) for b in fake_backends.backends()])
     snapshots = []
     for backend in fake_backends.backends():
         props = backend.properties()
@@ -108,8 +107,5 @@ def save_calibration_library(num_snapshots=2, days_apart=1, fake=False, hist=Fal
         print(f"Saved: {path}")
 
 
-
-# save_calibration_library(num_snapshots=5, fake=False, hist=False)
-# save_calibration_library(num_snapshots=5, fake=True, hist=False)
 save_calibration_library(num_snapshots=600, fake=False, hist=True)
 

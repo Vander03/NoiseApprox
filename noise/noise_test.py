@@ -4,184 +4,199 @@ from model import Triplet
 import triplet_generator
 import numpy as np
 import json, os, argparse
+from sklearn.neighbors import NearestNeighbors
+from visualiser import Visualiser
 
-noise_path = "Results/2026-04-29/17-03-15__NT1_e150_shots1024_lr0.8_c0.3_histTrue__MNIST_l2"
-noiseless_path = "Results/2026-05-01/15-32-09__NT0_e150_shots300_lr0.3_c0.1_histTrue__MNIST_l3"
-pennylane = "Results/2026-04-30/20-09-43__NT0_e200_shotsNone_lr0.3_c0.05_histTrue__MNIST_l2"
+SAMPLES = 500
 
-eval_path = "Results/2026-05-01/15-25-14__NT0_e150_shotsNone_lr0.3_c0.1_histTrue__MNIST_l3"
 
-samples = 1000
-
-def summarise_holdout_results(results):
-    if len(results) == 0: return
-    cluster = np.array([r['cluster_acc'] for r in results])
-    # probe = np.array([r['probe_acc'] for r in results])
-    cscs = np.array([r['csc'] for r in results])
+def print_noisy_eval_results(path):
+    """print all saved noisy eval results for this run directory"""
+    import glob
+    result_files = glob.glob(os.path.join(path, '*noisy_eval_results.json'))
     
-    return {
-        'n_profiles': len(results),
-        'cluster': {
-            'mean': round(cluster.mean(), 2),
-            'median': round(np.median(cluster), 2),
-            'std': round(cluster.std(), 2),
-            'min': round(cluster.min(), 2),
-            'max': round(cluster.max(), 2),
-        },
-        # 'probe': {
-        #     'mean': round(probe.mean(), 2),
-        #     'median': round(np.median(probe), 2),
-        #     'std': round(probe.std(), 2),
-        #     'min': round(probe.min(), 2),
-        #     'max': round(probe.max(), 2),
-        # },
-        'csc_range': [round(cscs.min(), 3), round(cscs.max(), 3)],
-    }
+    if not result_files:
+        print("No noisy eval results found.")
+        return
+
+    for result_file in sorted(result_files):
+        backend = os.path.basename(result_file).replace('_noisy_eval_results.json', '').replace('noisy_eval_results.json', 'default')
+        with open(result_file) as f:
+            data = json.load(f)
+        
+        results = data.get('results', [])
+        if not results:
+            continue
+
+        clean = next((r['accuracy'] for r in results if r['filename'] == 'clean'), None)
+        noisy = [r for r in results if r['filename'] != 'clean']
+        
+        if not noisy:
+            continue
+
+        noisy_mean = np.mean([r['accuracy'] for r in noisy])
+        noisy_min  = np.min([r['accuracy'] for r in noisy])
+        noisy_max  = np.max([r['accuracy'] for r in noisy])
+        drop       = clean - noisy_mean if clean else 0
+
+        print(f"\n  [{backend}]")
+        print(f"  Clean: {clean:.1f}% | Noisy Mean: {noisy_mean:.1f}% | Drop: {drop:.1f}% | Min: {noisy_min:.1f}% | Max: {noisy_max:.1f}%")
+        for r in noisy:
+            short = r['filename'].replace('hist_', '').replace('.json', '')
+            print(f"    {short:<35} {r['accuracy']:.1f}%")
 
 
-def analyse_model(path, num_profiles):
-    # Load the run config from the previous run
+def load_model(path, backend=None):
     with open(os.path.join(path, "run_info.json")) as f:
         run_info = json.load(f)
     config = run_info["config"]
     config['shots'] = 1000
-    # config['label_space'] = 2
-    
     if 'qubit' in config['backend']:
         config['backend'] = "qiskit.aer"
-
-    # Reconstruct the model with the same config
+        config['sim'] = "density_matrix"
+    
+    if backend is not None:
+        print(f"Changing Backend to: {backend}")
+        config['backend_name'] = backend
     model = Triplet(config, testing=True, results_dir=path)
+    best_path = os.path.join(path, 'best_weights.npy')
+    if os.path.exists(best_path):
+        model.weights = np.load(best_path, allow_pickle=True)
+    else:
+        weights = np.load(os.path.join(path, 'weights.npy'), allow_pickle=True)
+        model.weights = weights[-1]
 
-    weights = np.load(os.path.join(path, 'weights.npy'), allow_pickle=True)
-    model.weights = weights[-1]  # use the last saved checkpoint
+    return model, config
 
+
+def load_triplets(config, samples=SAMPLES):
+    triplets, labels = triplet_generator.generate_pca_triplets(
+        dataset=config['dataset'],
+        label_space=config['label_space'],
+        num_triplets=config['num_triplets'],
+        pca_dims=config['PCA_dims'],
+        testing=False
+    )
     t_triplets, t_labels = triplet_generator.generate_pca_triplets(
         dataset=config['dataset'],
         label_space=config['label_space'],
         num_triplets=config['num_triplets'],
+        pca_dims=config['PCA_dims'],
         testing=True
     )
+    return triplets[:samples], labels[:samples], t_triplets[:samples], t_labels[:samples]
 
-    # Run noise robustness evaluation
+
+def pca_gmm_baseline(config):
+    from sklearn.mixture import GaussianMixture
+    import itertools
+
+    triplets, labels, t_triplets, t_labels = load_triplets(config)
+    train_emb = np.array([t[0] for t in triplets])
+    test_emb = np.array([t[0] for t in t_triplets])
+
+    def permutation_accuracy(y_hat, labels, num_classes):
+        perms = list(itertools.permutations(range(num_classes)))
+        return 100 * max(
+            sum(1 for i, j in zip([p[y] for y in y_hat], labels) if i == j)
+            for p in perms
+        ) / len(labels)
+
+    num_classes = config['label_space']
+    gmm = GaussianMixture(n_components=num_classes, random_state=42, n_init=10)
+    gmm.fit(train_emb)
+    train_acc = permutation_accuracy(gmm.predict(train_emb), [int(l) for l in labels], num_classes)
+    test_acc = permutation_accuracy(gmm.predict(test_emb), [int(l) for l in t_labels], num_classes)
+
+    print(f"PCA-only GMM baseline: Train {train_acc:.1f}% | Test {test_acc:.1f}%")
+    return train_acc, test_acc
+
+
+def compare_approximations(model, triplets, shift_bank):
+    knn_embs = np.array([s[0] for s in shift_bank])
+    knn_shifts = np.array([s[1] for s in shift_bank])
+    knn = NearestNeighbors(n_neighbors=1)
+    knn.fit(knn_embs)
+
+    results = []
+    test_indices = np.random.choice(len(triplets), min(20, len(triplets)), replace=False)
+
+    for idx in test_indices:
+        sample = triplets[idx][0]
+        clean_emb = np.array([float(z) for z in model.qiskit_circuit(model, model.weights, np.array(sample))])
+        prof = np.random.choice(model.np_train)
+        noisy_emb = np.array([float(z) for z in prof["circuit"](model, model.weights, np.array(sample))])
+        real_shift = noisy_emb - clean_emb
+        gmm_shift = model.noise_gmm.sample(1)[0][0] if hasattr(model, 'noise_gmm') else np.zeros_like(clean_emb)
+        _, idx_knn = knn.kneighbors(clean_emb.reshape(1, -1))
+        knn_shift = knn_shifts[idx_knn[0][0]]
+        results.append({'real': real_shift, 'gmm': gmm_shift, 'knn': knn_shift})
+
+    print("\nShift approximation quality:")
+    for name, key in [('GMM', 'gmm'), ('KNN', 'knn')]:
+        shift_errors = [np.linalg.norm(r['real'] - r[key]) for r in results]
+        mag_errors = [abs(np.linalg.norm(r['real']) - np.linalg.norm(r[key])) for r in results]
+        cos_sims = [np.dot(r['real'], r[key]) / (np.linalg.norm(r['real']) * np.linalg.norm(r[key]) + 1e-8) for r in results]
+        print(f"  {name}: shift_err={np.mean(shift_errors):.4f} | mag_err={np.mean(mag_errors):.4f} | cos_sim={np.mean(cos_sims):.4f}")
+
+    return results
+
+
+def analyse_model(path, baseline=False, variance=False, approximation=False, backend=None):
+    print(f"\n=== Analysing: {path} ===")
+    model, config = load_model(path, backend)
+    triplets, labels, t_triplets, t_labels = load_triplets(config)
+
+
+    if baseline:
+        pca_gmm_baseline(config)
+
     print("\nEvaluating noise robustness...")
     results = model.predict_noisy_clustering(
-        x_test=t_triplets[:samples],
-        y_test=t_labels[:samples],
-        noise_profile="hist_ibm_fez_2025-04-30.json"
+        x_train=triplets,
+        y_train=labels,
+        x_test=t_triplets,
+        y_test=t_labels,
     )
 
-    # Run noise robustness evaluation
-    # print("\nEvaluating Clean Variance...")
-    # results = model.predict_noisy_clustering(
-    #     x_train=triplets[:samples],
-    #     y_train=labels[:samples],
-    #     x_test=t_triplets[:samples],
-    #     y_test=t_labels[:samples],
+    # group profiles by backend
+    backends = {}
+    for prof in model.np_train:
+        if prof['backend'] == 'ibm_kingston':
+            if 'ibm_kingston' not in backends:
+                backends['ibm_kingston'] = []
+            backends['ibm_kingston'].append(prof)
+
+    vis = Visualiser(model.results_dir)
+    # vis.plot_shift_approximation_comparison(
+    #     model=model,
+    #     triplets=t_triplets,  # full test triplets, not sliced
+    #     sample_indices=[10, 50, 100, 200, 400],  # safe indices within range
+    #     backends=backends
     # )
 
-    # for r in results:
-    #     print(f"Backend: {r['backend']} | Cluster: {r['cluster_acc']:.1f}% | CSC: {r['csc']}")
+    if variance:
+        print("\nEvaluating clean variance...")
+        model.predict_clustering_variance(x_test=t_triplets, y_test=t_labels, variance=4)
 
-    # Save results
-    # with open(os.path.join(args.results_dir, f"Fake_{config['fake']}_noise_robustness.json"), "w") as f:
-    #     json.dump(results, f, indent=4)
+    if approximation and hasattr(model, 'np_train'):
+        print("\nBuilding shift bank for approximation comparison...")
+        _, shift_bank = model.build_clustered_shift_bank(triplets)
+        compare_approximations(model, triplets, shift_bank)
 
-    # summary = summarise_holdout_results(results)
-    # with open(os.path.join(path, "holdout_summary.json"), "w") as f:
-    #     json.dump({
-    #         "per_profile": results,
-    #         "summary": summary,
-    #         "samples_train_test": samples,
-    #         "holdout_profile_list": model.holdout_profiles,
-    #     }, f, indent=4)
+    print("\n=== Noisy Eval Results ===")
+    print_noisy_eval_results(path)
+
+    return results
 
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--path', type=str, required=True, help='path to results directory')
+    parser.add_argument('--baseline', action='store_true', help='run PCA GMM baseline')
+    parser.add_argument('--variance', action='store_true', help='run clean variance evaluation')
+    parser.add_argument('--approximation', action='store_true', help='compare GMM vs KNN shift approximation')
+    parser.add_argument('--backend')
+    args = parser.parse_args()
 
-date = "Results/2026-04-23"
-all_results = {}
-# TODO: rerun the NT grad descent, this is the best guess I have for a profile trained on the historical data, as it is the first profile that specifies the number of historical NP to include
-NT_best_grad_desc = "Results/2026-04-17/23:04:52/qiskit.aer__MNIST__e20_l2_pca32_np5000_mr0.4_eq6_pq6_el6_pl6_ed6_ema0.996_batch10_shots300_NL5_NTTrue"
-n_NT_best_grad_descent = "Results/2026-04-17/09:58:53/qiskit.aer__MNIST__e20_l2_pca32_np5000_mr0.4_eq6_pq6_el6_pl6_ed6_ema0.996_batch10_shots300_NL5_NTFalse"
-NT_best_SPSA = 'Results/2026-04-24/13:33:08__NT1_e20_shots300_lr0.1_c0.05_histTrue'
-n_NT_BEST_SPSA = 'Results/2026-04-24/13:40:41__NT0_e20_shots300_lr0.1_c0.05_histTrue'
-
-toRun = [NT_best_grad_desc, n_NT_best_grad_descent, NT_best_SPSA, n_NT_BEST_SPSA]
-
-mult = False
-
-if mult:
-    for run_dir in os.listdir(date):
-        path = os.path.join(date, run_dir)
-        if not os.path.isdir(path):
-            continue
-        if not os.path.exists(os.path.join(path, "run_info.json")):
-            continue
-        if not os.path.exists(os.path.join(path, "best_weights.npz")):
-            continue
-        
-        print(f"\n=== Analysing: {run_dir} ===")
-        try:
-            analyse_model(path, num_profiles=10)
-            all_results[run_dir] = "done"
-        except Exception as e:
-            print(f"  Skipped {run_dir}: {e}")
-            all_results[run_dir] = f"error: {e}"
-else:
-    dir = eval_path
-    # for dir in toRun:
-    print(f"\n=== Analysing: {dir} ===")
-    analyse_model(dir, num_profiles=10)
-
-print("\nDone. Summary:")
-for run, status in all_results.items():
-    print(f"  {run}: {status}")
-
-
-# NT=true
-# Backend: fake_manila | Cluster: 81.7% | Probe: 84.5%
-# Backend: fake_montreal | Cluster: 80.9% | Probe: 84.7%
-# Backend: fake_lagos | Cluster: 69.4% | Probe: 73.7%
-# Backend: fake_perth | Cluster: 75.5% | Probe: 78.7%
-# Backend: fake_nighthawk | Cluster: 80.9% | Probe: 86.4%
-
-# NT = False
-# Backend: fake_nighthawk | Cluster: 81.7% | Probe: 87.7%
-# Backend: fake_lagos | Cluster: 64.3% | Probe: 72.9%
-# Backend: fake_perth | Cluster: 76.4% | Probe: 80.2%
-# Backend: fake_manila | Cluster: 80.7% | Probe: 84.2%
-
-
-# low CSC filtering
-
-# NT - 300 shots
-# Backend: fake_torino | Cluster: 80.6% | Probe: 84.4% | CSC: 0.0
-# Backend: fake_kyoto | Cluster: 75.9% | Probe: 82.3% | CSC: 0.0
-# Backend: fake_marrakesh | Cluster: 81.4% | Probe: 86.3% | CSC: 0.32110826727001174
-# Backend: fake_cusco | Cluster: 81.5% | Probe: 84.7% | CSC: 0.6007118225640561
-# Backend: fake_cambridge | Cluster: 72.7% | Probe: 77.4% | CSC: 0.5274051744936826
-# Backend: fake_fez | Cluster: 82.0% | Probe: 87.4% | CSC: 0.44866360115664083
-
-# NT - NO CSC
-# Backend: fake_torino | Cluster: 76.0% | Probe: 82.8% | CSC: 0.0
-# Backend: fake_kyoto | Cluster: 69.8% | Probe: 80.6% | CSC: 0.0
-# Backend: fake_marrakesh | Cluster: 81.6% | Probe: 87.8% | CSC: 0.32110826727001174
-# Backend: fake_cusco | Cluster: 77.0% | Probe: 85.5% | CSC: 0.6007118225640561
-# Backend: fake_cambridge | Cluster: 58.8% | Probe: 71.8% | CSC: 0.5274051744936826
-# Backend: fake_fez | Cluster: 83.0% | Probe: 87.1% | CSC: 0.44866360115664083
-
-# Non NT - 400 shots
-# Backend: fake_torino | Cluster: 80.0% | Probe: 85.8% | CSC: 0.0
-# Backend: fake_kyoto | Cluster: 77.6% | Probe: 82.9% | CSC: 0.0
-# Backend: fake_marrakesh | Cluster: 82.0% | Probe: 88.9% | CSC: 0.32110826727001174
-# Backend: fake_cusco | Cluster: 81.6% | Probe: 87.7% | CSC: 0.6007118225640561
-# Backend: fake_cambridge | Cluster: 70.5% | Probe: 73.7% | CSC: 0.5274051744936826
-# Backend: fake_fez | Cluster: 81.5% | Probe: 90.3% | CSC: 0.44866360115664083
-
-# NON NT - 300 shots eval, trained on 400
-# Backend: fake_torino | Cluster: 78.9% | Probe: 85.3% | CSC: 0.0
-# Backend: fake_kyoto | Cluster: 69.7% | Probe: 81.2% | CSC: 0.0
-# Backend: fake_marrakesh | Cluster: 82.5% | Probe: 87.9% | CSC: 0.32110826727001174
-# Backend: fake_cusco | Cluster: 80.0% | Probe: 85.2% | CSC: 0.6007118225640561
-# Backend: fake_cambridge | Cluster: 68.4% | Probe: 72.7% | CSC: 0.5274051744936826
-# Backend: fake_fez | Cluster: 79.7% | Probe: 88.0% | CSC: 0.44866360115664083
+    analyse_model(args.path, baseline=args.baseline, variance=args.variance, approximation=args.approximation, backend=args.backend)

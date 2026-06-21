@@ -23,22 +23,46 @@ class noise:
         self.fake = fake # determines if the model uses fake noise profiles to train
         self.hist_count = hist_count # the number of historical noise profiles to load for each backend
 
-        self.holdout_profiles = [
-            "hist_ibm_kingston_2026-04-15.json",
-            "hist_ibm_kingston_2026-04-11.json",
-            "hist_ibm_kingston_2026-04-12.json",
-            "hist_ibm_fez_2026-04-16.json",
-            "hist_ibm_fez_2026-04-04.json",
-            "hist_ibm_fez_2026-04-10.json",
-            "hist_ibm_marrakesh_2026-04-12.json",
-            "hist_ibm_marrakesh_2026-04-08.json",
-            "hist_ibm_marrakesh_2026-04-10.json",
-            "hist_ibm_marrakesh_2026-04-14.json",
+
+        self.kingston_holdout = [
+            "hist_ibm_kingston_2026-04-03.json",
+            "hist_ibm_kingston_2026-04-02.json",
+            "hist_ibm_kingston_2026-04-01.json",
+            "hist_ibm_kingston_2026-03-31.json",
+            "hist_ibm_kingston_2026-03-30.json",
         ]
 
-    def load_calibration_data(self, load_prof=None):
+        self.fez_holdout = [
+            "hist_ibm_fez_2026-04-03.json",
+            "hist_ibm_fez_2026-04-02.json",
+            "hist_ibm_fez_2026-04-01.json",
+            "hist_ibm_fez_2026-03-31.json",
+            "hist_ibm_fez_2026-03-30.json",
+        ]
+        
+        self.marrakesh_holdout = [
+            "hist_ibm_marrakesh_2026-04-03.json",
+            "hist_ibm_marrakesh_2026-04-02.json",
+            "hist_ibm_marrakesh_2026-04-01.json",
+            "hist_ibm_marrakesh_2026-03-31.json",
+            "hist_ibm_marrakesh_2026-03-30.json",
+        ]
+
+    def get_holdout_profiles(self, backend_name):
+        if 'kingston' in backend_name:
+            return self.kingston_holdout
+        elif 'fez' in backend_name:
+            return self.fez_holdout
+        elif 'marrakesh' in backend_name:
+            return self.marrakesh_holdout
+        return []
+
+    def load_calibration_data(self, load_prof=None, limit_backends=None):
         files = [f for f in os.listdir("calibrations") if f.endswith(".json")]
         
+        # get correct holdout profiles for this backend
+        holdout_profiles = self.get_holdout_profiles(limit_backends) if limit_backends else []
+
         # pre-filter filenames before loading from disk
         filtered_files = []
         for filename in files:
@@ -48,7 +72,12 @@ class noise:
                 continue
             if is_hist and not self.hist_count:
                 continue
+            if limit_backends and limit_backends not in filename:
+                continue
+            if filename in holdout_profiles:
+                continue  # exclude holdout profiles from training
             filtered_files.append(filename)
+
 
         # if hist, pre-select which files to load before loading them
         if self.hist_count:
@@ -71,10 +100,10 @@ class noise:
         # if load_prof is not None, load the profiles provided
         if load_prof:
             if isinstance(load_prof, str):
-                load_prof = [load_prof]  # wrap single filename in a list
+                load_prof = [load_prof] 
             filtered_files = list(load_prof)
 
-        # now load only the selected files
+        # now load the selected files
         profiles = []
         for filename in tqdm(filtered_files, desc="Loading calibration profiles"):
             filepath = os.path.join("calibrations", filename)
@@ -93,7 +122,7 @@ class noise:
         props = BackendProperties.from_dict(data["properties"])
         try:
             noise_model = NoiseModel.from_backend_properties(props, thermal_relaxation=False)
-            if DEBUGGING: print(f"{data['backend']} - (thermal relaxation skipped - no frequency data)")
+            if DEBUGGING: print(f"{data['backend']} - (thermal relaxation skipped - no frequency data)") # no freq for most of them, removed from Qiskit API
         except Exception as e:
             print(f"  Skipping {filename}: {e}")
             return
@@ -141,10 +170,3 @@ class noise:
         qubits: list of (gate_errors, readout_error) per qubit
         """
         return sum(noise.GSC(gate_errors, readout_error) for gate_errors, readout_error in qubits) / len(qubits)
-
-    # def MSE(ideal_emb, perturbed_emb):
-    #     """
-    #     Computes MSE between two embedding arrays for all embeddings in a batch
-    #     """
-    #     return sum([(prediction - target) ** 2 for prediction, target in zip(ideal_emb, perturbed_emb)])
-

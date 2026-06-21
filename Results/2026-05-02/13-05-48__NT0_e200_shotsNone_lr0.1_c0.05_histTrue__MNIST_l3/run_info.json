@@ -1,0 +1,50 @@
+{
+    "config": {
+        "dataset": "MNIST",
+        "epochs": 200,
+        "num_qubits": 5,
+        "PCA_dims": 16,
+        "backend": "lightning.qubit",
+        "sim": "density_matrix",
+        "shots": null,
+        "num_triplets": 5000,
+        "label_space": 3,
+        "layers": 4,
+        "batch_size": 32,
+        "max_train_samples": 1000,
+        "embed_dims": 4,
+        "learning_rate": 0.1,
+        "perturbation_rate": 0.05,
+        "optimiser": "SPSA",
+        "noise_train": false,
+        "noise_samp_per_batch": 5,
+        "historic_load": 20,
+        "fake": false,
+        "message": "soft margin triplet loss with scaling, lower batch and increased epochs ratio loss, lower LR",
+        "noise_profiles": [],
+        "holdout_profiles": [
+            "hist_ibm_kingston_2026-04-15.json",
+            "hist_ibm_kingston_2026-04-11.json",
+            "hist_ibm_kingston_2026-04-12.json",
+            "hist_ibm_fez_2026-04-16.json",
+            "hist_ibm_fez_2026-04-04.json",
+            "hist_ibm_fez_2026-04-10.json",
+            "hist_ibm_marrakesh_2026-04-12.json",
+            "hist_ibm_marrakesh_2026-04-08.json",
+            "hist_ibm_marrakesh_2026-04-10.json",
+            "hist_ibm_marrakesh_2026-04-14.json"
+        ]
+    },
+    "results": {
+        "gmm_accuracy_train": [
+            72.08,
+            null
+        ],
+        "gmm_accuracy_test": [
+            72.08,
+            68.56
+        ],
+        "final_loss": 0.24621575295560066,
+        "min_loss": 0.06928154549468599
+    }
+}

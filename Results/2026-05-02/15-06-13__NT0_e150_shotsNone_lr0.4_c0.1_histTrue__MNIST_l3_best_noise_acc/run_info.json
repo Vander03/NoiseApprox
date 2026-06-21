@@ -1,0 +1,50 @@
+{
+    "config": {
+        "dataset": "MNIST",
+        "epochs": 150,
+        "num_qubits": 5,
+        "PCA_dims": 32,
+        "backend": "lightning.qubit",
+        "sim": "statevector",
+        "shots": null,
+        "num_triplets": 5000,
+        "label_space": 3,
+        "layers": 4,
+        "batch_size": 32,
+        "max_train_samples": 1000,
+        "embed_dims": 4,
+        "learning_rate": 0.4,
+        "perturbation_rate": 0.1,
+        "optimiser": "ADAM",
+        "noise_train": false,
+        "noise_samp_per_batch": 5,
+        "historic_load": 20,
+        "fake": false,
+        "message": "SPSA is dead, long live SPSA. Running ADAM run to test consistency, changed to 0.4 LR 32 PCA. 8 was on the no QNN baseline",
+        "noise_profiles": [],
+        "holdout_profiles": [
+            "hist_ibm_kingston_2026-04-15.json",
+            "hist_ibm_kingston_2026-04-11.json",
+            "hist_ibm_kingston_2026-04-12.json",
+            "hist_ibm_fez_2026-04-16.json",
+            "hist_ibm_fez_2026-04-04.json",
+            "hist_ibm_fez_2026-04-10.json",
+            "hist_ibm_marrakesh_2026-04-12.json",
+            "hist_ibm_marrakesh_2026-04-08.json",
+            "hist_ibm_marrakesh_2026-04-10.json",
+            "hist_ibm_marrakesh_2026-04-14.json"
+        ]
+    },
+    "results": {
+        "gmm_accuracy_train": [
+            91.46,
+            null
+        ],
+        "gmm_accuracy_test": [
+            91.46,
+            93.16
+        ],
+        "final_loss": -0.13742225754210352,
+        "min_loss": -0.18852874084988103
+    }
+}
