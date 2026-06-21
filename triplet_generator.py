@@ -23,8 +23,7 @@ def generate_pca_triplets(dataset, label_space=10, num_triplets=5000, testing=Fa
     x, y = filter_labels(x, y, label_space)
     x = np.array(x)
     if x.ndim == 3:
-        x = x.reshape(x.shape[0], -1)  # flatten (n, 28, 28) -> (n, 784)
-    # x = scale_data(preprocessing.normalize(x))
+        x = x.reshape(x.shape[0], -1)  # flatten (n, 28, 28) to (n, 784)
     x = perform_pca(x=x, pca_dims=pca_dims)
     if noise_train:
         # anchor-postive are the same sample, used for embedding space shift-augmented positive
@@ -97,8 +96,6 @@ def generate_triplets(x, y, size=5000):
     The third is "labels" giving the labels corresponding to each of the 3 examples such that:
     labels[n][0] == labels[n][1] != labels[n][2]
     """
-    # List of 3-tuples picked from training examples.
-    
     triplets = []
     image_indices = []
     labels = []
@@ -118,6 +115,9 @@ def generate_triplets(x, y, size=5000):
     return triplets, labels
 
 def generate_augmented_triplets(x, y, num_triplets=5000):
+    """
+    create triplets using augmented anchor as positive
+    """
     triplets = []
     labels = []
     _rng = random.Random(42) # seperate random instance so each run has the same samples
@@ -136,6 +136,9 @@ def generate_augmented_triplets(x, y, num_triplets=5000):
     return triplets, labels
 
 def anchor2(x, y, num_triplets=5000):
+    """
+    noise training triplets, where the positive is a duplicate of anchor
+    """
     triplets = []
     labels = []
     _rng = random.Random(42) # seperate random instance so each run has the same samples
