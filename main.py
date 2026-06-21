@@ -94,36 +94,30 @@ try:
         import random
         random.seed(args.seed)
 
-        # preprocessing
-
+        # load training set
         triplets, labels = triplet_generator.generate_pca_triplets(
             params['dataset'],
             label_space=params['label_space'],
             num_triplets=params['num_triplets'],
             testing=False,
             pca_dims=params['PCA_dims'],
-            metric_learning=params['metric_learning'],
             noise_train=params['noise_train']
         )
+
+        # load testing set
         t_triplets, t_labels = triplet_generator.generate_pca_triplets(
             dataset=params['dataset'],
             label_space=params['label_space'],
             num_triplets=params['num_triplets'],
             testing=True,
             pca_dims=params['PCA_dims'],
-            metric_learning=params['metric_learning'],
             noise_train=params['noise_train']
         )
 
 
         network = model.Triplet(params)
-        network.train(triplets, labels) # LABELS NOT USED IN MODEL. USED FOR PLOTS TESTING VARIANCE IN DIMENSIONS
+        network.train(triplets)
         network.save_experiment(triplets, labels, t_triplets, t_labels)
-        from visualiser import Visualiser
-        vis = Visualiser(network.results_dir)
-        vis.plot_loss(network.loss_history, network.clean_loss_history, network.noisy_loss_history)
-        vis.evaluate_embedding_space(triplets[:500], labels[:500], network)
-        # vis.measure_shift_distribution(triplets, network, ss_samples=[63, 550, 1755])
         noise_test.analyse_model(network.results_dir)
 except KeyboardInterrupt:
     # Exits silently without printing the long traceback message

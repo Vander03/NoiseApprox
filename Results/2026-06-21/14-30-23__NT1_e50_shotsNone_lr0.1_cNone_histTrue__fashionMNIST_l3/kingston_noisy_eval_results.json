@@ -1,0 +1,43 @@
+{
+    "backend": "qiskit.aer",
+    "sim": "density_matrix",
+    "shots": 1000,
+    "results": [
+        {
+            "filename": "clean",
+            "backend": "clean",
+            "csc": 1.0,
+            "accuracy": 92.8
+        },
+        {
+            "filename": "hist_ibm_kingston_2026-04-03.json",
+            "backend": "ibm_kingston",
+            "csc": 0.8436382571770008,
+            "accuracy": 81.0
+        },
+        {
+            "filename": "hist_ibm_kingston_2026-04-02.json",
+            "backend": "ibm_kingston",
+            "csc": 0.8466086438958462,
+            "accuracy": 76.8
+        },
+        {
+            "filename": "hist_ibm_kingston_2026-04-01.json",
+            "backend": "ibm_kingston",
+            "csc": 0.8405826445682059,
+            "accuracy": 79.4
+        },
+        {
+            "filename": "hist_ibm_kingston_2026-03-31.json",
+            "backend": "ibm_kingston",
+            "csc": 0.851193451957283,
+            "accuracy": 75.2
+        },
+        {
+            "filename": "hist_ibm_kingston_2026-03-30.json",
+            "backend": "ibm_kingston",
+            "csc": 0.8417095879214092,
+            "accuracy": 67.2
+        }
+    ]
+}

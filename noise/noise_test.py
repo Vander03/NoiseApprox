@@ -181,7 +181,7 @@ def analyse_model(path, baseline=False, variance=False, approximation=False, bac
 
     if approximation and hasattr(model, 'np_train'):
         print("\nBuilding shift bank for approximation comparison...")
-        _, shift_bank, _ = model.build_clustered_shift_bank(triplets)
+        _, shift_bank = model.build_clustered_shift_bank(triplets)
         compare_approximations(model, triplets, shift_bank)
 
     print("\n=== Noisy Eval Results ===")
