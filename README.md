@@ -15,7 +15,7 @@ Quantum hardware noise induces position-dependent shifts in the embedding space 
 4. Evaluate each representative under 5 randomly sampled historical IBM calibration profiles via Qiskit AerSimulator density matrix simulation
 5. Store the mean shift vector per representative as (embedding, shift) pairs in `knn_embs.npy` and `knn_shifts.npy`
 
-The shift bank is shared across seeds for a given backend — only the first seed builds it, all subsequent seeds load from `Results/NT_v3/{backend}/shift_bank/`.
+The shift bank is shared across seeds for a given backend : only the first seed builds it, all subsequent seeds load from `Results/NT_v3/{backend}/shift_bank/`.
 
 **Noise-aware training:**
 
@@ -135,15 +135,15 @@ python get_results.py \
 
 ## Plots
 
-**`loss.png`** — training loss curve with smoothed total loss and optional clean/noisy component fill.
+**`loss.png`** : training loss curve with smoothed total loss and optional clean/noisy component fill.
 
-**`embeddings_train.png`** — UMAP of training embeddings coloured by class label, showing learned cluster separation.
+**`embeddings_train.png`** : UMAP of training embeddings coloured by class label, showing learned cluster separation.
 
-**`shift_heatmap_comparison.png`** — three-panel heatmap showing ground truth shifts (simulated noisy circuit), KNN-predicted shifts, and per-dimension prediction error for 200 test samples sorted by cluster. Rows are test embeddings, columns are the 6 embedding dimensions.
+**`shift_heatmap_comparison.png`** : three-panel heatmap showing ground truth shifts (simulated noisy circuit), KNN-predicted shifts, and per-dimension prediction error for 200 test samples sorted by cluster. Rows are test embeddings, columns are the 6 embedding dimensions.
 
-**`shift_cos_sim_dist.png`** — two-panel figure showing the distribution of cosine similarities between predicted and ground-truth shifts (histogram + KDE), and a compass plot projecting predicted and ground-truth shift directions onto a 2D plane. The reference axis (black arrow, 0 degrees) is the mean ground-truth shift direction. The red arrow shows the mean holdout shift direction, revealing temporal stability or drift.
+**`shift_cos_sim_dist.png`** : two-panel figure showing the distribution of cosine similarities between predicted and ground-truth shifts (histogram + KDE), and a compass plot projecting predicted and ground-truth shift directions onto a 2D plane. The reference axis (black arrow, 0 degrees) is the mean ground-truth shift direction. The red arrow shows the mean holdout shift direction, revealing temporal stability or drift.
 
-**`shift_field_cosine_overlay.png`** — two-panel figure. Left: UMAP of test embeddings coloured by cosine similarity (green = high approximation quality, red = low). Right: scatter of local directional variance vs cosine similarity with a linear fit and Pearson r. A strong negative correlation confirms that approximation quality degrades in regions where neighbouring embeddings experience inconsistent shift directions.
+**`shift_field_cosine_overlay.png`** : two-panel figure. Left: UMAP of test embeddings coloured by cosine similarity (green = high approximation quality, red = low). Right: scatter of local directional variance vs cosine similarity with a linear fit and Pearson r. A strong negative correlation confirms that approximation quality degrades in regions where neighbouring embeddings experience inconsistent shift directions.
 
 ## Parsing and printing results
 
