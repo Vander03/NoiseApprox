@@ -126,8 +126,8 @@ python get_results.py \
 1. Loads the shift bank from `{backend_dir}/shift_bank/`
 2. Generates 500 test set embeddings using the supplied weights
 3. Predicts shifts via KNN lookup into the real shift bank
-4. Measures actual shifts by running 5 randomly sampled training profiles through the noisy circuit
-5. Computes cosine similarity between predicted and actual shifts per test sample
+4. Measures ground-truth shifts by running 5 randomly sampled training profiles through the noisy circuit
+5. Computes cosine similarity between predicted and ground-truth shifts per test sample
 6. Generates all diagnostic plots and saves to `{backend_dir}/plots/` or `{backend_dir}/trained_validation/`
 
 ## Plots
@@ -136,9 +136,9 @@ python get_results.py \
 
 **`embeddings_train.png`** — UMAP of training embeddings coloured by class label, showing learned cluster separation.
 
-**`shift_heatmap_comparison.png`** — three-panel heatmap showing ground truth shifts (actual noisy circuit), KNN-predicted shifts, and per-dimension prediction error for 200 test samples sorted by cluster. Rows are test embeddings, columns are the 6 embedding dimensions.
+**`shift_heatmap_comparison.png`** — three-panel heatmap showing ground truth shifts (simulated noisy circuit), KNN-predicted shifts, and per-dimension prediction error for 200 test samples sorted by cluster. Rows are test embeddings, columns are the 6 embedding dimensions.
 
-**`shift_cos_sim_dist.png`** — two-panel figure showing the distribution of cosine similarities between predicted and actual shifts (histogram + KDE), and a compass plot projecting predicted and actual shift directions onto a 2D plane. The reference axis (black arrow, 0 degrees) is the mean actual shift direction. The red arrow shows the mean holdout shift direction, revealing temporal stability or drift.
+**`shift_cos_sim_dist.png`** — two-panel figure showing the distribution of cosine similarities between predicted and ground-truth shifts (histogram + KDE), and a compass plot projecting predicted and ground-truth shift directions onto a 2D plane. The reference axis (black arrow, 0 degrees) is the mean ground-truth shift direction. The red arrow shows the mean holdout shift direction, revealing temporal stability or drift.
 
 **`shift_field_cosine_overlay.png`** — two-panel figure. Left: UMAP of test embeddings coloured by cosine similarity (green = high approximation quality, red = low). Right: scatter of local directional variance vs cosine similarity with a linear fit and Pearson r. A strong negative correlation confirms that approximation quality degrades in regions where neighbouring embeddings experience inconsistent shift directions.
 
