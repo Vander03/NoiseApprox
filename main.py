@@ -56,8 +56,6 @@ try:
             "results_dir": args.results_dir
         })
 
-        import numpy
-        numpy.random.seed(args.seed)
         np.random.seed(args.seed)
         import random
         random.seed(args.seed)

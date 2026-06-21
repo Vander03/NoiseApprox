@@ -163,7 +163,7 @@ class Triplet:
         noise_sim = AerSimulator(
             noise_model=noise_model,
             method="density_matrix",
-            seed_simulator=42,
+            seed_simulator=42, # seed the shots to minimise the effects of shot variance
             max_parallel_threads=5,
             max_parallel_experiments=5,
             basis_gates=[
@@ -557,7 +557,7 @@ class Triplet:
         print(f"RESULTS_DIR: {self.results_dir}")
 
     def _ensure_results_dir(self):
-        """create the results directory only when we actually need it"""
+        """create the results directory when called"""
         if not os.path.exists(self.results_dir):
             os.makedirs(self.results_dir, exist_ok=True)
             print(f"Created results dir: {self.results_dir}")
