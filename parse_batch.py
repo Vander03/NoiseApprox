@@ -89,7 +89,7 @@ def _process_run(run_path, force_condition=None):
 
 
 # ─────────────────────────────────────────────────────────────
-# SCAN — old structure: Results/YYYY-MM-DD/HH-MM-SS__*/
+# SCAN - old structure: Results/YYYY-MM-DD/HH-MM-SS__*/
 # ─────────────────────────────────────────────────────────────
 
 for date_dir in sorted(os.listdir(results_root)):
@@ -104,7 +104,7 @@ for date_dir in sorted(os.listdir(results_root)):
             _process_run(run_path)
 
 # ─────────────────────────────────────────────────────────────
-# SCAN — new structured: Results/NT_v3/backend/seedX/
+# SCAN - new structured: Results/NT_v3/backend/seedX/
 # ─────────────────────────────────────────────────────────────
 
 for condition_dir in ['NT', 'NT_v2']:
@@ -121,7 +121,7 @@ for condition_dir in ['NT', 'NT_v2']:
                 _process_run(seed_path)
 
 # ─────────────────────────────────────────────────────────────
-# SCAN — noiseless: Results/noiseless/seedX/
+# SCAN - noiseless: Results/noiseless/seedX/
 # ─────────────────────────────────────────────────────────────
 # noiseless doesnt change between seeds to save time rerunning
 noiseless_path = os.path.join(results_root, "noiseless")

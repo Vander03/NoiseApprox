@@ -312,7 +312,7 @@ class Visualiser:
 
         fig, axes = plt.subplots(1, 4, figsize=(18, 6), gridspec_kw={"width_ratios": [1, 1, 1, 0.05]})
         im = _heatmap_axes(axes[0], sorted_shifts, "Ground Truth shifts")
-        _heatmap_axes(axes[1], sorted_predicted, "Predicted shifts — KNN")
+        _heatmap_axes(axes[1], sorted_predicted, "Predicted shifts - KNN")
 
         axes[2].imshow(diff, aspect="auto", cmap="RdBu_r", vmin=-0.2, vmax=0.2)
         _add_cluster_lines(axes[2])

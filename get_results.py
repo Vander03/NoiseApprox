@@ -60,7 +60,7 @@ def evaluate_test_approximation(model, test_triplets, knn_embs, knn_shifts, n_sa
         cosine_sims.append(cos_sim)
 
     cosine_sims = numpy.array(cosine_sims)
-    print(f"Test set — Mean: {numpy.mean(cosine_sims):.4f} | Median: {numpy.median(cosine_sims):.4f} | Std: {numpy.std(cosine_sims):.4f}")
+    print(f"Test set - Mean: {numpy.mean(cosine_sims):.4f} | Median: {numpy.median(cosine_sims):.4f} | Std: {numpy.std(cosine_sims):.4f}")
     return test_embs, ground_truth_shifts, predicted_shifts, cosine_sims
 
 
