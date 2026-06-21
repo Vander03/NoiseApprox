@@ -33,9 +33,7 @@ class Visualiser:
         plt.close()
         print(f"Saved: {save_path}")
 
-    def plot_embedding_spread(
-        self, embeddings, save_name="embedding_spread.png", title="Per-dimension shift spread by sample", y_label="Shift Magnitude"
-    ):
+    def plot_embedding_spread(self, embeddings, save_name="embedding_spread.png", title="Per-dimension shift spread by sample", y_label="Shift Magnitude"):
         self._ensure_results_dir()
 
         emb_array = numpy.array([e[0] for e in embeddings])
@@ -87,86 +85,6 @@ class Visualiser:
         plt.savefig(save_path, dpi=120)
         plt.close()
         print(f"Saved: {save_path}")
-
-    def plot_embedding_spread_umap(self, embeddings, save_name="embedding_spread_umap.png"):
-        self._ensure_results_dir()
-
-        emb_array = numpy.array([e[0] for e in embeddings])
-        backends = [e[1] for e in embeddings]
-
-        umap_model = UMAP(n_components=2, random_state=42)
-        embs_2d = umap_model.fit_transform(emb_array)
-        fig, ax = plt.subplots(figsize=(12, 8))
-
-        unique_backends = sorted(set(backends))
-        colors = ["steelblue", "coral", "mediumseagreen", "gold", "orchid"]
-        for i, backend in enumerate(unique_backends):
-            mask = numpy.array([b == backend for b in backends])
-            pts = embs_2d[mask]
-            if backend == "Noiseless":
-                ax.scatter(pts[:, 0], pts[:, 1], s=30, alpha=1, color=colors[i % len(colors)], label=backend, marker="D", zorder=5)
-            elif "holdout" in backend:
-                ax.scatter(pts[:, 0], pts[:, 1], s=20, alpha=1, color=colors[i % len(colors)], label=backend, marker="X", zorder=1)
-            else:
-                ax.scatter(pts[:, 0], pts[:, 1], s=12, alpha=0.55, color=colors[i % len(colors)], label=backend, zorder=1)
-
-        ax.legend(fontsize=8, title="Backend")
-        ax.set_title(f"Embedding spread (n={len(emb_array)})")
-        ax.set_xlabel("UMAP 1")
-        ax.set_ylabel("UMAP 2")
-
-        save_path = os.path.join(self.results_dir, save_name)
-        plt.savefig(save_path, dpi=120)
-        plt.close()
-        print(f"Saved: {save_path}")
-
-    def plot_embedding_shift_magnitude(self, embeddings, save_name="embedding_shift_mag.png"):
-        self._ensure_results_dir()
-
-        emb_array = numpy.array([e[0] for e in embeddings])
-        backends = [e[1] for e in embeddings]
-        magnitudes = numpy.linalg.norm(emb_array, axis=1)
-
-        unique_backends = sorted(set(backends))
-        data = [magnitudes[[b == backend for b in backends]] for backend in unique_backends]
-
-        fig, ax = plt.subplots(figsize=(12, 7))
-        ax.violinplot(data, positions=range(len(unique_backends)), showmedians=True)
-        ax.set_xticks(range(len(unique_backends)))
-        ax.set_xticklabels(unique_backends, rotation=20, ha="right")
-        ax.set_ylabel("Shift magnitude (L2)")
-        ax.set_title("Embedding shift magnitude by backend")
-        plt.tight_layout()
-
-        save_path = os.path.join(self.results_dir, save_name)
-        plt.savefig(save_path, dpi=120)
-        plt.close()
-        print(f"Saved: {save_path}")
-
-    def evaluate_embedding_space(self, triplets, labels, model, save_name="embedding_dims_variance.png"):
-        emb = []
-        for i, triplet in enumerate(tqdm(triplets, desc="Getting Clean Embeddings")):
-            sample = triplet[0]
-            clean_emb = numpy.array([float(z) for z in model.qiskit_circuit(model, model.weights, numpy.array(sample))])
-            emb.append((clean_emb, str(labels[i])))
-        self.plot_embedding_spread(emb, save_name=save_name, title="Embedding distribution by dimension", y_label="Expectation value")
-
-    def measure_shift_distribution(self, triplets, model, ss_samples, n_samples=30, save_name="shift_spread.png"):
-        all_shift_vectors = []
-        shift_backends = []
-
-        for r in ss_samples:
-            for _ in tqdm(range(n_samples), desc=f"Shifts for sample {r}", leave=False):
-                sample = triplets[r][0]
-                clean_emb = numpy.array([float(z) for z in model.qiskit_circuit(model, model.weights, numpy.array(sample))])
-                for prof in model.np_train:
-                    noisy_emb = numpy.array([float(z) for z in prof["circuit"](model, model.weights, numpy.array(sample))])
-                    all_shift_vectors.append(noisy_emb - clean_emb)
-                    shift_backends.append(r)
-
-        all_shift_vectors = numpy.array(all_shift_vectors)
-        self.plot_embedding_spread(list(zip(all_shift_vectors, shift_backends)), save_name=save_name)
-        return all_shift_vectors
 
     def plot_shift_approximation_quality(self, clean_embs, shift_bank, kmeans, backend, predicted_shifts=None, cosine_sims=None, holdout_shifts=None):
         """cosine similarity distribution and compass plot for direction"""
@@ -285,16 +203,12 @@ class Visualiser:
             iqr_angles = numpy.linspace(p25, p75, 100)
             ax_compass.plot(iqr_angles, numpy.ones_like(iqr_angles) * 1.05, "steelblue", linestyle="-", linewidth=3, alpha=0.8)
 
-            ax_compass.annotate(
-                "", xy=(angle_med, 0.95), xytext=(angle_med, 0.0), arrowprops=dict(arrowstyle="->", color="steelblue", lw=2.5), zorder=5
-            )
+            ax_compass.annotate("", xy=(angle_med, 0.95), xytext=(angle_med, 0.0), arrowprops=dict(arrowstyle="->", color="steelblue", lw=2.5), zorder=5)
             ax_compass.annotate("", xy=(0.0, 0.95), xytext=(0.0, 0.0), arrowprops=dict(arrowstyle="->", color="black", lw=3), zorder=6)
 
             # holdout mean direction arrow
             if holdout_angle is not None:
-                ax_compass.annotate(
-                    "", xy=(holdout_angle, 0.95), xytext=(holdout_angle, 0.0), arrowprops=dict(arrowstyle="->", color="red", lw=2.5), zorder=7
-                )
+                ax_compass.annotate("", xy=(holdout_angle, 0.95), xytext=(holdout_angle, 0.0), arrowprops=dict(arrowstyle="->", color="red", lw=2.5), zorder=7)
 
             ax_compass.set_yticklabels([])
             ax_compass.set_xticks(numpy.linspace(0, 2 * numpy.pi, 8, endpoint=False))
@@ -423,81 +337,8 @@ class Visualiser:
         print(f"Saved: shift_heatmap_comparison.png")
 
     def plot_shift_field_cosine_overlay(self, clean_embs, shift_bank, kmeans, backend, cosine_sims, external_knn_embs=None, external_knn_shifts=None):
-        from sklearn.neighbors import NearestNeighbors
-        import matplotlib.pyplot as plt
-
-        rep_embs = numpy.array([s[0] for s in shift_bank])
-        rep_shifts = numpy.array([s[1] for s in shift_bank])
-
-        cosine_sims = numpy.array(cosine_sims)
-
-        # ── assign shift vectors to clean points via nearest rep neighbour ────
-        knn_vis = NearestNeighbors(n_neighbors=1)
-        knn_vis.fit(rep_embs)
-        _, idx_clean = knn_vis.kneighbors(clean_embs)
-        clean_cos = cosine_sims
-        clean_shifts = rep_shifts[idx_clean[:, 0]]
-
-        # ── per-point circular variance in original embedding space ───────────
-        # unit vectors of assigned shifts
-        shift_norms = numpy.linalg.norm(clean_shifts, axis=1, keepdims=True)
-        shift_unit = clean_shifts / numpy.where(shift_norms > 1e-8, shift_norms, 1)
-
-        K = min(8, len(clean_embs) - 1)
-        knn_var = NearestNeighbors(n_neighbors=K)
-        knn_var.fit(clean_embs)
-        _, nn_idx = knn_var.kneighbors(clean_embs)
-
-        circ_var = numpy.zeros(len(clean_embs))
-        for i in range(len(clean_embs)):
-            neighbour_units = shift_unit[nn_idx[i]]  # (K, n_dims)
-            # mean resultant length generalised to n-D: norm of mean unit vector
-            mean_vec = numpy.mean(neighbour_units, axis=0)
-            circ_var[i] = 1.0 - numpy.linalg.norm(mean_vec)
-
-        print(f"circ_var  min={circ_var.min():.3f}  max={circ_var.max():.3f}  mean={circ_var.mean():.3f}")
-        print(f"cosine_sims  min={clean_cos.min():.3f}  max={clean_cos.max():.3f}  mean={clean_cos.mean():.3f}")
-
-        # ── scatter: directional variance vs cosine similarity ────────────────
-        fig, ax = plt.subplots(figsize=(7, 5))
-
-        sc = ax.scatter(circ_var, clean_cos, c=clean_cos, cmap="RdYlGn", vmin=-1, vmax=1, s=18, alpha=0.6, edgecolors="none", zorder=2)
-
-        # correlation line
-        m, b = numpy.polyfit(circ_var, clean_cos, 1)
-        x_line = numpy.linspace(circ_var.min(), circ_var.max(), 100)
-        ax.plot(
-            x_line,
-            m * x_line + b,
-            color="black",
-            linewidth=1.5,
-            linestyle="--",
-            alpha=0.7,
-            zorder=3,
-            label=f"Linear fit (r={numpy.corrcoef(circ_var, clean_cos)[0,1]:.2f})",
-        )
-
-        ax.axhline(0, color="gray", linewidth=0.8, linestyle=":", alpha=0.5)
-
-        cbar = fig.colorbar(sc, ax=ax, fraction=0.03, pad=0.02)
-        cbar.set_label("Cosine similarity", fontsize=10)
-        cbar.ax.tick_params(labelsize=9)
-
-        ax.set_xlabel("Local directional variance (circular, original embedding space)", fontsize=11)
-        ax.set_ylabel("Cosine similarity (predicted vs Ground-Truth shift)", fontsize=11)
-        ax.set_title(f"{backend} - Approximation quality vs local shift consistency", fontsize=12)
-        ax.tick_params(labelsize=10)
-        ax.legend(fontsize=9)
-
-        plt.tight_layout()
-        plt.savefig(os.path.join(self.results_dir, "shift_field_cosine_overlay.png"), dpi=150, bbox_inches="tight")
-        plt.close()
-        print(f"Saved: shift_field_cosine_overlay.png")
-
-    def plot_shift_field_cosine_overlay(self, clean_embs, shift_bank, kmeans, backend, cosine_sims, external_knn_embs=None, external_knn_shifts=None):
         from umap import UMAP
         from sklearn.neighbors import NearestNeighbors
-        from matplotlib.lines import Line2D
         import matplotlib.pyplot as plt
 
         rep_embs = numpy.array([s[0] for s in shift_bank])

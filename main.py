@@ -9,8 +9,6 @@ import sys
 pennylane = "lightning.qubit"
 qiskit = "qiskit.aer"
 
-
-
 try:
     if __name__ == '__main__':
         parser = argparse.ArgumentParser()
@@ -25,7 +23,7 @@ try:
         params = ({
             "dataset": "fashionMNIST", # Dataset the run was trained on
             "epochs": 50, # number of epochs the model was trained on
-            "num_qubits": 6, # number of qubits in the circuit, width of the circuit # TODO try 11 no PCA
+            "num_qubits": 6, # number of qubits in the circuit, width of the circuit
             "PCA_dims": 64, # number of dimensions the data was reduced to
             "backend": pennylane, # backend the circuits were simulated on
             "sim": "statevector", # statevector / density_matrix

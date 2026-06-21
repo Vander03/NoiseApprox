@@ -163,7 +163,7 @@ class Triplet:
         noise_sim = AerSimulator(
             noise_model=noise_model,
             method="density_matrix",
-            seed_simulator=42, # seed the shots to minimise the effects of shot variance
+            seed_simulator=42,  # seed the shots to minimise the effects of shot variance
             max_parallel_threads=5,
             max_parallel_experiments=5,
             basis_gates=[
@@ -351,6 +351,7 @@ class Triplet:
 
     def generate_y_hats(self, y_hat, num_clusters):
         import itertools
+
         perms = list(itertools.permutations(range(num_clusters)))
         y_hats = []
         for perm in perms:
@@ -392,7 +393,7 @@ class Triplet:
         self.weights = weights
 
     def predict_noisy_clustering(self, x_train, y_train, x_test, y_test, noise_profile=None, variance=None):
-        """Predict the class of test samples under the effects of the provided noise profile"""
+        """Predict the class of test samples under the effects of noise"""
         test_profiles = self.noise_helper.load_calibration_data(noise_profile if noise_profile else self.holdout_profiles)
 
         train_labels = [int(l) for l in y_test]
@@ -425,7 +426,7 @@ class Triplet:
                     prof["csc"],
                 )
             else:
-                # holdout profiles — independent UMAP per profile
+                # independent UMAP per holdout profile
                 umap_noisy = umap.fit_transform(test_emb)
                 grid.add(f"Noisy: {short_name}", umap_noisy, y_test, gmm_noisy, prof["csc"])
 
@@ -545,9 +546,7 @@ class Triplet:
         run_info = {
             "config": {
                 **{k: v for k, v in self.params.items() if k not in ("noise_profiles", "holdout_profiles", "results")},
-                "noise_profiles": (
-                    list({p["filename"]: {"filename": p["filename"], "csc": p["csc"]} for p in self.np_train}.values()) if self.noise_train else []
-                ),
+                "noise_profiles": (list({p["filename"]: {"filename": p["filename"], "csc": p["csc"]} for p in self.np_train}.values()) if self.noise_train else []),
                 "holdout_profiles": self.holdout_profiles,
             },
             "results": self.params["results"],

@@ -90,7 +90,7 @@ def _process_run(run_path, force_condition=None):
 
 
 # ─────────────────────────────────────────────────────────────
-# SCAN — old dated structure: Results/YYYY-MM-DD/HH-MM-SS__*/
+# SCAN — old structure: Results/YYYY-MM-DD/HH-MM-SS__*/
 # ─────────────────────────────────────────────────────────────
 
 for date_dir in sorted(os.listdir(results_root)):
